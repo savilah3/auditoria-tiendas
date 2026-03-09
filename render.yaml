@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: auditoria-tiendas
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DASHBOARD_USER
+        value: admin
+      - key: DASHBOARD_PASS
+        value: walmart2025

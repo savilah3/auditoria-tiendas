@@ -1,4 +1,5 @@
 import io
+import os
 import secrets
 from typing import Annotated
 
@@ -15,9 +16,9 @@ templates = Jinja2Templates(directory="templates")
 security = HTTPBasic()
 
 # ─── Credenciales del dashboard ──────────────────────────────────────────────
-# Cámbialas antes de desplegar!
-DASHBOARD_USER = "admin"
-DASHBOARD_PASS = "walmart2025"
+# Se leen desde variables de entorno (configúralas en Render)
+DASHBOARD_USER = os.getenv("DASHBOARD_USER", "admin")
+DASHBOARD_PASS = os.getenv("DASHBOARD_PASS", "walmart2025")
 
 
 @app.on_event("startup")
