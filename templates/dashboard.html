@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - En los zapatos del cliente</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={theme:{extend:{colors:{walmart:{blue:'#0053e2',blueHover:'#0042b5',spark:'#ffc220',grayBg:'#f2f8fc',text:'#2e2f32'}}}}}</script>
+</head>
+<body class="bg-walmart-grayBg text-walmart-text font-sans min-h-screen">
+
+  <!-- Navbar -->
+  <nav class="bg-walmart-blue border-b-4 border-walmart-spark px-6 py-4 flex justify-between items-center">
+    <div>
+      <h1 class="text-white text-xl font-bold">Dashboard — En los zapatos del cliente</h1>
+      <p class="text-blue-200 text-xs mt-0.5">Resultados de evaluaciones en tienda</p>
+    </div>
+    <a href="/" target="_blank"
+      class="text-sm bg-walmart-spark text-gray-900 font-semibold px-4 py-2 rounded-lg hover:bg-yellow-400 transition">
+      Ver formulario ↗
+    </a>
+  </nav>
+
+  <main class="max-w-7xl mx-auto p-6 space-y-8">
+
+    <!-- Tarjetas de stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bg-white rounded-xl shadow p-5 border-t-4 border-walmart-blue">
+        <p class="text-sm text-gray-500">Total respuestas</p>
+        <p class="text-4xl font-bold text-walmart-blue mt-1">{{ stats.total }}</p>
+      </div>
+      {% for formato, cnt in stats.por_formato %}
+      <div class="bg-white rounded-xl shadow p-5 border-t-4 border-walmart-spark">
+        <p class="text-sm text-gray-500">{{ formato }}</p>
+        <p class="text-4xl font-bold text-gray-800 mt-1">{{ cnt }}</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Filtros y exportar -->
+    <div class="bg-white rounded-xl shadow p-5 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+      <form method="GET" action="/dashboard" class="flex gap-3 flex-wrap items-center">
+        <label class="text-sm font-medium text-gray-700">Filtrar por formato:</label>
+        <select name="formato" onchange="this.form.submit()"
+          class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-walmart-blue focus:border-walmart-blue bg-white">
+          <option value="" {% if not filtro %}selected{% endif %}>Todos</option>
+          {% for fmt in ["Lider", "Express", "SBA", "CM"] %}
+          <option value="{{ fmt }}" {% if filtro == fmt %}selected{% endif %}>{{ fmt }}</option>
+          {% endfor %}
+        </select>
+      </form>
+      <div class="flex gap-3">
+        <a href="/dashboard/export{% if filtro %}?formato={{ filtro }}{% endif %}"
+          class="bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition flex items-center gap-2">
+          ⬇ Exportar Excel
+        </a>
+      </div>
+    </div>
+
+    <!-- Tabla de respuestas -->
+    <div class="bg-white rounded-xl shadow overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+        <h2 class="font-semibold text-gray-800">Respuestas ({{ rows|length }})</h2>
+      </div>
+
+      {% if rows %}
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left">
+          <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
+            <tr>
+              <th class="px-4 py-3">Fecha</th>
+              <th class="px-4 py-3">Formato</th>
+              <th class="px-4 py-3">Local</th>
+              <th class="px-4 py-3">RUT</th>
+              <th class="px-4 py-3 text-center">Guardia</th>
+              <th class="px-4 py-3 text-center">Pasillos</th>
+              <th class="px-4 py-3 text-center">Resolutivo</th>
+              <th class="px-4 py-3 text-center">Amable</th>
+              <th class="px-4 py-3 text-center">Tipo caja</th>
+              <th class="px-4 py-3 text-center">PMC</th>
+              <th class="px-4 py-3 text-center">BCI</th>
+              <th class="px-4 py-3 text-center">Boleta mail</th>
+              <th class="px-4 py-3 text-center">Despedida</th>
+              <th class="px-4 py-3">Comentarios</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            {% for r in rows %}
+            <tr class="hover:bg-blue-50 transition">
+              <td class="px-4 py-3 whitespace-nowrap text-gray-500">{{ r['fecha'][:16] }}</td>
+              <td class="px-4 py-3 font-medium">{{ r['formato'] or '-' }}</td>
+              <td class="px-4 py-3 text-gray-600 max-w-xs truncate">{{ r['local'] or '-' }}</td>
+              <td class="px-4 py-3 text-gray-600">{{ r['rut'] or '-' }}</td>
+              {% set bool_cols = [
+                r['q4_guardia_saludo'], r['q5_pasillos_saludo'],
+                r['q6_colaborador_resolutivo'], r['q7_atencion_amable']
+              ] %}
+              {% for val in bool_cols %}
+              <td class="px-4 py-3 text-center">
+                {% if val == 'si' %}
+                  <span class="inline-block w-6 h-6 rounded-full bg-green-100 text-green-700 text-xs font-bold leading-6">✓</span>
+                {% elif val == 'no' %}
+                  <span class="inline-block w-6 h-6 rounded-full bg-red-100 text-red-600 text-xs font-bold leading-6">✗</span>
+                {% else %}
+                  <span class="text-gray-300">-</span>
+                {% endif %}
+              </td>
+              {% endfor %}
+              <td class="px-4 py-3 text-center">
+                {% if r['q8_cajero_tipo'] %}
+                  <span class="px-2 py-0.5 rounded-full text-xs font-semibold
+                    {% if r['q8_cajero_tipo'] == 'interno' %}bg-blue-100 text-blue-700{% else %}bg-orange-100 text-orange-700{% endif %}">
+                    {{ r['q8_cajero_tipo'] }}
+                  </span>
+                {% else %}-{% endif %}
+              </td>
+              {% set caja_cols = [
+                r['q10_pmc'], r['q11_lider_bci'],
+                r['q12_boleta_mail'], r['q13_despedida']
+              ] %}
+              {% for val in caja_cols %}
+              <td class="px-4 py-3 text-center">
+                {% if val == 'si' %}
+                  <span class="inline-block w-6 h-6 rounded-full bg-green-100 text-green-700 text-xs font-bold leading-6">✓</span>
+                {% elif val == 'no' %}
+                  <span class="inline-block w-6 h-6 rounded-full bg-red-100 text-red-600 text-xs font-bold leading-6">✗</span>
+                {% else %}
+                  <span class="text-gray-300">-</span>
+                {% endif %}
+              </td>
+              {% endfor %}
+              <td class="px-4 py-3 text-gray-500 max-w-xs">
+                <span class="truncate block max-w-[160px]" title="{{ r['q14_comentarios'] or '' }}">
+                  {{ r['q14_comentarios'] or '-' }}
+                </span>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="p-12 text-center text-gray-400">
+        <p class="text-5xl mb-4">📊</p>
+        <p class="font-medium">No hay respuestas aún.</p>
+        <p class="text-sm mt-1">Comparte el formulario con los colaboradores para empezar.</p>
+      </div>
+      {% endif %}
+    </div>
+  </main>
+</body>
+</html>

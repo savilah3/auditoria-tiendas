@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>En los zapatos del cliente - Walmart</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            walmart: {
+              blue: '#0053e2', blueHover: '#0042b5',
+              spark: '#ffc220', grayBg: '#f2f8fc', text: '#2e2f32'
+            }
+          }
+        }
+      }
+    }
+
+    const localesPorFormato = {
+      "Lider": ["3 - H - Suc. 003 Ñuñoa","32 - H - Suc. 032 Gran Avenida","37 - H - Suc. 037 Matucana","41 - H - Suc. 041 Huechuraba","44 - H - Suc. 044 Quilin","45 - H - Suc. 045 Vespucio Maipu","46 - H - Suc. 046 Avenida Central","48 - H - Suc. 048 Cordillera","49 - H - Suc. 049 Quilicura","54 - H - Suc. 054 Vicuña Mackenna","55 - H - Suc. 055 Macul","57 - H - Suc. 057 Buenaventura","62 - H - Suc. 062 Plaza Vespucio","66 - H - Suc. 066 Talagante","71 - H - Suc. 071 Vespucio Sur","72 - H - Suc. 072 Alameda","73 - H - Suc. 073 Puente Alto","75 - H - Suc. 075 Maipu","76 - H - Suc. 076 Departamental","77 - H - Suc. 077 Independencia","80 - H - Suc. 080 Los Morros","82 - H - Suc. 082 San Bernardo","83 - H - Suc. 083 Santa Amalia","85 - H - Suc. 085 Lonquen","86 - H - Suc. 086 Recoleta","87 - H - Suc. 087 Santa Rosa","88 - H - Suc. 088 Los Dominicos","95 - H - Suc. 095 La Reina","97 - H - Suc. 097 Puente Nuevo","137 - H - Suc. 137 San Pablo","182 - H - Suc. 182 Buin","607 - H - Suc. 607 Melipilla","616 - H - Suc. 616 Maipú 3 Poniente","620 - H - Suc. 620 Nos","626 - H - Suc. 626 Príncipe de Gales","671 - H - Suc. 671 Lo Marcoleta","682 - H - Suc. 682 San Joaquin","693 - H - Suc. 693 La Pintana","736 - H - Suc. 736 Peñaflor","739 - H - Suc 739 Midmall","748 - H - Suc. 748 Renca Miraflores","798 - H - Suc. 798 Lo Blanco","910 - H - Suc. 910 La Farfana"],
+      "Express": ["1 - E - Suc. 001 Plaza Lyon","2 - E - Suc. 002 Pedro de Valdivia","4 - E - Suc. 004 Vitacura","8 - E - Suc. 008 Colón","15 - E - Suc. 015 Estoril","16 - E - Suc. 016 La Dehesa","18 - E - Suc. 018 Manuel Montt","51 - E - Suc. 051 Tobalaba","52 - E - Suc. 052 Grecia","56 - E - Suc. 056 Gran Avenida","60 - E - Suc. 060 José María Caro","61 - E - Suc. 061 Maipú","65 - E - Suc. 065 Plaza Italia","74 - E - Suc. 074 Tomás Moro","139 - E - Suc. 139 Colina","140 - E - Suc. 140 Las Rejas","149 - E - Suc. 149 Colina","165 - E - Suc. 165 Irarraz/Plaz.Egañ","174 - E - Suc. 174 Isabel Riquelme","180 - E - Suc. 180 Irarrazaval","188 - E - Suc. 188 Isa. La Catolica","189 - E - Suc. 189 Salvador Ñuñoa","196 - E - Suc. 196 Jose Dgo. Cañas","201 - EKONO San Diego","203 - EKONO San Pablo y Esp.","204 - EKONO Provid. y Ant. Bellet","205 - EKONO Bandera","248 - E - Suc. 248 Arauco Quilicura","252 - E - Suc. 252 Calera de Tango","253 - E - Suc. 253 Algarrobal","276 - E - Suc. 276 Valle Grande","525 - E - Suc. 525 Laguna del Sol","603 - E - Suc. 603 Consistorial","610 - E - Suc. 610 Nonato Coo","611 - E - Suc. 611 Rojas Magallanes","613 - E - Suc. 613 Ciudad del Este","614 - E - Suc. 614 Larapinta","621 - E - Suc. 621 Merced","624 - E - Suc. 624 Plaza los Dominic","640 - E - Suc. 640 Diez de Julio","643 - E - Suc. 643 México","963 - E - Suc. 963 C. de los Valles"],
+      "SBA": ["7 - SBA - Paine","161 - SBA - Puente Alto","170 - SBA - Quilicura","171 - SBA - San Bernardo","179 - SBA - Maipu","186 - SBA - El Bosque","198 - SBA - Conchali","451 - SBA - Melipilla","490 - SBA - Isla De Maipo","503 - SBA - Gabriela","504 - SBA - Travesía","507 - SBA - Carrascal","511 - SBA - Independencia","512 - SBñaflor","529 - SBA - Lo Ovalle","533 - SBA - Carmen","535 - SBA - Ciudad Satélite","538 - SBA - Tobalaba 538","540 - SBA - Recoleta","541 - SBA - Jaime Guzmán","553 - SBA - Buin","579 - SBA - Lampa","580 - SBA - El Monte","622 - SBA - Quinta Normal","783 - SBA - Curacavi"],
+      "CM": ["159 - M - Suc. 159 Peñalolén","219 - M - Suc. 219 Dark Store","453 - M - Suc. 453 - Conchalí","939 - M - Suc. 939 Cerrillos","977 - M - Suc. 977 Pudahuel - San Pablo","990 - M - Suc. 990 Camino Melipilla"]
+    };
+
+    function updateLocales() {
+      const fmt = document.getElementById("formatoSelect").value;
+      const sel = document.getElementById("localSelect");
+      sel.innerHTML = '<option value="">Seleccione el local...</option>';
+      if (fmt && localesPorFormato[fmt]) {
+        sel.disabled = false;
+        localesPorFormato[fmt].forEach(l => {
+          const o = document.createElement("option");
+          o.value = l; o.textContent = l;
+          sel.appendChild(o);
+        });
+      } else {
+        sel.innerHTML = '<option value="">Primero seleccione un formato</option>';
+        sel.disabled = true;
+      }
+    }
+  </script>
+</head>
+<body class="bg-walmart-grayBg text-walmart-text p-4 md:p-8 font-sans pb-20">
+  <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+
+    <!-- Header -->
+    <div class="bg-walmart-blue p-6 text-white flex justify-between items-center border-b-4 border-walmart-spark">
+      <div>
+        <h1 class="text-2xl font-bold">En los zapatos del cliente</h1>
+        <p class="text-sm opacity-90 mt-1">Evaluación de Experiencia en Tienda</p>
+      </div>
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-walmart-spark" viewBox="0 0 20 20" fill="currentColor">
+        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+      </svg>
+    </div>
+
+    <form method="POST" action="/submit" class="p-6 md:p-8 space-y-8">
+
+      <!-- Intro -->
+      <div class="bg-blue-50 border-l-4 border-walmart-blue p-4 rounded-r-lg">
+        <div class="flex items-start">
+          <svg class="h-5 w-5 text-walmart-blue mt-0.5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+          </svg>
+          <div class="ml-3">
+            <h3 class="text-sm font-bold text-walmart-blue">¡Gracias por participar!</h3>
+            <div class="mt-2 text-sm text-gray-700 space-y-2">
+              <p>Tu apoyo es fundamental para mejorar la experiencia de nuestros clientes.</p>
+              <p>🕵️‍♂️ <strong>Recuerda:</strong> Pasa desapercibido y actúa como cliente regular.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Datos Iniciales -->
+      <section class="space-y-4">
+        <h2 class="text-xl font-semibold border-b pb-2 text-walmart-blue">Datos Iniciales</h2>
+        <div>
+          <label class="block text-sm font-medium mb-1">1. ¿En qué formato te encuentras? <span class="text-red-500">*</span></label>
+          <select name="formato" id="formatoSelect" required onchange="updateLocales()"
+            class="w-full border-gray-300 rounded-md shadow-sm p-3 border focus:ring-walmart-blue focus:border-walmart-blue bg-white">
+            <option value="">Seleccione formato...</option>
+            <option value="Lider">Lider</option>
+            <option value="Express">Express de Lider</option>
+            <option value="SBA">SuperBodega Acuenta (SBA)</option>
+            <option value="CM">Central Mayorista (CM)</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">2. ¿En qué local te encuentras? <span class="text-red-500">*</span></label>
+            <select name="local" id="localSelect" required disabled
+              class="w-full border-gray-300 rounded-md shadow-sm p-3 border focus:ring-walmart-blue focus:border-walmart-blue bg-white disabled:bg-gray-100 disabled:text-gray-400">
+              <option value="">Primero seleccione un formato</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">3. ¿Cuál es tu rut? <span class="text-red-500">*</span></label>
+            <input type="text" name="rut" required placeholder="12.345.678-9"
+              class="w-full border-gray-300 rounded-md shadow-sm p-3 border focus:ring-walmart-blue focus:border-walmart-blue">
+          </div>
+        </div>
+      </section>
+
+      <!-- General -->
+      <section class="space-y-6">
+        <h2 class="text-xl font-semibold border-b pb-2 text-walmart-blue">General</h2>
+        <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 space-y-5">
+          {% set preguntas_general = [
+            ("q4", "4. ¿El guardia aplicó regla de los 3 metros (Saludo)?"),
+            ("q5", "5. ¿Los colaboradores en los pasillos aplicaron la regla de los 3 metros?"),
+            ("q6", "6. Pregunta a un colaborador por un producto. ¿Fue resolutivo?"),
+            ("q7", "7. ¿Hubo atención amable durante toda tu experiencia?")
+          ] %}
+          {% for name, label in preguntas_general %}
+            <div>
+              <label class="block text-sm font-medium mb-2">{{ label }}</label>
+              <div class="flex space-x-6">
+                <label class="inline-flex items-center">
+                  <input type="radio" name="{{ name }}" value="si" class="w-5 h-5 text-walmart-blue focus:ring-walmart-blue border-gray-300">
+                  <span class="ml-2">Sí</span>
+                </label>
+                <label class="inline-flex items-center">
+                  <input type="radio" name="{{ name }}" value="no" class="w-5 h-5 text-walmart-blue focus:ring-walmart-blue border-gray-300">
+                  <span class="ml-2">No</span>
+                </label>
+              </div>
+            </div>
+            {% if not loop.last %}<hr class="border-gray-200">{% endif %}
+          {% endfor %}
+        </div>
+      </section>
+
+      <!-- Zona de Pago -->
+      <section class="space-y-6">
+        <div>
+          <h2 class="text-xl font-semibold border-b pb-2 text-walmart-blue">Zona de Pago</h2>
+          <p class="text-sm text-gray-500 mt-2 italic">Solo si realizas una compra en el local.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-4 rounded-lg border border-gray-100">
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium mb-2">8. ¿La persona en caja es colaborador externo o interno?</label>
+            <div class="flex space-x-6">
+              <label class="inline-flex items-center">
+                <input type="radio" name="q8" value="interno" class="w-5 h-5 text-walmart-blue border-gray-300">
+                <span class="ml-2">Interno</span>
+              </label>
+              <label class="inline-flex items-center">
+                <input type="radio" name="q8" value="externo" class="w-5 h-5 text-walmart-blue border-gray-300">
+                <span class="ml-2">Externo</span>
+              </label>
+            </div>
+          </div>
+          {% set preguntas_caja = [
+            ("q9",  "9. ¿El colaborador en caja aplicó la regla de los 3 metros?"),
+            ("q10", "10. ¿Solicitó tus datos para acumulación PMC?"),
+            ("q11", "11. ¿Preguntó si pagas con Lider BCI?"),
+            ("q12", "12. ¿Preguntó si deseas la boleta en tu mail?"),
+            ("q13", "13. ¿Se despidió amablemente?")
+          ] %}
+          {% for name, label in preguntas_caja %}
+            <div {% if name == "q13" %}class="md:col-span-2"{% endif %}>
+              <label class="block text-sm font-medium mb-2">{{ label }}</label>
+              <div class="flex space-x-6">
+                <label class="inline-flex items-center">
+                  <input type="radio" name="{{ name }}" value="si" class="w-5 h-5 text-walmart-blue border-gray-300">
+                  <span class="ml-2">Sí</span>
+                </label>
+                <label class="inline-flex items-center">
+                  <input type="radio" name="{{ name }}" value="no" class="w-5 h-5 text-walmart-blue border-gray-300">
+                  <span class="ml-2">No</span>
+                </label>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+
+      <!-- Comentarios -->
+      <section class="space-y-4">
+        <h2 class="text-xl font-semibold border-b pb-2 text-walmart-blue">Comentarios Finales</h2>
+        <div>
+          <label class="block text-sm font-medium mb-2">14. ¿Algún otro aspecto que quieras levantar?</label>
+          <textarea name="q14" rows="4" placeholder="Escribe aquí tus observaciones..."
+            class="w-full border-gray-300 rounded-md shadow-sm p-3 border focus:ring-walmart-blue focus:border-walmart-blue"></textarea>
+        </div>
+      </section>
+
+      <div class="pt-4">
+        <button type="submit"
+          class="w-full bg-walmart-blue hover:bg-walmart-blueHover text-white font-bold py-4 px-4 rounded-xl transition duration-200 shadow-md text-lg">
+          Enviar Evaluación
+        </button>
+      </div>
+    </form>
+  </div>
+</body>
+</html>
