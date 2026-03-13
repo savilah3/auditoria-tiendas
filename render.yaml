@@ -10,4 +10,4 @@ services:
       - key: DASHBOARD_PASS
         value: walmart2025
       - key: DATABASE_URL
-        sync: false  # Configurar manualmente en Render con el connection string de Supabase
+        value: postgresql://postgres:VHoJpMGSS1HPNGBA@db.rymblmsbzjtqklwekgiq.supabase.co:5432/postgres
