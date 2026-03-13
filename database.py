@@ -1,9 +1,8 @@
 import os
-import psycopg2
-import psycopg2.extras
+import psycopg
+import psycopg.rows
 from datetime import datetime
 
-# En Render esto viene como variable de entorno
 DATABASE_URL = os.getenv("DATABASE_URL", "")
 
 CREATE_TABLE = """
@@ -29,24 +28,23 @@ CREATE TABLE IF NOT EXISTS respuestas (
 
 
 def get_conn():
-    return psycopg2.connect(
+    return psycopg.connect(
         DATABASE_URL,
-        cursor_factory=psycopg2.extras.RealDictCursor,
+        row_factory=psycopg.rows.dict_row,
         sslmode="require",
     )
 
 
 def init_db() -> None:
     with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute(CREATE_TABLE)
-            # Migracion: renombrar 'rut' a 'usuario' si existe
-            cur.execute("""
-                SELECT column_name FROM information_schema.columns
-                WHERE table_name = 'respuestas' AND column_name = 'rut'
-            """)
-            if cur.fetchone():
-                cur.execute("ALTER TABLE respuestas RENAME COLUMN rut TO usuario")
+        conn.execute(CREATE_TABLE)
+        # Migracion: renombrar 'rut' a 'usuario' si existe
+        row = conn.execute("""
+            SELECT column_name FROM information_schema.columns
+            WHERE table_name = 'respuestas' AND column_name = 'rut'
+        """).fetchone()
+        if row:
+            conn.execute("ALTER TABLE respuestas RENAME COLUMN rut TO usuario")
         conn.commit()
 
 
@@ -68,35 +66,34 @@ def insertar_respuesta(data: dict) -> None:
     )
     """
     with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute(sql, data)
+        conn.execute(sql, data)
         conn.commit()
 
 
 def obtener_todas() -> list:
     with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute("SELECT * FROM respuestas ORDER BY fecha DESC")
-            return cur.fetchall()
+        return conn.execute(
+            "SELECT * FROM respuestas ORDER BY fecha DESC"
+        ).fetchall()
 
 
 def eliminar_respuesta(row_id: int) -> bool:
-    """Elimina una respuesta por ID. Retorna True si se borró."""
     with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute("DELETE FROM respuestas WHERE id = %s", (row_id,))
-            deleted = cur.rowcount > 0
+        cur = conn.execute("DELETE FROM respuestas WHERE id = %s", (row_id,))
+        deleted = cur.rowcount > 0
         conn.commit()
     return deleted
 
 
 def obtener_stats() -> dict:
     with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute("SELECT COUNT(*) as total FROM respuestas")
-            total = cur.fetchone()["total"]
-            cur.execute(
+        total = conn.execute(
+            "SELECT COUNT(*) as total FROM respuestas"
+        ).fetchone()["total"]
+        por_formato = [
+            (r["formato"], r["cnt"])
+            for r in conn.execute(
                 "SELECT formato, COUNT(*) as cnt FROM respuestas GROUP BY formato"
-            )
-            por_formato = [(r["formato"], r["cnt"]) for r in cur.fetchall()]
+            ).fetchall()
+        ]
     return {"total": total, "por_formato": por_formato}
