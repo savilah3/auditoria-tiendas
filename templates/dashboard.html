@@ -71,7 +71,7 @@
               <th class="px-4 py-3">Fecha</th>
               <th class="px-4 py-3">Formato</th>
               <th class="px-4 py-3">Local</th>
-              <th class="px-4 py-3">RUT</th>
+              <th class="px-4 py-3">Usuario</th>
               <th class="px-4 py-3 text-center">Guardia</th>
               <th class="px-4 py-3 text-center">Pasillos</th>
               <th class="px-4 py-3 text-center">Resolutivo</th>
@@ -91,7 +91,7 @@
               <td class="px-4 py-3 whitespace-nowrap text-gray-500">{{ r['fecha'][:16] }}</td>
               <td class="px-4 py-3 font-medium">{{ r['formato'] or '-' }}</td>
               <td class="px-4 py-3 text-gray-600 max-w-xs truncate">{{ r['local'] or '-' }}</td>
-              <td class="px-4 py-3 text-gray-600">{{ r['rut'] or '-' }}</td>
+              <td class="px-4 py-3 text-gray-600">{{ r['usuario'] or '-' }}</td>
               {% set bool_cols = [
                 r['q4_guardia_saludo'], r['q5_pasillos_saludo'],
                 r['q6_colaborador_resolutivo'], r['q7_atencion_amable']

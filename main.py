@@ -51,7 +51,7 @@ def mostrar_formulario(request: Request):
 def recibir_respuesta(
     formato: Annotated[str, Form()] = "",
     local: Annotated[str, Form()] = "",
-    rut: Annotated[str, Form()] = "",
+    usuario: Annotated[str, Form()] = "",
     q4: Annotated[str, Form()] = "",
     q5: Annotated[str, Form()] = "",
     q6: Annotated[str, Form()] = "",
@@ -67,7 +67,7 @@ def recibir_respuesta(
     insertar_respuesta({
         "formato": formato,
         "local": local,
-        "rut": rut,
+        "usuario": usuario,
         "q4_guardia_saludo": q4,
         "q5_pasillos_saludo": q5,
         "q6_colaborador_resolutivo": q6,
@@ -129,7 +129,7 @@ def exportar_excel(
     ws.title = "Respuestas"
 
     headers = [
-        "ID", "Fecha", "Formato", "Local", "RUT",
+        "ID", "Fecha", "Formato", "Local", "Usuario",
         "Guardia Saludo", "Pasillos Saludo", "Colaborador Resolutivo",
         "Atención Amable", "Cajero Tipo", "Cajero Saludo",
         "PMC", "Lider BCI", "Boleta Mail", "Despedida", "Comentarios",

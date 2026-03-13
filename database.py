@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS respuestas (
     fecha TEXT NOT NULL,
     formato TEXT,
     local TEXT,
-    rut TEXT,
+    usuario TEXT,
     q4_guardia_saludo TEXT,
     q5_pasillos_saludo TEXT,
     q6_colaborador_resolutivo TEXT,
@@ -40,6 +40,13 @@ def init_db() -> None:
     with get_conn() as conn:
         with conn.cursor() as cur:
             cur.execute(CREATE_TABLE)
+            # Migracion: renombrar 'rut' a 'usuario' si existe
+            cur.execute("""
+                SELECT column_name FROM information_schema.columns
+                WHERE table_name = 'respuestas' AND column_name = 'rut'
+            """)
+            if cur.fetchone():
+                cur.execute("ALTER TABLE respuestas RENAME COLUMN rut TO usuario")
         conn.commit()
 
 
@@ -47,13 +54,13 @@ def insertar_respuesta(data: dict) -> None:
     data["fecha"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     sql = """
     INSERT INTO respuestas (
-        fecha, formato, local, rut,
+        fecha, formato, local, usuario,
         q4_guardia_saludo, q5_pasillos_saludo, q6_colaborador_resolutivo,
         q7_atencion_amable, q8_cajero_tipo, q9_cajero_saludo,
         q10_pmc, q11_lider_bci, q12_boleta_mail, q13_despedida,
         q14_comentarios
     ) VALUES (
-        %(fecha)s, %(formato)s, %(local)s, %(rut)s,
+        %(fecha)s, %(formato)s, %(local)s, %(usuario)s,
         %(q4_guardia_saludo)s, %(q5_pasillos_saludo)s, %(q6_colaborador_resolutivo)s,
         %(q7_atencion_amable)s, %(q8_cajero_tipo)s, %(q9_cajero_saludo)s,
         %(q10_pmc)s, %(q11_lider_bci)s, %(q12_boleta_mail)s, %(q13_despedida)s,
