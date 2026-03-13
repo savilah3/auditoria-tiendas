@@ -82,6 +82,7 @@
               <th class="px-4 py-3 text-center">Boleta mail</th>
               <th class="px-4 py-3 text-center">Despedida</th>
               <th class="px-4 py-3">Comentarios</th>
+              <th class="px-4 py-3 text-center">Acciones</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100">
@@ -133,6 +134,17 @@
                 <span class="truncate block max-w-[160px]" title="{{ r['q14_comentarios'] or '' }}">
                   {{ r['q14_comentarios'] or '-' }}
                 </span>
+              </td>
+              <td class="px-4 py-3 text-center">
+                <form method="POST" action="/dashboard/delete/{{ r['id'] }}"
+                  onsubmit="return confirm('¿Eliminar registro #{{ r['id'] }} de {{ r['local'] or 'sin local' }}?')">
+                  <button type="submit"
+                    class="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-red-600 bg-red-50 
+                           hover:bg-red-100 rounded-md transition border border-red-200"
+                    title="Eliminar registro">
+                    🗑️ Eliminar
+                  </button>
+                </form>
               </td>
             </tr>
             {% endfor %}

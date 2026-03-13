@@ -73,6 +73,16 @@ def obtener_todas() -> list:
             return cur.fetchall()
 
 
+def eliminar_respuesta(row_id: int) -> bool:
+    """Elimina una respuesta por ID. Retorna True si se borró."""
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM respuestas WHERE id = %s", (row_id,))
+            deleted = cur.rowcount > 0
+        conn.commit()
+    return deleted
+
+
 def obtener_stats() -> dict:
     with get_conn() as conn:
         with conn.cursor() as cur:

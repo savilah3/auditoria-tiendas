@@ -9,7 +9,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.templating import Jinja2Templates
 
-from database import init_db, insertar_respuesta, obtener_stats, obtener_todas
+from database import eliminar_respuesta, init_db, insertar_respuesta, obtener_stats, obtener_todas
 
 app = FastAPI(title="En los zapatos del cliente")
 templates = Jinja2Templates(directory="templates")
@@ -103,6 +103,16 @@ def dashboard(
         "dashboard.html",
         {"request": request, "rows": rows, "stats": stats, "filtro": formato},
     )
+
+
+@app.post("/dashboard/delete/{row_id}")
+def eliminar(
+    row_id: int,
+    _: Annotated[str, Depends(verificar_credenciales)],
+):
+    """Elimina una respuesta por ID y redirige al dashboard."""
+    eliminar_respuesta(row_id)
+    return RedirectResponse(url="/dashboard", status_code=303)
 
 
 @app.get("/dashboard/export")
