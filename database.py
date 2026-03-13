@@ -29,7 +29,11 @@ CREATE TABLE IF NOT EXISTS respuestas (
 
 
 def get_conn():
-    return psycopg2.connect(DATABASE_URL, cursor_factory=psycopg2.extras.RealDictCursor)
+    return psycopg2.connect(
+        DATABASE_URL,
+        cursor_factory=psycopg2.extras.RealDictCursor,
+        sslmode="require",
+    )
 
 
 def init_db() -> None:
