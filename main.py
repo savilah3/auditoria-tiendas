@@ -1,7 +1,8 @@
 import io
+import json
 import os
 import secrets
-from typing import Annotated
+from typing import Annotated, List
 
 import openpyxl
 from fastapi import Depends, FastAPI, Form, HTTPException, Request, status
@@ -9,14 +10,21 @@ from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.templating import Jinja2Templates
 
-from database import eliminar_respuesta, init_db, insertar_respuesta, obtener_stats, obtener_todas
+from database import (
+    eliminar_respuesta,
+    init_db,
+    insertar_entrevistas,
+    insertar_respuesta,
+    obtener_entrevistas,
+    obtener_stats,
+    obtener_todas,
+)
 
 app = FastAPI(title="En los zapatos del cliente")
 templates = Jinja2Templates(directory="templates")
 security = HTTPBasic()
 
-# ─── Credenciales del dashboard ──────────────────────────────────────────────
-# Se leen desde variables de entorno (configúralas en Render)
+# Credenciales del dashboard (configurar en Render como env vars)
 DASHBOARD_USER = os.getenv("DASHBOARD_USER", "admin")
 DASHBOARD_PASS = os.getenv("DASHBOARD_PASS", "walmart2025")
 
@@ -26,7 +34,7 @@ def on_startup() -> None:
     init_db()
 
 
-# ─── Autenticación básica para el dashboard ──────────────────────────────────
+# --- Autenticacion basica para el dashboard ---
 def verificar_credenciales(
     credentials: Annotated[HTTPBasicCredentials, Depends(security)],
 ) -> str:
@@ -41,7 +49,7 @@ def verificar_credenciales(
     return credentials.username
 
 
-# ─── Formulario público ───────────────────────────────────────────────────────
+# --- Formulario publico ---
 @app.get("/", response_class=HTMLResponse)
 def mostrar_formulario(request: Request):
     return templates.TemplateResponse("form.html", {"request": request})
@@ -62,9 +70,13 @@ def recibir_respuesta(
     q11: Annotated[str, Form()] = "",
     q12: Annotated[str, Form()] = "",
     q13: Annotated[str, Form()] = "",
-    q14: Annotated[str, Form()] = "",
+    q17: Annotated[str, Form()] = "",
+    # Entrevistas a clientes (JSON array)
+    entrevistas_json: Annotated[str, Form()] = "[]",
 ):
-    insertar_respuesta({
+    """Recibe el formulario completo con entrevistas a clientes."""
+    # Insertar respuesta principal
+    respuesta_id = insertar_respuesta({
         "formato": formato,
         "local": local,
         "usuario": usuario,
@@ -78,8 +90,17 @@ def recibir_respuesta(
         "q11_lider_bci": q11,
         "q12_boleta_mail": q12,
         "q13_despedida": q13,
-        "q14_comentarios": q14,
+        "q17_comentarios": q17,
     })
+    
+    # Insertar entrevistas a clientes
+    try:
+        entrevistas = json.loads(entrevistas_json)
+        if isinstance(entrevistas, list):
+            insertar_entrevistas(respuesta_id, entrevistas)
+    except json.JSONDecodeError:
+        pass  # Si falla el JSON, continuar sin entrevistas
+    
     return RedirectResponse(url="/gracias", status_code=303)
 
 
@@ -88,7 +109,7 @@ def gracias(request: Request):
     return templates.TemplateResponse("gracias.html", {"request": request})
 
 
-# ─── Dashboard (protegido) ────────────────────────────────────────────────────
+# --- Dashboard (protegido) ---
 @app.get("/dashboard", response_class=HTMLResponse)
 def dashboard(
     request: Request,
@@ -98,10 +119,22 @@ def dashboard(
     rows = obtener_todas()
     if formato:
         rows = [r for r in rows if r["formato"] == formato]
+    
+    # Agregar entrevistas a cada row
+    rows_con_entrevistas = []
+    for row in rows:
+        entrevistas = obtener_entrevistas(row["id"])
+        rows_con_entrevistas.append({**row, "entrevistas": entrevistas})
+    
     stats = obtener_stats()
     return templates.TemplateResponse(
         "dashboard.html",
-        {"request": request, "rows": rows, "stats": stats, "filtro": formato},
+        {
+            "request": request,
+            "rows": rows_con_entrevistas,
+            "stats": stats,
+            "filtro": formato,
+        },
     )
 
 
@@ -120,23 +153,46 @@ def exportar_excel(
     _: Annotated[str, Depends(verificar_credenciales)],
     formato: str = "",
 ):
+    """Exporta las respuestas y entrevistas a Excel."""
     rows = obtener_todas()
     if formato:
         rows = [r for r in rows if r["formato"] == formato]
 
     wb = openpyxl.Workbook()
-    ws = wb.active
-    ws.title = "Respuestas"
-
-    headers = [
+    
+    # Hoja 1: Respuestas principales
+    ws1 = wb.active
+    ws1.title = "Respuestas"
+    headers1 = [
         "ID", "Fecha", "Formato", "Local", "Usuario",
         "Guardia Saludo", "Pasillos Saludo", "Colaborador Resolutivo",
-        "Atención Amable", "Cajero Tipo", "Cajero Saludo",
+        "Atencion Amable", "Cajero Tipo", "Cajero Saludo",
         "PMC", "Lider BCI", "Boleta Mail", "Despedida", "Comentarios",
     ]
-    ws.append(headers)
+    ws1.append(headers1)
     for r in rows:
-        ws.append(list(r))
+        ws1.append([
+            r["id"], r["fecha"], r["formato"], r["local"], r["usuario"],
+            r["q4_guardia_saludo"], r["q5_pasillos_saludo"], r["q6_colaborador_resolutivo"],
+            r["q7_atencion_amable"], r["q8_cajero_tipo"], r["q9_cajero_saludo"],
+            r["q10_pmc"], r["q11_lider_bci"], r["q12_boleta_mail"], r["q13_despedida"],
+            r.get("q17_comentarios", ""),
+        ])
+    
+    # Hoja 2: Entrevistas a clientes
+    ws2 = wb.create_sheet(title="Entrevistas Clientes")
+    headers2 = [
+        "Respuesta ID", "Formato", "Local", "# Cliente",
+        "Motivo Visita", "Aspectos Positivos", "Oportunidades Mejora",
+    ]
+    ws2.append(headers2)
+    for r in rows:
+        entrevistas = obtener_entrevistas(r["id"])
+        for e in entrevistas:
+            ws2.append([
+                r["id"], r["formato"], r["local"], e["numero_cliente"],
+                e["q14_motivo_visita"], e["q15_aspectos_positivos"], e["q16_oportunidades_mejora"],
+            ])
 
     stream = io.BytesIO()
     wb.save(stream)
