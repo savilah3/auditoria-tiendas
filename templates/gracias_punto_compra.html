@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Gracias! - Experiencia Punto de Compra</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        walmart: {
+                            blue: '#0071ce',
+                            darkblue: '#0053e2',
+                            spark: '#ffc220',
+                            green: '#2a8703'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <header class="bg-walmart-darkblue text-white p-4 shadow-md">
+        <div class="max-w-lg mx-auto flex items-center justify-between">
+            <div>
+                <h1 class="text-xl font-bold">Experiencia Punto de Compra</h1>
+                <p class="text-sm text-walmart-spark font-medium">En los zapatos del cliente - Líderes</p>
+            </div>
+            <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-walmart-spark" viewBox="0 0 100 100" fill="currentColor">
+                    <path d="M50,4 C53,4 56,6 56,9 L56,33 C56,36 53,39 50,39 C47,39 44,36 44,33 L44,9 C44,6 47,4 50,4 Z M50,96 C47,96 44,94 44,91 L44,67 C44,64 47,61 50,61 C53,61 56,64 56,67 L56,91 C56,94 53,96 50,96 Z M89,27 C91,30 90,34 87,36 L66,48 C63,50 60,49 58,46 C56,43 57,39 60,37 L81,25 C84,23 88,24 89,27 Z M11,73 C9,70 10,66 13,64 L34,52 C37,50 40,51 42,54 C44,57 43,61 40,63 L19,75 C16,77 12,76 11,73 Z M11,27 C12,24 16,23 19,25 L40,37 C43,39 44,43 42,46 C40,49 37,50 34,48 L13,36 C10,34 9,30 11,27 Z M89,73 C88,76 84,77 81,75 L60,63 C57,61 56,57 58,54 C60,51 63,50 66,52 L87,64 C90,66 91,70 89,73 Z" />
+                </svg>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow p-4 max-w-lg mx-auto w-full flex flex-col justify-center items-center">
+        <div class="bg-white rounded-xl shadow-lg p-8 text-center border-t-4 border-walmart-green">
+            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-12 h-12 text-walmart-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">¡Evaluación enviada!</h2>
+            <p class="text-gray-600 mb-6">Gracias por ponerte <strong>en los zapatos del cliente</strong> 👟</p>
+            <p class="text-sm text-gray-500 mb-8">Tu feedback es muy valioso para mejorar la experiencia de compra.</p>
+            <a href="/punto-compra" class="inline-block bg-walmart-darkblue hover:bg-blue-800 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-transform active:scale-95">
+                Nueva Evaluación
+            </a>
+        </div>
+    </main>
+</body>
+</html>

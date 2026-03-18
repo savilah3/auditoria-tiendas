@@ -40,6 +40,37 @@ CREATE TABLE IF NOT EXISTS entrevistas_clientes (
 );
 """
 
+# Tabla para auditoría de Punto de Compra
+CREATE_TABLE_PUNTO_COMPRA = """
+CREATE TABLE IF NOT EXISTS punto_compra (
+    id SERIAL PRIMARY KEY,
+    fecha TEXT NOT NULL,
+    nombre TEXT,
+    tienda TEXT,
+    -- Step 1: Encuentra el sector
+    s1_encontrar_sector TEXT,
+    s1_encontrar_punto TEXT,
+    s1_observaciones TEXT,
+    -- Step 2: Vitrinear
+    s2_vitrinear TEXT,
+    s2_comparar TEXT,
+    s2_autonomo TEXT,
+    s2_observaciones TEXT,
+    -- Step 3: Selección
+    s3_agregar_carro TEXT,
+    s3_crear_usuario TEXT,
+    s3_despacho_retiro TEXT,
+    s3_observaciones TEXT,
+    -- Step 4: Pago
+    s4_medio_pago TEXT,
+    s4_proceso_pago TEXT,
+    s4_pan_caja TEXT,
+    s4_observaciones TEXT,
+    -- Step 5: Espera
+    s5_observaciones TEXT
+);
+"""
+
 
 def get_conn():
     return psycopg.connect(
@@ -55,6 +86,7 @@ def init_db() -> None:
         # Crear tablas
         conn.execute(CREATE_TABLE_RESPUESTAS)
         conn.execute(CREATE_TABLE_ENTREVISTAS)
+        conn.execute(CREATE_TABLE_PUNTO_COMPRA)
         
         # Migracion: renombrar 'rut' a 'usuario' si existe
         row = conn.execute("""
@@ -196,8 +228,59 @@ def obtener_stats() -> dict:
             "SELECT COUNT(*) as total FROM entrevistas_clientes"
         ).fetchone()["total"]
         
+        total_punto_compra = conn.execute(
+            "SELECT COUNT(*) as total FROM punto_compra"
+        ).fetchone()["total"]
+        
     return {
         "total": total,
         "por_formato": por_formato,
         "total_entrevistas": total_entrevistas,
+        "total_punto_compra": total_punto_compra,
     }
+
+
+# ============ Funciones para Punto de Compra ============
+
+def insertar_punto_compra(data: dict) -> int:
+    """Inserta una evaluación de punto de compra y retorna el ID."""
+    data["fecha"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    sql = """
+    INSERT INTO punto_compra (
+        fecha, nombre, tienda,
+        s1_encontrar_sector, s1_encontrar_punto, s1_observaciones,
+        s2_vitrinear, s2_comparar, s2_autonomo, s2_observaciones,
+        s3_agregar_carro, s3_crear_usuario, s3_despacho_retiro, s3_observaciones,
+        s4_medio_pago, s4_proceso_pago, s4_pan_caja, s4_observaciones,
+        s5_observaciones
+    ) VALUES (
+        %(fecha)s, %(nombre)s, %(tienda)s,
+        %(s1_encontrar_sector)s, %(s1_encontrar_punto)s, %(s1_observaciones)s,
+        %(s2_vitrinear)s, %(s2_comparar)s, %(s2_autonomo)s, %(s2_observaciones)s,
+        %(s3_agregar_carro)s, %(s3_crear_usuario)s, %(s3_despacho_retiro)s, %(s3_observaciones)s,
+        %(s4_medio_pago)s, %(s4_proceso_pago)s, %(s4_pan_caja)s, %(s4_observaciones)s,
+        %(s5_observaciones)s
+    )
+    RETURNING id
+    """
+    with get_conn() as conn:
+        result = conn.execute(sql, data).fetchone()
+        conn.commit()
+        return result["id"]
+
+
+def obtener_todas_punto_compra() -> List[Dict[str, Any]]:
+    """Obtiene todas las evaluaciones de punto de compra."""
+    with get_conn() as conn:
+        return conn.execute(
+            "SELECT * FROM punto_compra ORDER BY fecha DESC"
+        ).fetchall()
+
+
+def eliminar_punto_compra(row_id: int) -> bool:
+    """Elimina una evaluación de punto de compra."""
+    with get_conn() as conn:
+        cur = conn.execute("DELETE FROM punto_compra WHERE id = %s", (row_id,))
+        deleted = cur.rowcount > 0
+        conn.commit()
+    return deleted

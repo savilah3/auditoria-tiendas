@@ -18,6 +18,9 @@ from database import (
     obtener_entrevistas,
     obtener_stats,
     obtener_todas,
+    insertar_punto_compra,
+    obtener_todas_punto_compra,
+    eliminar_punto_compra,
 )
 
 app = FastAPI(title="En los zapatos del cliente")
@@ -113,6 +116,68 @@ def gracias(request: Request):
 def csat_seguridad(request: Request):
     """Reporte CSAT Seguridad YTD 2026."""
     return templates.TemplateResponse("csat_seguridad.html", {"request": request})
+
+
+# --- Formulario Punto de Compra ---
+@app.get("/punto-compra", response_class=HTMLResponse)
+def mostrar_punto_compra(request: Request):
+    """Formulario de evaluación Punto de Compra."""
+    return templates.TemplateResponse("punto_compra.html", {"request": request})
+
+
+@app.post("/submit-punto-compra")
+def recibir_punto_compra(
+    nombre: Annotated[str, Form()] = "",
+    tienda: Annotated[str, Form()] = "",
+    # Step 1
+    s1_i1: Annotated[str, Form()] = "",
+    s1_i2: Annotated[str, Form()] = "",
+    s1_obs: Annotated[str, Form()] = "",
+    # Step 2
+    s2_i1: Annotated[str, Form()] = "",
+    s2_i2: Annotated[str, Form()] = "",
+    s2_i3: Annotated[str, Form()] = "",
+    s2_obs: Annotated[str, Form()] = "",
+    # Step 3
+    s3_i1: Annotated[str, Form()] = "",
+    s3_i4: Annotated[str, Form()] = "",
+    s3_i3: Annotated[str, Form()] = "",
+    s3_obs: Annotated[str, Form()] = "",
+    # Step 4
+    s4_i1: Annotated[str, Form()] = "",
+    s4_i2: Annotated[str, Form()] = "",
+    s4_i3: Annotated[str, Form()] = "",
+    s4_obs: Annotated[str, Form()] = "",
+    # Step 5
+    s5_obs: Annotated[str, Form()] = "",
+):
+    """Recibe la evaluación de punto de compra."""
+    insertar_punto_compra({
+        "nombre": nombre,
+        "tienda": tienda,
+        "s1_encontrar_sector": s1_i1,
+        "s1_encontrar_punto": s1_i2,
+        "s1_observaciones": s1_obs,
+        "s2_vitrinear": s2_i1,
+        "s2_comparar": s2_i2,
+        "s2_autonomo": s2_i3,
+        "s2_observaciones": s2_obs,
+        "s3_agregar_carro": s3_i1,
+        "s3_crear_usuario": s3_i4,
+        "s3_despacho_retiro": s3_i3,
+        "s3_observaciones": s3_obs,
+        "s4_medio_pago": s4_i1,
+        "s4_proceso_pago": s4_i2,
+        "s4_pan_caja": s4_i3,
+        "s4_observaciones": s4_obs,
+        "s5_observaciones": s5_obs,
+    })
+    return RedirectResponse(url="/gracias-punto-compra", status_code=303)
+
+
+@app.get("/gracias-punto-compra", response_class=HTMLResponse)
+def gracias_punto_compra(request: Request):
+    return templates.TemplateResponse("gracias_punto_compra.html", {"request": request})
 
 
 # --- Dashboard (protegido) ---
