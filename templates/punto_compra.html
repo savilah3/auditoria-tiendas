@@ -72,7 +72,7 @@
                     <label class="block text-sm font-bold text-gray-700 mb-1">Número o Nombre de Tienda</label>
                     <input type="text" id="input-tienda" name="tienda" placeholder="Ej: 72" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-walmart-darkblue focus:border-walmart-darkblue outline-none transition-colors shadow-sm">
                 </div>
-                <button onclick="startJourney()" class="w-full bg-walmart-darkblue hover:bg-blue-800 text-white font-bold py-3 rounded-lg shadow-md transition-transform active:scale-95 text-lg mt-4">
+                <button type="button" onclick="startJourney()" class="w-full bg-walmart-darkblue hover:bg-blue-800 text-white font-bold py-3 rounded-lg shadow-md transition-transform active:scale-95 text-lg mt-4">
                     Comenzar
                 </button>
             </div>
@@ -339,10 +339,10 @@
         </div>
 
         <div id="nav-controls" class="hidden flex gap-3 mt-6">
-            <button onclick="prevStep()" class="flex-1 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-bold py-3 rounded-lg shadow-sm transition-transform active:scale-95 text-sm">
+            <button type="button" onclick="prevStep()" class="flex-1 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-bold py-3 rounded-lg shadow-sm transition-transform active:scale-95 text-sm">
                 Volver
             </button>
-            <button id="next-btn" onclick="nextStep()" class="flex-1 bg-walmart-darkblue hover:bg-blue-800 text-white font-bold py-3 rounded-lg shadow-md transition-transform active:scale-95 text-sm">
+            <button type="button" id="next-btn" onclick="nextStep()" class="flex-1 bg-walmart-darkblue hover:bg-blue-800 text-white font-bold py-3 rounded-lg shadow-md transition-transform active:scale-95 text-sm">
                 Siguiente
             </button>
         </div>
