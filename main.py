@@ -109,6 +109,12 @@ def gracias(request: Request):
     return templates.TemplateResponse("gracias.html", {"request": request})
 
 
+@app.get("/csat-seguridad", response_class=HTMLResponse)
+def csat_seguridad(request: Request):
+    """Reporte CSAT Seguridad YTD 2026."""
+    return templates.TemplateResponse("csat_seguridad.html", {"request": request})
+
+
 # --- Dashboard (protegido) ---
 @app.get("/dashboard", response_class=HTMLResponse)
 def dashboard(
