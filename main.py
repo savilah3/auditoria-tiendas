@@ -186,6 +186,7 @@ def dashboard(
     request: Request,
     _: Annotated[str, Depends(verificar_credenciales)],
     formato: str = "",
+    tab: str = "auditoria",
 ):
     rows = obtener_todas()
     if formato:
@@ -197,14 +198,19 @@ def dashboard(
         entrevistas = obtener_entrevistas(row["id"])
         rows_con_entrevistas.append({**row, "entrevistas": entrevistas})
     
+    # Obtener datos de punto de compra
+    punto_compra_rows = obtener_todas_punto_compra()
+    
     stats = obtener_stats()
     return templates.TemplateResponse(
         "dashboard.html",
         {
             "request": request,
             "rows": rows_con_entrevistas,
+            "punto_compra_rows": punto_compra_rows,
             "stats": stats,
             "filtro": formato,
+            "tab": tab,
         },
     )
 
@@ -217,6 +223,16 @@ def eliminar(
     """Elimina una respuesta por ID y redirige al dashboard."""
     eliminar_respuesta(row_id)
     return RedirectResponse(url="/dashboard", status_code=303)
+
+
+@app.post("/dashboard/delete-punto-compra/{row_id}")
+def eliminar_pc(
+    row_id: int,
+    _: Annotated[str, Depends(verificar_credenciales)],
+):
+    """Elimina una evaluación de punto de compra."""
+    eliminar_punto_compra(row_id)
+    return RedirectResponse(url="/dashboard?tab=punto-compra", status_code=303)
 
 
 @app.get("/dashboard/export")

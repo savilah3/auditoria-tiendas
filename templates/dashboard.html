@@ -41,14 +41,18 @@
 
         <!-- Stats -->
         <div class="bg-white p-4 border-b shadow-sm">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
                 <div class="text-center">
                     <div class="text-3xl font-bold text-walmart-blue">{{ stats.total }}</div>
-                    <div class="text-sm text-gray-600">Total Respuestas</div>
+                    <div class="text-sm text-gray-600">Auditorías Tienda</div>
                 </div>
                 <div class="text-center">
                     <div class="text-3xl font-bold text-green-600">{{ stats.total_entrevistas }}</div>
                     <div class="text-sm text-gray-600">Entrevistas Clientes</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-purple-600">{{ stats.total_punto_compra }}</div>
+                    <div class="text-sm text-gray-600">Punto de Compra</div>
                 </div>
                 {% for formato, cnt in stats.por_formato %}
                 <div class="text-center">
@@ -59,6 +63,22 @@
             </div>
         </div>
 
+        <!-- Tabs de Checklists -->
+        <div class="bg-white border-b shadow-sm">
+            <div class="flex">
+                <a href="/dashboard?tab=auditoria{% if filtro %}&formato={{ filtro }}{% endif %}" 
+                   class="px-6 py-3 font-semibold border-b-2 transition {% if tab == 'auditoria' %}text-walmart-blue border-walmart-blue bg-blue-50{% else %}text-gray-600 border-transparent hover:text-walmart-blue hover:bg-gray-50{% endif %}">
+                    📝 Auditoría Tiendas
+                </a>
+                <a href="/dashboard?tab=punto-compra" 
+                   class="px-6 py-3 font-semibold border-b-2 transition {% if tab == 'punto-compra' %}text-walmart-blue border-walmart-blue bg-blue-50{% else %}text-gray-600 border-transparent hover:text-walmart-blue hover:bg-gray-50{% endif %}">
+                    🛍️ Punto de Compra
+                </a>
+            </div>
+        </div>
+
+        <!-- Tab: Auditoría Tiendas -->
+        {% if tab == 'auditoria' %}
         <!-- Filtros -->
         <div class="bg-white p-4 border-b shadow-sm flex items-center gap-4">
             <span class="text-sm font-medium text-gray-700">Filtrar por formato:</span>
@@ -155,6 +175,76 @@
             </div>
             {% endif %}
         </div>
+        {% endif %}
+
+        <!-- Tab: Punto de Compra -->
+        {% if tab == 'punto-compra' %}
+        <div class="bg-white shadow-lg rounded-b-xl overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50 border-b">
+                        <tr>
+                            <th class="px-3 py-3 text-left font-semibold text-gray-700">ID</th>
+                            <th class="px-3 py-3 text-left font-semibold text-gray-700">Fecha</th>
+                            <th class="px-3 py-3 text-left font-semibold text-gray-700">Nombre</th>
+                            <th class="px-3 py-3 text-left font-semibold text-gray-700">Tienda</th>
+                            <th class="px-3 py-3 text-center font-semibold text-gray-700" title="Encontrar sector">📍 Sector</th>
+                            <th class="px-3 py-3 text-center font-semibold text-gray-700" title="Vitrinear">👁️ Vitrinear</th>
+                            <th class="px-3 py-3 text-center font-semibold text-gray-700" title="Selección">🛒 Selección</th>
+                            <th class="px-3 py-3 text-center font-semibold text-gray-700" title="Pago">💳 Pago</th>
+                            <th class="px-3 py-3 text-center font-semibold text-gray-700">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% for row in punto_compra_rows %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-3 py-3 font-mono text-xs">{{ row.id }}</td>
+                            <td class="px-3 py-3 text-xs">{{ row.fecha }}</td>
+                            <td class="px-3 py-3">{{ row.nombre }}</td>
+                            <td class="px-3 py-3">{{ row.tienda }}</td>
+                            <td class="px-3 py-3 text-center">
+                                {% set s1_score = [row.s1_encontrar_sector, row.s1_encontrar_punto]|select('equalto', 'sin')|list|length %}
+                                {% if s1_score == 2 %}<span class="text-green-600 font-bold">✅</span>
+                                {% elif s1_score == 1 %}<span class="text-yellow-600 font-bold">⚠️</span>
+                                {% else %}<span class="text-red-600 font-bold">❌</span>{% endif %}
+                            </td>
+                            <td class="px-3 py-3 text-center">
+                                {% set s2_score = [row.s2_vitrinear, row.s2_comparar, row.s2_autonomo]|select('equalto', 'sin')|list|length %}
+                                {% if s2_score == 3 %}<span class="text-green-600 font-bold">✅</span>
+                                {% elif s2_score >= 1 %}<span class="text-yellow-600 font-bold">⚠️</span>
+                                {% else %}<span class="text-red-600 font-bold">❌</span>{% endif %}
+                            </td>
+                            <td class="px-3 py-3 text-center">
+                                {% set s3_score = [row.s3_agregar_carro, row.s3_crear_usuario, row.s3_despacho_retiro]|select('equalto', 'sin')|list|length %}
+                                {% if s3_score == 3 %}<span class="text-green-600 font-bold">✅</span>
+                                {% elif s3_score >= 1 %}<span class="text-yellow-600 font-bold">⚠️</span>
+                                {% else %}<span class="text-red-600 font-bold">❌</span>{% endif %}
+                            </td>
+                            <td class="px-3 py-3 text-center">
+                                {% set s4_score = [row.s4_medio_pago, row.s4_proceso_pago, row.s4_pan_caja]|select('equalto', 'sin')|list|length %}
+                                {% if s4_score == 3 %}<span class="text-green-600 font-bold">✅</span>
+                                {% elif s4_score >= 1 %}<span class="text-yellow-600 font-bold">⚠️</span>
+                                {% else %}<span class="text-red-600 font-bold">❌</span>{% endif %}
+                            </td>
+                            <td class="px-3 py-3 text-center">
+                                <button onclick="showPCDetails({{ row.id }})" class="text-walmart-blue hover:underline text-xs mr-2">Ver</button>
+                                <form method="POST" action="/dashboard/delete-punto-compra/{{ row.id }}" class="inline" onsubmit="return confirm('Eliminar esta evaluación?');">
+                                    <button type="submit" class="text-red-600 hover:underline text-xs">Eliminar</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if not punto_compra_rows %}
+            <div class="p-8 text-center text-gray-500">
+                No hay evaluaciones de Punto de Compra registradas.
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
     </div>
 
     <!-- Modal para detalles -->
@@ -274,6 +364,92 @@
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closeModal();
         });
+
+        // Datos de Punto de Compra
+        const pcData = {
+            {% for row in punto_compra_rows %}
+            {{ row.id }}: {
+                id: {{ row.id }},
+                fecha: "{{ row.fecha }}",
+                nombre: "{{ row.nombre }}",
+                tienda: "{{ row.tienda }}",
+                s1_sector: "{{ row.s1_encontrar_sector or '-' }}",
+                s1_punto: "{{ row.s1_encontrar_punto or '-' }}",
+                s1_obs: "{{ row.s1_observaciones|default('', true)|replace('"', '\\"')|replace('\n', ' ') }}",
+                s2_vitrinear: "{{ row.s2_vitrinear or '-' }}",
+                s2_comparar: "{{ row.s2_comparar or '-' }}",
+                s2_autonomo: "{{ row.s2_autonomo or '-' }}",
+                s2_obs: "{{ row.s2_observaciones|default('', true)|replace('"', '\\"')|replace('\n', ' ') }}",
+                s3_carro: "{{ row.s3_agregar_carro or '-' }}",
+                s3_usuario: "{{ row.s3_crear_usuario or '-' }}",
+                s3_despacho: "{{ row.s3_despacho_retiro or '-' }}",
+                s3_obs: "{{ row.s3_observaciones|default('', true)|replace('"', '\\"')|replace('\n', ' ') }}",
+                s4_medio: "{{ row.s4_medio_pago or '-' }}",
+                s4_proceso: "{{ row.s4_proceso_pago or '-' }}",
+                s4_pan: "{{ row.s4_pan_caja or '-' }}",
+                s4_obs: "{{ row.s4_observaciones|default('', true)|replace('"', '\\"')|replace('\n', ' ') }}",
+                s5_obs: "{{ row.s5_observaciones|default('', true)|replace('"', '\\"')|replace('\n', ' ') }}"
+            },
+            {% endfor %}
+        };
+
+        function getStatusBadge(value) {
+            if (value === 'sin') return '<span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-bold">✅ Sin Fricción</span>';
+            if (value === 'con') return '<span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-bold">⚠️ Con Fricción</span>';
+            if (value === 'no') return '<span class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-bold">❌ No Logrado</span>';
+            return '<span class="text-gray-400">-</span>';
+        }
+
+        function showPCDetails(id) {
+            const data = pcData[id];
+            if (!data) return;
+
+            document.getElementById('modalContent').innerHTML = `
+                <div class="grid grid-cols-2 gap-4 text-sm mb-6">
+                    <div><span class="font-medium">ID:</span> ${data.id}</div>
+                    <div><span class="font-medium">Fecha:</span> ${data.fecha}</div>
+                    <div><span class="font-medium">Nombre:</span> ${data.nombre}</div>
+                    <div><span class="font-medium">Tienda:</span> ${data.tienda}</div>
+                </div>
+
+                <h3 class="font-bold text-lg text-walmart-blue mb-3 border-b pb-2">📍 Step 1: Encuentra el sector</h3>
+                <div class="grid grid-cols-2 gap-3 text-sm mb-4">
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Encontrar sector:</span> ${getStatusBadge(data.s1_sector)}</div>
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Encontrar punto:</span> ${getStatusBadge(data.s1_punto)}</div>
+                </div>
+                ${data.s1_obs ? `<p class="bg-blue-50 p-3 rounded text-sm mb-4"><strong>Obs:</strong> ${data.s1_obs}</p>` : ''}
+
+                <h3 class="font-bold text-lg text-walmart-blue mb-3 border-b pb-2">👁️ Step 2: Vitrinear</h3>
+                <div class="grid grid-cols-3 gap-3 text-sm mb-4">
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Vitrinear:</span> ${getStatusBadge(data.s2_vitrinear)}</div>
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Comparar:</span> ${getStatusBadge(data.s2_comparar)}</div>
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Autónomo:</span> ${getStatusBadge(data.s2_autonomo)}</div>
+                </div>
+                ${data.s2_obs ? `<p class="bg-blue-50 p-3 rounded text-sm mb-4"><strong>Obs:</strong> ${data.s2_obs}</p>` : ''}
+
+                <h3 class="font-bold text-lg text-walmart-blue mb-3 border-b pb-2">🛒 Step 3: Selección</h3>
+                <div class="grid grid-cols-3 gap-3 text-sm mb-4">
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Agregar carro:</span> ${getStatusBadge(data.s3_carro)}</div>
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Crear usuario:</span> ${getStatusBadge(data.s3_usuario)}</div>
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Despacho/Retiro:</span> ${getStatusBadge(data.s3_despacho)}</div>
+                </div>
+                ${data.s3_obs ? `<p class="bg-blue-50 p-3 rounded text-sm mb-4"><strong>Obs:</strong> ${data.s3_obs}</p>` : ''}
+
+                <h3 class="font-bold text-lg text-walmart-blue mb-3 border-b pb-2">💳 Step 4: Pago</h3>
+                <div class="grid grid-cols-3 gap-3 text-sm mb-4">
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Medio pago:</span> ${getStatusBadge(data.s4_medio)}</div>
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Proceso pago:</span> ${getStatusBadge(data.s4_proceso)}</div>
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Pan/Caja:</span> ${getStatusBadge(data.s4_pan)}</div>
+                </div>
+                ${data.s4_obs ? `<p class="bg-blue-50 p-3 rounded text-sm mb-4"><strong>Obs:</strong> ${data.s4_obs}</p>` : ''}
+
+                <h3 class="font-bold text-lg text-walmart-blue mb-3 border-b pb-2">⏳ Step 5: Espera</h3>
+                ${data.s5_obs ? `<p class="bg-blue-50 p-3 rounded text-sm">${data.s5_obs}</p>` : '<p class="text-gray-400 text-sm">Sin observaciones</p>'}
+            `;
+
+            document.getElementById('detailsModal').classList.remove('hidden');
+            document.getElementById('detailsModal').classList.add('flex');
+        }
     </script>
 </body>
 </html>
