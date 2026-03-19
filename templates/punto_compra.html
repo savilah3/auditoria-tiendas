@@ -57,7 +57,6 @@
     </header>
 
     <main class="flex-grow p-4 max-w-lg mx-auto w-full flex flex-col justify-center">
-    <form id="punto-compra-form" action="/submit-punto-compra" method="POST">
 
         <!-- STEP 0: Initial Info -->
         <div id="step-0" class="step-container fade-in bg-white rounded-xl shadow-sm p-6 border-t-4 border-walmart-spark">
@@ -66,13 +65,13 @@
             <div class="space-y-5">
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">Tu Nombre</label>
-                    <input type="text" id="input-nombre" name="nombre" placeholder="Ej: Pablo" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-walmart-darkblue focus:border-walmart-darkblue outline-none transition-colors shadow-sm">
+                    <input type="text" id="input-nombre" placeholder="Ej: Pablo" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-walmart-darkblue focus:border-walmart-darkblue outline-none transition-colors shadow-sm">
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">Número o Nombre de Tienda</label>
-                    <input type="text" id="input-tienda" name="tienda" placeholder="Ej: 72" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-walmart-darkblue focus:border-walmart-darkblue outline-none transition-colors shadow-sm">
+                    <input type="text" id="input-tienda" placeholder="Ej: 72" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-walmart-darkblue focus:border-walmart-darkblue outline-none transition-colors shadow-sm">
                 </div>
-                <button type="button" onclick="startJourney()" class="w-full bg-walmart-darkblue hover:bg-blue-800 text-white font-bold py-3 rounded-lg shadow-md transition-transform active:scale-95 text-lg mt-4">
+                <button onclick="startJourney()" class="w-full bg-walmart-darkblue hover:bg-blue-800 text-white font-bold py-3 rounded-lg shadow-md transition-transform active:scale-95 text-lg mt-4">
                     Comenzar
                 </button>
             </div>
@@ -81,7 +80,7 @@
         <!-- Dynamic Greeting (Visible in Steps > 0) -->
         <div id="greeting-card" class="hidden fade-in bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4 shadow-sm text-center">
             <p class="text-gray-800 font-medium text-lg leading-snug">
-                Hola <span id="display-nombre" class="font-bold text-walmart-darkblue"></span>, bienvenid@ al local <span id="display-tienda" class="font-bold text-walmart-darkblue"></span>. Hoy tendrás que vivir la experiencia de ponerte <strong>en los zapatos del cliente</strong> 👟. Tu misión: tienes 70 años, con poca facilidad para la tecnología, y necesitas comprar una lavadora de ropa.
+                Hola <span id="display-nombre" class="font-bold text-walmart-darkblue"></span>, bienvenid@ al local <span id="display-tienda" class="font-bold text-walmart-darkblue"></span>. Hoy tendrás que vivir la experiencia de ponerte <strong>en los zapatos del cliente</strong> 👟. Tu misión: tienes 70 años, con poca facilidad para la tecnología, y necesitas comprar una lavadora de ropa lo antes posible.
             </p>
         </div>
 
@@ -157,7 +156,7 @@
                 
                 <div class="mt-4 pt-4 border-t-2 border-gray-100">
                     <label class="block text-sm font-bold text-gray-800 mb-1">Observaciones</label>
-                    <textarea name="s1_obs" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-walmart-darkblue focus:border-walmart-darkblue outline-none text-sm"></textarea>
+                    <textarea rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-walmart-darkblue focus:border-walmart-darkblue outline-none text-sm"></textarea>
                 </div>
             </div>
         </div>
@@ -211,7 +210,7 @@
                 
                 <div class="mt-4 pt-4 border-t-2 border-gray-100">
                     <label class="block text-sm font-bold text-gray-800 mb-1">Observaciones</label>
-                    <textarea name="s2_obs" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-walmart-darkblue focus:border-walmart-darkblue outline-none text-sm"></textarea>
+                    <textarea rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-walmart-darkblue focus:border-walmart-darkblue outline-none text-sm"></textarea>
                 </div>
             </div>
         </div>
@@ -223,7 +222,7 @@
                     <span class="bg-walmart-darkblue text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">3/5</span>
                     <h2 class="font-bold text-gray-800 text-lg">Selección de lavadora</h2>
                 </div>
-                <p class="text-xs text-gray-500 italic mt-2">Ya te decidiste por la lavadora que quieres llevar, ahora finaliza tu compra.</p>
+                <p class="text-xs text-gray-500 italic mt-2">Te gustó la Mademsa LAV 20SZG 20 KGS que está a $289.990. Ahora finaliza tu compra. Recuerda que la necesitas en tu casa lo antes posible.</p>
             </div>
             <div class="p-4">
                 <h3 class="text-sm font-bold text-walmart-darkblue mb-4 uppercase tracking-wide">Evalúa tu Misión:</h3>
@@ -259,7 +258,7 @@
                 
                 <div class="mt-4 pt-4 border-t-2 border-gray-100">
                     <label class="block text-sm font-bold text-gray-800 mb-1">Observaciones</label>
-                    <textarea name="s3_obs" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-walmart-darkblue focus:border-walmart-darkblue outline-none text-sm"></textarea>
+                    <textarea rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-walmart-darkblue focus:border-walmart-darkblue outline-none text-sm"></textarea>
                 </div>
             </div>
         </div>
@@ -310,7 +309,7 @@
                 </div>
 <div class="mt-4 pt-4 border-t-2 border-gray-100">
                     <label class="block text-sm font-bold text-gray-800 mb-1">Observaciones</label>
-                    <textarea name="s4_obs" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-walmart-darkblue focus:border-walmart-darkblue outline-none text-sm"></textarea>
+                    <textarea rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-walmart-darkblue focus:border-walmart-darkblue outline-none text-sm"></textarea>
                 </div>
             </div>
         </div>
@@ -333,21 +332,20 @@
                 
                 <div class="mt-4 pt-4 border-t-2 border-gray-100">
                     <label class="block text-sm font-bold text-gray-800 mb-1">Observaciones</label>
-                    <textarea name="s5_obs" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-walmart-darkblue focus:border-walmart-darkblue outline-none text-sm" placeholder="Responde aquí a las preguntas anteriores y deja tus observaciones..."></textarea>
+                    <textarea rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-walmart-darkblue focus:border-walmart-darkblue outline-none text-sm" placeholder="Responde aquí a las preguntas anteriores y deja tus observaciones..."></textarea>
                 </div>
             </div>
         </div>
 
         <div id="nav-controls" class="hidden flex gap-3 mt-6">
-            <button type="button" onclick="prevStep()" class="flex-1 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-bold py-3 rounded-lg shadow-sm transition-transform active:scale-95 text-sm">
+            <button onclick="prevStep()" class="flex-1 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-bold py-3 rounded-lg shadow-sm transition-transform active:scale-95 text-sm">
                 Volver
             </button>
-            <button type="button" id="next-btn" onclick="nextStep()" class="flex-1 bg-walmart-darkblue hover:bg-blue-800 text-white font-bold py-3 rounded-lg shadow-md transition-transform active:scale-95 text-sm">
+            <button id="next-btn" onclick="nextStep()" class="flex-1 bg-walmart-darkblue hover:bg-blue-800 text-white font-bold py-3 rounded-lg shadow-md transition-transform active:scale-95 text-sm">
                 Siguiente
             </button>
         </div>
 
-    </form>
     </main>
 
     <script>
@@ -411,8 +409,13 @@
                 currentStep++;
                 updateUI();
             } else {
-                // Submit the form
-                document.getElementById('punto-compra-form').submit();
+                // Submit logic
+                alert("¡Evaluación enviada con éxito! Gracias por ponerte en los zapatos del cliente.");
+                // Reset form (Optional)
+                currentStep = 0;
+                document.querySelectorAll('input[type="text"], textarea').forEach(el => el.value = '');
+                document.querySelectorAll('input[type="radio"]').forEach(el => el.checked = false);
+                updateUI();
             }
         }
 
