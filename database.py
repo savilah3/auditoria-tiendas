@@ -40,6 +40,50 @@ CREATE TABLE IF NOT EXISTS entrevistas_clientes (
 );
 """
 
+# Tabla para checklist de Atención (con geolocalización y timer)
+CREATE_TABLE_ATENCION = """
+CREATE TABLE IF NOT EXISTS atencion (
+    id SERIAL PRIMARY KEY,
+    fecha TEXT NOT NULL,
+    -- Geolocalización
+    geo_lat TEXT,
+    geo_lng TEXT,
+    -- Datos iniciales
+    usuario TEXT,
+    formato TEXT,
+    local TEXT,
+    -- Paso 1: Atención y Amabilidad (escala 1-5)
+    q4_guardia_3m TEXT,
+    q5_pasillos_3m TEXT,
+    q6_resolutivo TEXT,
+    q7_amable TEXT,
+    comentarios_sala TEXT,
+    -- Paso 2: Zona de Pago
+    tiempo_fila TEXT,
+    q8_cajero_tipo TEXT,
+    q9_cajero_3m TEXT,
+    q10_pmc TEXT,
+    q11_lider_bci TEXT,
+    q12_boleta_mail TEXT,
+    q13_despedida TEXT,
+    comentarios_pago TEXT,
+    -- Paso 3: Comentarios finales
+    q17_comentarios TEXT
+);
+"""
+
+# Tabla para entrevistas de Atención (relacion 1:N)
+CREATE_TABLE_ENTREVISTAS_ATENCION = """
+CREATE TABLE IF NOT EXISTS entrevistas_atencion (
+    id SERIAL PRIMARY KEY,
+    atencion_id INTEGER NOT NULL REFERENCES atencion(id) ON DELETE CASCADE,
+    numero_cliente INTEGER NOT NULL,
+    motivo_visita TEXT,
+    aspectos_positivos TEXT,
+    oportunidades_mejora TEXT
+);
+"""
+
 # Tabla para auditoría de Punto de Compra
 CREATE_TABLE_PUNTO_COMPRA = """
 CREATE TABLE IF NOT EXISTS punto_compra (
@@ -86,6 +130,8 @@ def init_db() -> None:
         # Crear tablas
         conn.execute(CREATE_TABLE_RESPUESTAS)
         conn.execute(CREATE_TABLE_ENTREVISTAS)
+        conn.execute(CREATE_TABLE_ATENCION)
+        conn.execute(CREATE_TABLE_ENTREVISTAS_ATENCION)
         conn.execute(CREATE_TABLE_PUNTO_COMPRA)
         
         # Migracion: renombrar 'rut' a 'usuario' si existe
@@ -232,11 +278,21 @@ def obtener_stats() -> dict:
             "SELECT COUNT(*) as total FROM punto_compra"
         ).fetchone()["total"]
         
+        total_atencion = conn.execute(
+            "SELECT COUNT(*) as total FROM atencion"
+        ).fetchone()["total"]
+        
+        total_entrevistas_atencion = conn.execute(
+            "SELECT COUNT(*) as total FROM entrevistas_atencion"
+        ).fetchone()["total"]
+        
     return {
         "total": total,
         "por_formato": por_formato,
         "total_entrevistas": total_entrevistas,
         "total_punto_compra": total_punto_compra,
+        "total_atencion": total_atencion,
+        "total_entrevistas_atencion": total_entrevistas_atencion,
     }
 
 
@@ -281,6 +337,81 @@ def eliminar_punto_compra(row_id: int) -> bool:
     """Elimina una evaluación de punto de compra."""
     with get_conn() as conn:
         cur = conn.execute("DELETE FROM punto_compra WHERE id = %s", (row_id,))
+        deleted = cur.rowcount > 0
+        conn.commit()
+    return deleted
+
+
+# ============ Funciones para Atención ============
+
+def insertar_atencion(data: dict) -> int:
+    """Inserta una evaluación de atención y retorna el ID."""
+    data["fecha"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    sql = """
+    INSERT INTO atencion (
+        fecha, geo_lat, geo_lng, usuario, formato, local,
+        q4_guardia_3m, q5_pasillos_3m, q6_resolutivo, q7_amable, comentarios_sala,
+        tiempo_fila, q8_cajero_tipo, q9_cajero_3m, q10_pmc, q11_lider_bci,
+        q12_boleta_mail, q13_despedida, comentarios_pago, q17_comentarios
+    ) VALUES (
+        %(fecha)s, %(geo_lat)s, %(geo_lng)s, %(usuario)s, %(formato)s, %(local)s,
+        %(q4_guardia_3m)s, %(q5_pasillos_3m)s, %(q6_resolutivo)s, %(q7_amable)s, %(comentarios_sala)s,
+        %(tiempo_fila)s, %(q8_cajero_tipo)s, %(q9_cajero_3m)s, %(q10_pmc)s, %(q11_lider_bci)s,
+        %(q12_boleta_mail)s, %(q13_despedida)s, %(comentarios_pago)s, %(q17_comentarios)s
+    )
+    RETURNING id
+    """
+    with get_conn() as conn:
+        result = conn.execute(sql, data).fetchone()
+        conn.commit()
+        return result["id"]
+
+
+def insertar_entrevistas_atencion(atencion_id: int, entrevistas: List[Dict[str, str]]) -> None:
+    """Inserta las entrevistas asociadas a una evaluación de atención."""
+    if not entrevistas:
+        return
+    
+    sql = """
+    INSERT INTO entrevistas_atencion (
+        atencion_id, numero_cliente, motivo_visita, aspectos_positivos, oportunidades_mejora
+    ) VALUES (
+        %(atencion_id)s, %(numero_cliente)s, %(motivo_visita)s, %(aspectos_positivos)s, %(oportunidades_mejora)s
+    )
+    """
+    with get_conn() as conn:
+        for i, entrevista in enumerate(entrevistas, 1):
+            conn.execute(sql, {
+                "atencion_id": atencion_id,
+                "numero_cliente": i,
+                "motivo_visita": entrevista.get("motivo", ""),
+                "aspectos_positivos": entrevista.get("positivos", ""),
+                "oportunidades_mejora": entrevista.get("oportunidades", ""),
+            })
+        conn.commit()
+
+
+def obtener_todas_atencion() -> List[Dict[str, Any]]:
+    """Obtiene todas las evaluaciones de atención."""
+    with get_conn() as conn:
+        return conn.execute(
+            "SELECT * FROM atencion ORDER BY fecha DESC"
+        ).fetchall()
+
+
+def obtener_entrevistas_atencion(atencion_id: int) -> List[Dict[str, Any]]:
+    """Obtiene las entrevistas de una evaluación de atención."""
+    with get_conn() as conn:
+        return conn.execute(
+            "SELECT * FROM entrevistas_atencion WHERE atencion_id = %s ORDER BY numero_cliente",
+            (atencion_id,)
+        ).fetchall()
+
+
+def eliminar_atencion(row_id: int) -> bool:
+    """Elimina una evaluación de atención y sus entrevistas (CASCADE)."""
+    with get_conn() as conn:
+        cur = conn.execute("DELETE FROM atencion WHERE id = %s", (row_id,))
         deleted = cur.rowcount > 0
         conn.commit()
     return deleted

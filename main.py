@@ -21,6 +21,11 @@ from database import (
     insertar_punto_compra,
     obtener_todas_punto_compra,
     eliminar_punto_compra,
+    insertar_atencion,
+    insertar_entrevistas_atencion,
+    obtener_todas_atencion,
+    obtener_entrevistas_atencion,
+    eliminar_atencion,
 )
 
 app = FastAPI(title="En los zapatos del cliente")
@@ -174,6 +179,81 @@ def gracias_punto_compra(request: Request):
     return templates.TemplateResponse("gracias_punto_compra.html", {"request": request})
 
 
+# --- Formulario Atención ---
+@app.get("/atencion", response_class=HTMLResponse)
+def mostrar_atencion(request: Request):
+    """Formulario de evaluación de Atención."""
+    return templates.TemplateResponse("atencion.html", {"request": request})
+
+
+@app.post("/submit-atencion")
+def recibir_atencion(
+    # Geolocalización
+    geo_lat: Annotated[str, Form()] = "",
+    geo_lng: Annotated[str, Form()] = "",
+    # Datos iniciales
+    usuario: Annotated[str, Form()] = "",
+    formato: Annotated[str, Form()] = "",
+    local: Annotated[str, Form()] = "",
+    # Paso 1: Atención
+    q4: Annotated[str, Form()] = "",
+    q5: Annotated[str, Form()] = "",
+    q6: Annotated[str, Form()] = "",
+    q7: Annotated[str, Form()] = "",
+    comentarios_sala: Annotated[str, Form()] = "",
+    # Paso 2: Zona de Pago
+    tiempo_fila: Annotated[str, Form()] = "",
+    q8: Annotated[str, Form()] = "",
+    q9: Annotated[str, Form()] = "",
+    q10: Annotated[str, Form()] = "",
+    q11: Annotated[str, Form()] = "",
+    q12: Annotated[str, Form()] = "",
+    q13: Annotated[str, Form()] = "",
+    comentarios_pago: Annotated[str, Form()] = "",
+    # Paso 3: Comentarios
+    q17: Annotated[str, Form()] = "",
+    # Entrevistas JSON
+    entrevistas_json: Annotated[str, Form()] = "[]",
+):
+    """Recibe la evaluación de atención."""
+    atencion_id = insertar_atencion({
+        "geo_lat": geo_lat,
+        "geo_lng": geo_lng,
+        "usuario": usuario,
+        "formato": formato,
+        "local": local,
+        "q4_guardia_3m": q4,
+        "q5_pasillos_3m": q5,
+        "q6_resolutivo": q6,
+        "q7_amable": q7,
+        "comentarios_sala": comentarios_sala,
+        "tiempo_fila": tiempo_fila,
+        "q8_cajero_tipo": q8,
+        "q9_cajero_3m": q9,
+        "q10_pmc": q10,
+        "q11_lider_bci": q11,
+        "q12_boleta_mail": q12,
+        "q13_despedida": q13,
+        "comentarios_pago": comentarios_pago,
+        "q17_comentarios": q17,
+    })
+    
+    # Insertar entrevistas
+    try:
+        entrevistas = json.loads(entrevistas_json)
+        if isinstance(entrevistas, list):
+            insertar_entrevistas_atencion(atencion_id, entrevistas)
+    except json.JSONDecodeError:
+        pass
+    
+    return RedirectResponse(url="/gracias-atencion", status_code=303)
+
+
+@app.get("/gracias-atencion", response_class=HTMLResponse)
+def gracias_atencion(request: Request):
+    return templates.TemplateResponse("gracias_atencion.html", {"request": request})
+
+
 # --- Dashboard (protegido) ---
 @app.get("/dashboard", response_class=HTMLResponse)
 def dashboard(
@@ -195,6 +275,13 @@ def dashboard(
     # Obtener datos de punto de compra
     punto_compra_rows = obtener_todas_punto_compra()
     
+    # Obtener datos de atención
+    atencion_rows = obtener_todas_atencion()
+    atencion_con_entrevistas = []
+    for row in atencion_rows:
+        entrevistas = obtener_entrevistas_atencion(row["id"])
+        atencion_con_entrevistas.append({**row, "entrevistas": entrevistas})
+    
     stats = obtener_stats()
     return templates.TemplateResponse(
         "dashboard.html",
@@ -202,6 +289,7 @@ def dashboard(
             "request": request,
             "rows": rows_con_entrevistas,
             "punto_compra_rows": punto_compra_rows,
+            "atencion_rows": atencion_con_entrevistas,
             "stats": stats,
             "filtro": formato,
             "tab": tab,
@@ -227,6 +315,16 @@ def eliminar_pc(
     """Elimina una evaluación de punto de compra."""
     eliminar_punto_compra(row_id)
     return RedirectResponse(url="/dashboard?tab=punto-compra", status_code=303)
+
+
+@app.post("/dashboard/delete-atencion/{row_id}")
+def eliminar_at(
+    row_id: int,
+    _: Annotated[str, Depends(verificar_credenciales)],
+):
+    """Elimina una evaluación de atención."""
+    eliminar_atencion(row_id)
+    return RedirectResponse(url="/dashboard?tab=atencion", status_code=303)
 
 
 @app.get("/dashboard/export")

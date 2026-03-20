@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>En los zapatos del cliente - Walmart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        walmart: {
+                            blue: '#0053e2',
+                            blueHover: '#0042b5',
+                            spark: '#ffc220',
+                            grayBg: '#f2f8fc',
+                            text: '#2e2f32'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script>
+        // Datos reales de locales por formato
+        const localesPorFormato = {
+            "Lider": [
+                "3 - H - Suc. 003 Ñuñoa", "32 - H - Suc. 032 Gran Avenida", "41 - H - Suc. 041 Huechuraba",
+                "44 - H - Suc. 044 Quilin", "45 - H - Suc. 045 Vespucio Maipu", "46 - H - Suc. 046 Avenida Central",
+                "48 - H - Suc. 048 Cordillera", "49 - H - Suc. 049 Quilicura", "54 - H - Suc. 054 Vicuña Mackenna",
+                "55 - H - Suc. 055 Macul", "57 - H - Suc. 057 Buenaventura", "62 - H - Suc. 062 Plaza Vespucio",
+                "66 - H - Suc. 066 Talagante", "71 - H - Suc. 071 Vespucio Sur", "72 - H - Suc. 072 Alameda",
+                "73 - H - Suc. 073 Puente Alto", "75 - H - Suc. 075 Maipu", "76 - H - Suc. 076 Departamental",
+                "77 - H - Suc. 077 Independencia", "80 - H - Suc. 080 Los Morros", "82 - H - Suc. 082 San Bernardo",
+                "83 - H - Suc. 083 Santa Amalia", "85 - H - Suc. 085 Lonquen", "86 - H - Suc. 086 Recoleta",
+                "87 - H - Suc. 087 Santa Rosa", "88 - H - Suc. 088 Los Dominicos", "95 - H - Suc. 095 La Reina",
+                "97 - H - Suc. 097 Puente Nuevo", "137 - H - Suc. 137 San Pablo", "182 - H - Suc. 182 Buin"
+            ],
+            "Express": [
+                "1 - E - Suc. 001 Plaza Lyon", "2 - E - Suc. 002 Pedro de Valdivia", "4 - E - Suc. 004 Vitacura",
+                "8 - E - Suc. 008 Colón", "15 - E - Suc. 015 Estoril", "16 - E - Suc. 016 La Dehesa",
+                "18 - E - Suc. 018 Manuel Montt", "51 - E - Suc. 051 Tobalaba", "52 - E - Suc. 052 Grecia",
+                "56 - E - Suc. 056 Gran Avenida", "60 - E - Suc. 060 José María Caro", "61 - E - Suc. 061 Maipú"
+            ],
+            "SBA": [
+                "7 - SBA - Paine", "161 - SBA - Puente Alto", "170 - SBA - Quilicura",
+                "171 - SBA - San Bernardo", "179 - SBA - Maipu", "186 - SBA - El Bosque",
+                "198 - SBA - Conchali", "451 - SBA - Melipilla", "490 - SBA - Isla De Maipo"
+            ],
+            "CM": [
+                "159 - M - Suc. 159 Peñalolén", "219 - M - Suc. 219 Dark Store", "453 - M - Suc. 453 Conchalí",
+                "939 - M - Suc. 939 Cerrillos", "977 - M - Suc. 977 Pudahuel", "990 - M - Suc. 990 Camino Melipilla"
+            ]
+        };
+
+        function updateLocales() {
+            const formatoSelect = document.getElementById("formatoSelect");
+            const localInput = document.getElementById("localInput");
+            const localDatalist = document.getElementById("localDatalist");
+            const formatoSeleccionado = formatoSelect.value;
+
+            localDatalist.innerHTML = '';
+            localInput.value = '';
+
+            if (formatoSeleccionado && localesPorFormato[formatoSeleccionado]) {
+                localInput.disabled = false;
+                localInput.placeholder = "Escribe o selecciona tu local...";
+                localesPorFormato[formatoSeleccionado].forEach(local => {
+                    const option = document.createElement("option");
+                    option.value = local;
+                    localDatalist.appendChild(option);
+                });
+            } else {
+                localInput.placeholder = "Primero seleccione un formato";
+                localInput.disabled = true;
+            }
+        }
+
+        let currentStep = 1;
+        const totalSteps = 3;
+
+        function updateProgress() {
+            document.getElementById('currentStepText').innerText = currentStep;
+            const percentage = Math.round(((currentStep - 1) / (totalSteps - 1)) * 100);
+            document.getElementById('progressBar').style.width = percentage + '%';
+        }
+
+        function goToStep(next) {
+            if (next > currentStep) {
+                const currentStepDiv = document.getElementById('step' + currentStep);
+                const inputs = currentStepDiv.querySelectorAll('[required]');
+                let allValid = true;
+                for (let input of inputs) {
+                    if (!input.checkValidity()) {
+                        input.reportValidity();
+                        allValid = false;
+                        break;
+                    }
+                }
+                if (!allValid) return;
+            }
+            document.getElementById('step' + currentStep).classList.add('hidden');
+            currentStep = next;
+            document.getElementById('step' + currentStep).classList.remove('hidden');
+            updateProgress();
+            window.scrollTo(0, 0);
+        }
+
+        let customerCount = 1;
+        function addCustomer() {
+            customerCount++;
+            const container = document.getElementById('interviewsContainer');
+            const newBlock = document.createElement('div');
+            newBlock.className = 'bg-white p-4 rounded-lg border border-gray-200 space-y-5 shadow-sm mt-6 relative';
+            newBlock.innerHTML = `
+                <button type="button" onclick="this.parentElement.remove(); customerCount--;" class="absolute top-4 right-4 text-red-500 hover:text-red-700 font-bold text-sm">Eliminar ✕</button>
+                <h3 class="text-lg font-bold text-walmart-blue mb-4 border-b pb-2">Cliente ${customerCount}</h3>
+                <div>
+                    <label class="block text-sm font-medium mb-2">¿Por qué vino a este local hoy? <span class="text-red-500">*</span></label>
+                    <textarea rows="3" required name="cliente_motivo_${customerCount}" placeholder="Escribe aquí..." class="w-full border-gray-300 rounded-md shadow-sm p-3 border"></textarea>
+                </div>
+                <hr class="border-gray-200">
+                <div>
+                    <label class="block text-sm font-medium mb-2">¿Qué aspectos positivos destacas? <span class="text-red-500">*</span></label>
+                    <textarea rows="3" required name="cliente_positivo_${customerCount}" placeholder="Escribe aquí..." class="w-full border-gray-300 rounded-md shadow-sm p-3 border"></textarea>
+                </div>
+                <hr class="border-gray-200">
+                <div>
+                    <label class="block text-sm font-medium mb-2">¿Qué oportunidades para mejorar percibes? <span class="text-red-500">*</span></label>
+                    <textarea rows="3" required name="cliente_oportunidad_${customerCount}" placeholder="Escribe aquí..." class="w-full border-gray-300 rounded-md shadow-sm p-3 border"></textarea>
+                </div>
+            `;
+            container.appendChild(newBlock);
+        }
+
+        // Timer Logic
+        let timerInterval = null;
+        let secondsElapsed = 0;
+        let isTimerRunning = false;
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(secondsElapsed / 60).toString().padStart(2, '0');
+            const secs = (secondsElapsed % 60).toString().padStart(2, '0');
+            document.getElementById('timerDisplay').innerText = `${mins}:${secs}`;
+            document.getElementById('hiddenTimeInput').value = `${mins}:${secs}`;
+        }
+
+        function toggleTimer() {
+            const btn = document.getElementById('timerBtn');
+            if (isTimerRunning) {
+                clearInterval(timerInterval);
+                isTimerRunning = false;
+                btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg> Iniciar`;
+                btn.classList.remove('bg-red-100', 'text-red-700', 'border-red-300');
+                btn.classList.add('bg-green-100', 'text-green-700', 'border-green-300');
+            } else {
+                isTimerRunning = true;
+                btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clip-rule="evenodd" /></svg> Detener`;
+                btn.classList.remove('bg-green-100', 'text-green-700', 'border-green-300', 'bg-walmart-blue', 'text-white');
+                btn.classList.add('bg-red-100', 'text-red-700', 'border-red-300');
+                timerInterval = setInterval(() => {
+                    secondsElapsed++;
+                    updateTimerDisplay();
+                }, 1000);
+            }
+        }
+
+        // Geolocation Logic
+        window.addEventListener('load', () => {
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        document.getElementById('geo_lat').value = position.coords.latitude;
+                        document.getElementById('geo_lng').value = position.coords.longitude;
+                        document.getElementById('geo_status').innerHTML = '📍 Ubicación capturada';
+                        document.getElementById('geo_status').classList.replace('text-gray-400', 'text-green-600');
+                    },
+                    (error) => {
+                        document.getElementById('geo_status').innerHTML = '📍 Ubicación no disponible';
+                    },
+                    { enableHighAccuracy: true, timeout: 10000 }
+                );
+            }
+        });
+
+        // Submit Form
+        function submitForm() {
+            const form = document.getElementById('evaluationForm');
+            
+            // Recolectar entrevistas
+            const entrevistas = [];
+            for (let i = 1; i <= customerCount; i++) {
+                const motivo = document.querySelector(`[name="cliente_motivo_${i}"]`)?.value || '';
+                const positivos = document.querySelector(`[name="cliente_positivo_${i}"]`)?.value || '';
+                const oportunidades = document.querySelector(`[name="cliente_oportunidad_${i}"]`)?.value || '';
+                if (motivo || positivos || oportunidades) {
+                    entrevistas.push({ motivo, positivos, oportunidades });
+                }
+            }
+            document.getElementById('entrevistas_json').value = JSON.stringify(entrevistas);
+            
+            // Enviar formulario
+            const formData = new FormData(form);
+            
+            fetch('/submit-atencion', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                } else if (response.ok) {
+                    window.location.href = '/gracias-atencion';
+                } else {
+                    alert('Error al enviar el formulario');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error de conexión');
+            });
+        }
+    </script>
+</head>
+<body class="bg-blue-50 text-walmart-text p-4 md:p-8 font-sans pb-20">
+    <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+        <!-- Header -->
+        <div class="bg-walmart-blue p-6 text-white flex justify-between items-center border-b-4 border-walmart-spark">
+            <div>
+                <h1 class="text-2xl font-bold">En los zapatos del cliente</h1>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-walmart-spark" viewBox="0 0 100 100" fill="currentColor">
+                <path d="M50,4 C53,4 56,6 56,9 L56,33 C56,36 53,39 50,39 C47,39 44,36 44,33 L44,9 C44,6 47,4 50,4 Z M50,96 C47,96 44,94 44,91 L44,67 C44,64 47,61 50,61 C53,61 56,64 56,67 L56,91 C56,94 53,96 50,96 Z M89,27 C91,30 90,34 87,36 L66,48 C63,50 60,49 58,46 C56,43 57,39 60,37 L81,25 C84,23 88,24 89,27 Z M11,73 C9,70 10,66 13,64 L34,52 C37,50 40,51 42,54 C44,57 43,61 40,63 L19,75 C16,77 12,76 11,73 Z M11,27 C12,24 16,23 19,25 L40,37 C43,39 44,43 42,46 C40,49 37,50 34,48 L13,36 C10,34 9,30 11,27 Z M89,73 C88,76 84,77 81,75 L60,63 C57,61 56,57 58,54 C60,51 63,50 66,52 L87,64 C90,66 91,70 89,73 Z" />
+            </svg>
+        </div>
+
+        <!-- Form -->
+        <form id="evaluationForm" class="p-6 md:p-8 space-y-8" onsubmit="event.preventDefault(); submitForm();">
+            <!-- Hidden inputs -->
+            <input type="hidden" name="geo_lat" id="geo_lat" value="">
+            <input type="hidden" name="geo_lng" id="geo_lng" value="">
+            <input type="hidden" name="entrevistas_json" id="entrevistas_json" value="[]">
+
+            <!-- Progress Bar -->
+            <div class="mb-4">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs font-bold text-walmart-blue uppercase tracking-wider">Paso <span id="currentStepText">1</span> de 3</span>
+                    <span id="geo_status" class="text-xs font-medium text-gray-400">📍 Obteniendo ubicación...</span>
+                </div>
+                <div class="overflow-hidden h-2.5 mb-4 text-xs flex rounded-full bg-blue-100">
+                    <div id="progressBar" style="width: 0%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-walmart-blue transition-all duration-500 ease-in-out"></div>
+                </div>
+            </div>
+
+            <!-- PASO 1: DATOS Y ATENCION -->
+            <div id="step1" class="space-y-8">
+                <div class="bg-white border-l-4 border-walmart-blue p-4 rounded-r-lg shadow-sm">
+                    <div class="flex items-start">
+                        <div class="ml-3">
+                            <h3 class="text-sm font-bold text-walmart-blue">¡Gracias por participar!</h3>
+                            <p class="mt-1 text-sm text-gray-700">Tu visita a tienda nos ayuda a mejorar la experiencia de nuestros clientes. 🕵️‍♂️ <strong>Recuerda pasar desapercibido</strong> y actuar como un cliente regular.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <section class="space-y-4">
+                    <h2 class="text-xl font-semibold border-b pb-2 text-walmart-blue">Datos Iniciales</h2>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">1. Ingresa tu usuario walmart <span class="text-red-500">*</span></label>
+                        <input type="text" name="usuario" required placeholder="Ej: j0m0rfa" class="w-full border-gray-300 rounded-md shadow-sm p-3 border focus:ring-walmart-blue focus:border-walmart-blue">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">2. ¿En qué formato te encuentras? <span class="text-red-500">*</span></label>
+                        <select id="formatoSelect" name="formato" required class="w-full border-gray-300 rounded-md shadow-sm p-3 border bg-white" onchange="updateLocales()">
+                            <option value="">Seleccione formato...</option>
+                            <option value="Lider">Lider</option>
+                            <option value="Express">Express de Lider</option>
+                            <option value="SBA">SuperBodega Acuenta (SBA)</option>
+                            <option value="CM">Central Mayorista (CM)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">3. ¿En qué local te encuentras? <span class="text-red-500">*</span></label>
+                        <input list="localDatalist" id="localInput" name="local" required disabled placeholder="Primero seleccione un formato" class="w-full border-gray-300 rounded-md shadow-sm p-3 border bg-white disabled:bg-gray-100">
+                        <datalist id="localDatalist"></datalist>
+                    </div>
+                </section>
+
+                <section class="space-y-6">
+                    <div>
+                        <h2 class="text-xl font-semibold border-b pb-2 text-walmart-blue">Atención y Amabilidad</h2>
+                        <p class="text-sm text-gray-500 mt-2 italic">Ingresa al local como si fueras a hacer una compra y completa la siguiente información</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg border border-gray-200 space-y-5 shadow-sm">
+                        <div>
+                            <label class="block text-sm font-medium mb-1">4. El guardia aplicó la regla de los 3 metros <span class="text-red-500">*</span></label>
+                            <p class="text-xs text-gray-500 italic mb-3">1: Muy de acuerdo - 5: Muy en desacuerdo</p>
+                            <div class="flex justify-between md:justify-start md:space-x-8 items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                <label class="flex flex-col items-center space-y-1 cursor-pointer"><span class="text-xs font-semibold text-gray-600">1</span><input type="radio" name="q4" value="1" required class="w-5 h-5 text-walmart-blue"></label>
+                                <label class="flex flex-col items-center space-y-1 cursor-pointer"><span class="text-xs font-semibold text-gray-600">2</span><input type="radio" name="q4" value="2" class="w-5 h-5 text-walmart-blue"></label>
+                                <label class="flex flex-col items-center space-y-1 cursor-pointer"><span class="text-xs font-semibold text-gray-600">3</span><input type="radio" name="q4" value="3" class="w-5 h-5 text-walmart-blue"></label>
+                                <label class="flex flex-col items-center space-y-1 cursor-pointer"><span class="text-xs font-semibold text-gray-600">4</span><input type="radio" name="q4" value="4" class="w-5 h-5 text-walmart-blue"></label>
+                                <label class="flex flex-col items-center space-y-1 cursor-pointer"><span class="text-xs font-semibold text-gray-600">5</span><input type="radio" name="q4" value="5" class="w-5 h-5 text-walmart-blue"></label>
+                            </div>
+                        </div>
+                        <hr class="border-gray-200">
+                        <div>
+                            <label class="block text-sm font-medium mb-1">5. Los colaboradores en los pasillos aplicaron la regla de los 3 metros <span class="text-red-500">*</span></label>
+                            <p class="text-xs text-gray-500 italic mb-3">1: Muy de acuerdo - 5: Muy en desacuerdo</p>
+                            <div class="flex justify-between md:justify-start md:space-x-8 items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                <label class="flex flex-col items-center space-y-1 cursor-pointer"><span class="text-xs font-semibold text-gray-600">1</span><input type="radio" name="q5" value="1" required class="w-5 h-5 text-walmart-blue"></label>
+                                <label class="flex flex-col items-center space-y-1 cursor-pointer"><span class="text-xs font-semibold text-gray-600">2</span><input type="radio" name="q5" value="2" class="w-5 h-5 text-walmart-blue"></label>
+                                <label class="flex flex-col items-center space-y-1 cursor-pointer"><span class="text-xs font-semibold text-gray-600">3</span><input type="radio" name="q5" value="3" class="w-5 h-5 text-walmart-blue"></label>
+                                <label class="flex flex-col items-center space-y-1 cursor-pointer"><span class="text-xs font-semibold text-gray-600">4</span><input type="radio" name="q5" value="4" class="w-5 h-5 text-walmart-blue"></label>
+                                <label class="flex flex-col items-center space-y-1 cursor-pointer"><span class="text-xs font-semibold text-gray-600">5</span><input type="radio" name="q5" value="5" class="w-5 h-5 text-walmart-blue"></label>
+                            </div>
+                        </div>
+                        <hr class="border-gray-200">
+                        <div>
+                            <label class="block text-sm font-medium mb-1">6. El colaborador fue resolutivo <span class="text-red-500">*</span></label>
+                            <p class="text-xs text-gray-500 italic mb-3">1: Muy de acuerdo - 5: Muy en desacuerdo</p>
+                            <div class="flex justify-between md:justify-start md:space-x-8 items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                <label class="flex flex-col items-center space-y-1 cursor-pointer"><span class="text-xs font-semibold text-gray-600">1</span><input type="radio" name="q6" value="1" required class="w-5 h-5 text-walmart-blue"></label>
+                                <label class="flex flex-col items-center space-y-1 cursor-pointer"><span class="text-xs font-semibold text-gray-600">2</span><input type="radio" name="q6" value="2" class="w-5 h-5 text-walmart-blue"></label>
+                                <label class="flex flex-col items-center space-y-1 cursor-pointer"><span class="text-xs font-semibold text-gray-600">3</span><input type="radio" name="q6" value="3" class="w-5 h-5 text-walmart-blue"></label>
+                                <label class="flex flex-col items-center space-y-1 cursor-pointer"><span class="text-xs font-semibold text-gray-600">4</span><input type="radio" name="q6" value="4" class="w-5 h-5 text-walmart-blue"></label>
+                                <label class="flex flex-col items-center space-y-1 cursor-pointer"><span class="text-xs font-semibold text-gray-600">5</span><input type="radio" name="q6" value="5" class="w-5 h-5 text-walmart-blue"></label>
+                            </div>
+                        </div>
+                        <hr class="border-gray-200">
+                        <div>
+                            <label class="block text-sm font-medium mb-1">7. Hubo una atención amable durante toda la experiencia <span class="text-red-500">*</span></label>
+                            <p class="text-xs text-gray-500 italic mb-3">1: Muy de acuerdo - 5: Muy en desacuerdo</p>
+                            <div class="flex justify-between md:justify-start md:space-x-8 items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                <label class="flex flex-col items-center space-y-1 cursor-pointer"><span class="text-xs font-semibold text-gray-600">1</span><input type="radio" name="q7" value="1" required class="w-5 h-5 text-walmart-blue"></label>
+                                <label class="flex flex-col items-center space-y-1 cursor-pointer"><span class="text-xs font-semibold text-gray-600">2</span><input type="radio" name="q7" value="2" class="w-5 h-5 text-walmart-blue"></label>
+                                <label class="flex flex-col items-center space-y-1 cursor-pointer"><span class="text-xs font-semibold text-gray-600">3</span><input type="radio" name="q7" value="3" class="w-5 h-5 text-walmart-blue"></label>
+                                <label class="flex flex-col items-center space-y-1 cursor-pointer"><span class="text-xs font-semibold text-gray-600">4</span><input type="radio" name="q7" value="4" class="w-5 h-5 text-walmart-blue"></label>
+                                <label class="flex flex-col items-center space-y-1 cursor-pointer"><span class="text-xs font-semibold text-gray-600">5</span><input type="radio" name="q7" value="5" class="w-5 h-5 text-walmart-blue"></label>
+                            </div>
+                        </div>
+                        <div class="mt-8 pt-4 border-t border-gray-200">
+                            <label class="block text-sm font-medium mb-2">Comentarios (Opcional)</label>
+                            <textarea rows="3" name="comentarios_sala" placeholder="Observaciones sobre la sala..." class="w-full border-gray-300 rounded-md shadow-sm p-3 border"></textarea>
+                        </div>
+                    </div>
+                </section>
+                <div class="pt-6">
+                    <button type="button" onclick="goToStep(2)" class="w-full bg-walmart-blue hover:bg-walmart-blueHover text-white font-bold py-4 px-4 rounded-xl transition duration-200 shadow-md text-lg">Siguiente</button>
+                </div>
+            </div>
+
+            <!-- PASO 2: ZONA DE PAGO -->
+            <div id="step2" class="hidden space-y-8">
+                <section class="space-y-6">
+                    <div>
+                        <h2 class="text-xl font-semibold border-b pb-2 text-walmart-blue">Zona de Pago - Caja Tradicional</h2>
+                        <p class="text-sm text-gray-500 mt-2 italic">En caso de que necesites realizar una compra en el local te pedimos rellenar la información relacionada al protocolo de atención en zona de pago.</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                        <label class="block text-sm font-medium mb-3">Toma el tiempo desde que comienzas a hacer la fila hasta que comienza tu atención en caja.</label>
+                        <div class="bg-blue-50 border border-walmart-blue/30 p-4 rounded-lg flex flex-col md:flex-row items-center justify-between gap-4">
+                            <div class="flex items-center gap-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-walmart-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <div>
+                                    <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">Tiempo en fila</p>
+                                    <div class="text-3xl font-mono font-bold text-walmart-blue tracking-wider" id="timerDisplay">00:00</div>
+                                    <input type="hidden" name="tiempo_fila" id="hiddenTimeInput" value="00:00">
+                                </div>
+                            </div>
+                            <button type="button" id="timerBtn" onclick="toggleTimer()" class="w-full md:w-auto bg-walmart-blue hover:bg-walmart-blueHover text-white font-bold py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg>
+                                Iniciar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium mb-2">8. ¿La persona en caja es colaborador externo o interno?</label>
+                            <div class="flex space-x-6">
+                                <label class="inline-flex items-center"><input type="radio" name="q8" value="interno" class="w-5 h-5 text-walmart-blue"> <span class="ml-2">Interno</span></label>
+                                <label class="inline-flex items-center"><input type="radio" name="q8" value="externo" class="w-5 h-5 text-walmart-blue"> <span class="ml-2">Externo</span></label>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">9. ¿El colaborador en caja aplicó la regla de los 3 metros?</label>
+                            <div class="flex space-x-6">
+                                <label class="inline-flex items-center"><input type="radio" name="q9" value="si" class="w-5 h-5 text-walmart-blue"> <span class="ml-2">Sí</span></label>
+                                <label class="inline-flex items-center"><input type="radio" name="q9" value="no" class="w-5 h-5 text-walmart-blue"> <span class="ml-2">No</span></label>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">10. ¿Solicitó tus datos para Pesos Mi Club?</label>
+                            <div class="flex space-x-6">
+                                <label class="inline-flex items-center"><input type="radio" name="q10" value="si" class="w-5 h-5 text-walmart-blue"> <span class="ml-2">Sí</span></label>
+                                <label class="inline-flex items-center"><input type="radio" name="q10" value="no" class="w-5 h-5 text-walmart-blue"> <span class="ml-2">No</span></label>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">11. ¿Preguntó si paga con Lider BCI?</label>
+                            <div class="flex space-x-6">
+                                <label class="inline-flex items-center"><input type="radio" name="q11" value="si" class="w-5 h-5 text-walmart-blue"> <span class="ml-2">Sí</span></label>
+                                <label class="inline-flex items-center"><input type="radio" name="q11" value="no" class="w-5 h-5 text-walmart-blue"> <span class="ml-2">No</span></label>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">12. ¿Preguntó si deseas la boleta en tu mail?</label>
+                            <div class="flex space-x-6">
+                                <label class="inline-flex items-center"><input type="radio" name="q12" value="si" class="w-5 h-5 text-walmart-blue"> <span class="ml-2">Sí</span></label>
+                                <label class="inline-flex items-center"><input type="radio" name="q12" value="no" class="w-5 h-5 text-walmart-blue"> <span class="ml-2">No</span></label>
+                            </div>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium mb-2">13. ¿Se despidió amablemente?</label>
+                            <div class="flex space-x-6">
+                                <label class="inline-flex items-center"><input type="radio" name="q13" value="si" class="w-5 h-5 text-walmart-blue"> <span class="ml-2">Sí</span></label>
+                                <label class="inline-flex items-center"><input type="radio" name="q13" value="no" class="w-5 h-5 text-walmart-blue"> <span class="ml-2">No</span></label>
+                            </div>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium mb-2">Comentarios (Opcional)</label>
+                            <textarea rows="3" name="comentarios_pago" placeholder="Observaciones de la zona de pago..." class="w-full border-gray-300 rounded-md shadow-sm p-3 border"></textarea>
+                        </div>
+                    </div>
+                </section>
+                <div class="pt-6 flex flex-col md:flex-row gap-4">
+                    <button type="button" onclick="goToStep(1)" class="w-full md:w-1/3 bg-white hover:bg-gray-50 text-gray-700 font-bold py-4 px-4 rounded-xl border-2 border-gray-300 transition duration-200 shadow-sm text-lg">⬅ Volver</button>
+                    <button type="button" onclick="goToStep(3)" class="w-full md:w-2/3 bg-walmart-blue hover:bg-walmart-blueHover text-white font-bold py-4 px-4 rounded-xl transition duration-200 shadow-md text-lg">Siguiente</button>
+                </div>
+            </div>
+
+            <!-- PASO 3: ENTREVISTAS -->
+            <div id="step3" class="hidden space-y-8">
+                <section class="space-y-6">
+                    <div>
+                        <h2 class="text-xl font-semibold border-b pb-2 text-walmart-blue">Conversar con los clientes</h2>
+                        <div class="mt-4 bg-walmart-grayBg border-l-4 border-walmart-spark p-4 rounded-r-lg shadow-sm">
+                            <p class="text-sm text-gray-700">Ahora es momento de acercarte a clientes para conocer sus experiencias. Recuerda presentarte portando tu credencial.</p>
+                        </div>
+                    </div>
+                    <div id="interviewsContainer">
+                        <div class="bg-white p-4 rounded-lg border border-gray-200 space-y-5 shadow-sm">
+                            <h3 class="text-lg font-bold text-walmart-blue mb-4 border-b pb-2">Cliente 1</h3>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">14. ¿Por qué vino a este local hoy? <span class="text-red-500">*</span></label>
+                                <textarea rows="3" required name="cliente_motivo_1" placeholder="Escribe aquí..." class="w-full border-gray-300 rounded-md shadow-sm p-3 border"></textarea>
+                            </div>
+                            <hr class="border-gray-200">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">15. ¿Qué aspectos positivos destacas? <span class="text-red-500">*</span></label>
+                                <textarea rows="3" required name="cliente_positivo_1" placeholder="Escribe aquí..." class="w-full border-gray-300 rounded-md shadow-sm p-3 border"></textarea>
+                            </div>
+                            <hr class="border-gray-200">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">16. ¿Qué oportunidades para mejorar percibes? <span class="text-red-500">*</span></label>
+                                <textarea rows="3" required name="cliente_oportunidad_1" placeholder="Escribe aquí..." class="w-full border-gray-300 rounded-md shadow-sm p-3 border"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pt-2">
+                        <button type="button" onclick="addCustomer()" class="w-full bg-walmart-grayBg hover:bg-gray-100 text-walmart-blue font-bold py-3 px-4 rounded-lg border-2 border-dashed border-walmart-blue transition duration-200 text-md flex items-center justify-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+                            Hablar con otro cliente
+                        </button>
+                    </div>
+                </section>
+                <section class="space-y-4">
+                    <h2 class="text-xl font-semibold border-b pb-2 text-walmart-blue">Comentarios Adicionales</h2>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">17. ¿Algún comentario adicional sobre la visita?</label>
+                        <textarea rows="4" name="q17" placeholder="Escribe aquí tus observaciones finales..." class="w-full border-gray-300 rounded-md shadow-sm p-3 border"></textarea>
+                    </div>
+                </section>
+                <div class="pt-6 flex flex-col md:flex-row gap-4">
+                    <button type="button" onclick="goToStep(2)" class="w-full md:w-1/3 bg-white hover:bg-gray-50 text-gray-700 font-bold py-4 px-4 rounded-xl border-2 border-gray-300 transition duration-200 shadow-sm text-lg">⬅ Volver</button>
+                    <button type="submit" class="w-full md:w-2/3 bg-walmart-blue hover:bg-walmart-blueHover text-white font-bold py-4 px-4 rounded-xl transition duration-200 shadow-md text-lg">Finalizar y Enviar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
