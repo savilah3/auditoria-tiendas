@@ -24,7 +24,6 @@
     </script>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        /* Fade animation for step transitions */
         .fade-in {
             animation: fadeIn 0.3s ease-in-out;
         }
@@ -49,9 +48,8 @@
             </svg>
             </div>
         </div>
-        <!-- Progress Bar Background -->
+        <!-- Progress Bar -->
         <div class="w-full bg-blue-900 h-1.5 hidden" id="progress-container">
-            <!-- Progress Fill -->
             <div id="progress-bar" class="h-1.5 bg-walmart-spark transition-all duration-500 ease-out" style="width: 0%"></div>
         </div>
     </header>
@@ -65,11 +63,11 @@
             <div class="space-y-5">
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">Tu Nombre</label>
-                    <input type="text" id="input-nombre" placeholder="Ej: Pablo" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-walmart-darkblue focus:border-walmart-darkblue outline-none transition-colors shadow-sm">
+                    <input type="text" id="input-nombre" name="nombre" placeholder="Ej: Pablo" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-walmart-darkblue focus:border-walmart-darkblue outline-none transition-colors shadow-sm">
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">Número o Nombre de Tienda</label>
-                    <input type="text" id="input-tienda" placeholder="Ej: 72" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-walmart-darkblue focus:border-walmart-darkblue outline-none transition-colors shadow-sm">
+                    <input type="text" id="input-tienda" name="tienda" placeholder="Ej: 72" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-walmart-darkblue focus:border-walmart-darkblue outline-none transition-colors shadow-sm">
                 </div>
                 <button onclick="startJourney()" class="w-full bg-walmart-darkblue hover:bg-blue-800 text-white font-bold py-3 rounded-lg shadow-md transition-transform active:scale-95 text-lg mt-4">
                     Comenzar
@@ -77,17 +75,14 @@
             </div>
         </div>
 
-        <!-- Dynamic Greeting (Visible in Steps > 0) -->
+        <!-- Dynamic Greeting -->
         <div id="greeting-card" class="hidden fade-in bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4 shadow-sm text-center">
             <p class="text-gray-800 font-medium text-lg leading-snug">
                 Hola <span id="display-nombre" class="font-bold text-walmart-darkblue"></span>, bienvenid@ al local <span id="display-tienda" class="font-bold text-walmart-darkblue"></span>. Hoy tendrás que vivir la experiencia de ponerte <strong>en los zapatos del cliente</strong> 👟. Tu misión: tienes 70 años, con poca facilidad para la tecnología, y necesitas comprar una lavadora de ropa lo antes posible.
             </p>
         </div>
 
-        <!-- Plantilla reutilizable para las opciones de radio (usada en JS o directamente abajo) -->
-        <!-- Se usará la clase de Tailwind directamente para los estados peer-checked -->
-
-        <!-- STEP 1: LLEGADA -->
+        <!-- STEP 1: Encuentra el sector -->
         <div id="step-1" class="step-container hidden fade-in bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
             <div class="bg-gray-50 border-b border-gray-200 p-4">
                 <div class="flex items-center gap-2 mb-1">
@@ -100,7 +95,7 @@
                 <h3 class="text-sm font-bold text-walmart-darkblue mb-4 uppercase tracking-wide">Evalúa tu Misión:</h3>
                 
                 <!-- Item 1.1 -->
-                <div class="mb-5 pb-4 border-b border-gray-100 last:border-0 last:pb-0">
+                <div class="mb-5 pb-4 border-b border-gray-100">
                     <p class="text-sm font-semibold text-gray-800 mb-3 flex gap-2"><span class="text-walmart-darkblue">•</span> Encontrar sector donde podrían haber lavadoras.</p>
                     <div class="grid grid-cols-3 gap-2">
                         <label class="cursor-pointer relative h-full">
@@ -125,7 +120,7 @@
                 </div>
 
                 <!-- Item 1.2 -->
-                <div class="mb-5 pb-4 border-b border-gray-100 last:border-0 last:pb-0">
+                <div class="mb-5 pb-4 border-b border-gray-100">
                     <p class="text-sm font-semibold text-gray-800 mb-3 flex gap-2"><span class="text-walmart-darkblue">•</span> Encontrar el punto de compra</p>
                     <div class="grid grid-cols-3 gap-2">
                         <label class="cursor-pointer relative h-full">
@@ -149,19 +144,14 @@
                     </div>
                 </div>
 
-                
-
-                
-
-                
                 <div class="mt-4 pt-4 border-t-2 border-gray-100">
                     <label class="block text-sm font-bold text-gray-800 mb-1">Observaciones</label>
-                    <textarea rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-walmart-darkblue focus:border-walmart-darkblue outline-none text-sm"></textarea>
+                    <textarea name="s1_obs" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-walmart-darkblue focus:border-walmart-darkblue outline-none text-sm"></textarea>
                 </div>
             </div>
         </div>
 
-        <!-- STEP 2: BUSQUEDA ESCOLARES -->
+        <!-- STEP 2: Vitrinear -->
         <div id="step-2" class="step-container hidden fade-in bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
             <div class="bg-gray-50 border-b border-gray-200 p-4">
                 <div class="flex items-center gap-2 mb-1">
@@ -173,8 +163,7 @@
             <div class="p-4">
                 <h3 class="text-sm font-bold text-walmart-darkblue mb-4 uppercase tracking-wide">Evalúa tu Misión:</h3>
                 
-                <!-- Items 2.1 to 2.4 -->
-                <div class="mb-5 pb-4 border-b border-gray-100 last:border-0 last:pb-0">
+                <div class="mb-5 pb-4 border-b border-gray-100">
                     <p class="text-sm font-semibold text-gray-800 mb-3 flex gap-2"><span class="text-walmart-darkblue">•</span> Vitrinear lavadoras</p>
                     <div class="grid grid-cols-3 gap-2">
                         <label class="cursor-pointer relative h-full"><input type="radio" name="s2_i1" value="sin" class="peer sr-only"><div class="p-2 border border-gray-300 rounded-lg h-full flex flex-col items-center justify-center text-center peer-checked:border-green-600 peer-checked:bg-green-50 peer-checked:text-green-800 text-gray-500 transition-all"><span class="text-xl mb-1">✅</span><span class="font-medium text-[11px] leading-tight">Sin Fricción</span></div></label>
@@ -183,7 +172,7 @@
                     </div>
                 </div>
 
-                <div class="mb-5 pb-4 border-b border-gray-100 last:border-0 last:pb-0">
+                <div class="mb-5 pb-4 border-b border-gray-100">
                     <p class="text-sm font-semibold text-gray-800 mb-3 flex gap-2"><span class="text-walmart-darkblue">•</span> Comparar lavadoras (aprovecha de mirar las que están en exhibición)</p>
                     <div class="grid grid-cols-3 gap-2">
                         <label class="cursor-pointer relative h-full"><input type="radio" name="s2_i2" value="sin" class="peer sr-only"><div class="p-2 border border-gray-300 rounded-lg h-full flex flex-col items-center justify-center text-center peer-checked:border-green-600 peer-checked:bg-green-50 peer-checked:text-green-800 text-gray-500 transition-all"><span class="text-xl mb-1">✅</span><span class="font-medium text-[11px] leading-tight">Sin Fricción</span></div></label>
@@ -192,9 +181,7 @@
                     </div>
                 </div>
 
-                
-
-                <div class="mb-5 pb-4 border-b border-gray-100 last:border-0 last:pb-0">
+                <div class="mb-5 pb-4 border-b border-gray-100">
                     <p class="text-sm font-semibold text-gray-800 mb-3 flex gap-2"><span class="text-walmart-darkblue">•</span> Lograr hacerlo de manera autónoma</p>
                     <div class="grid grid-cols-3 gap-2">
                         <label class="cursor-pointer relative h-full"><input type="radio" name="s2_i3" value="sin" class="peer sr-only"><div class="p-2 border border-gray-300 rounded-lg h-full flex flex-col items-center justify-center text-center peer-checked:border-green-600 peer-checked:bg-green-50 peer-checked:text-green-800 text-gray-500 transition-all"><span class="text-xl mb-1">✅</span><span class="font-medium text-[11px] leading-tight">Sin Fricción</span></div></label>
@@ -203,19 +190,14 @@
                     </div>
                 </div>
 
-                
-
-                
-
-                
                 <div class="mt-4 pt-4 border-t-2 border-gray-100">
                     <label class="block text-sm font-bold text-gray-800 mb-1">Observaciones</label>
-                    <textarea rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-walmart-darkblue focus:border-walmart-darkblue outline-none text-sm"></textarea>
+                    <textarea name="s2_obs" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-walmart-darkblue focus:border-walmart-darkblue outline-none text-sm"></textarea>
                 </div>
             </div>
         </div>
 
-        <!-- STEP 3: ASISTENCIA -->
+        <!-- STEP 3: Selección -->
         <div id="step-3" class="step-container hidden fade-in bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
             <div class="bg-gray-50 border-b border-gray-200 p-4">
                 <div class="flex items-center gap-2 mb-1">
@@ -227,7 +209,7 @@
             <div class="p-4">
                 <h3 class="text-sm font-bold text-walmart-darkblue mb-4 uppercase tracking-wide">Evalúa tu Misión:</h3>
                 
-                <div class="mb-5 pb-4 border-b border-gray-100 last:border-0 last:pb-0">
+                <div class="mb-5 pb-4 border-b border-gray-100">
                     <p class="text-sm font-semibold text-gray-800 mb-3 flex gap-2"><span class="text-walmart-darkblue">•</span> Agregar lavadora al carro</p>
                     <div class="grid grid-cols-3 gap-2">
                         <label class="cursor-pointer relative h-full"><input type="radio" name="s3_i1" value="sin" class="peer sr-only"><div class="p-2 border border-gray-300 rounded-lg h-full flex flex-col items-center justify-center text-center peer-checked:border-green-600 peer-checked:bg-green-50 peer-checked:text-green-800 text-gray-500 transition-all"><span class="text-xl mb-1">✅</span><span class="font-medium text-[11px] leading-tight">Sin Fricción</span></div></label>
@@ -236,7 +218,7 @@
                     </div>
                 </div>
 
-                <div class="mb-5 pb-4 border-b border-gray-100 last:border-0 last:pb-0">
+                <div class="mb-5 pb-4 border-b border-gray-100">
                     <p class="text-sm font-semibold text-gray-800 mb-3 flex gap-2"><span class="text-walmart-darkblue">•</span> Crear un usuario (no estás seguro si tienes cuenta en Lider.cl)</p>
                     <div class="grid grid-cols-3 gap-2">
                         <label class="cursor-pointer relative h-full"><input type="radio" name="s3_i4" value="sin" class="peer sr-only"><div class="p-2 border border-gray-300 rounded-lg h-full flex flex-col items-center justify-center text-center peer-checked:border-green-600 peer-checked:bg-green-50 peer-checked:text-green-800 text-gray-500 transition-all"><span class="text-xl mb-1">✅</span><span class="font-medium text-[11px] leading-tight">Sin Fricción</span></div></label>
@@ -244,9 +226,8 @@
                         <label class="cursor-pointer relative h-full"><input type="radio" name="s3_i4" value="no" class="peer sr-only"><div class="p-2 border border-gray-300 rounded-lg h-full flex flex-col items-center justify-center text-center peer-checked:border-red-600 peer-checked:bg-red-50 peer-checked:text-red-800 text-gray-500 transition-all"><span class="text-xl mb-1">❌</span><span class="font-medium text-[11px] leading-tight">No Logrado</span></div></label>
                     </div>
                 </div>
-                
 
-                <div class="mb-5 pb-4 border-b border-gray-100 last:border-0 last:pb-0">
+                <div class="mb-5 pb-4 border-b border-gray-100">
                     <p class="text-sm font-semibold text-gray-800 mb-3 flex gap-2"><span class="text-walmart-darkblue">•</span> Entender las posibilidades de despacho y retiro disponibles</p>
                     <div class="grid grid-cols-3 gap-2">
                         <label class="cursor-pointer relative h-full"><input type="radio" name="s3_i3" value="sin" class="peer sr-only"><div class="p-2 border border-gray-300 rounded-lg h-full flex flex-col items-center justify-center text-center peer-checked:border-green-600 peer-checked:bg-green-50 peer-checked:text-green-800 text-gray-500 transition-all"><span class="text-xl mb-1">✅</span><span class="font-medium text-[11px] leading-tight">Sin Fricción</span></div></label>
@@ -255,15 +236,14 @@
                     </div>
                 </div>
 
-                
                 <div class="mt-4 pt-4 border-t-2 border-gray-100">
                     <label class="block text-sm font-bold text-gray-800 mb-1">Observaciones</label>
-                    <textarea rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-walmart-darkblue focus:border-walmart-darkblue outline-none text-sm"></textarea>
+                    <textarea name="s3_obs" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-walmart-darkblue focus:border-walmart-darkblue outline-none text-sm"></textarea>
                 </div>
             </div>
         </div>
 
-        <!-- STEP 4: REPO -->
+        <!-- STEP 4: Pago -->
         <div id="step-4" class="step-container hidden fade-in bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
             <div class="bg-gray-50 border-b border-gray-200 p-4">
                 <div class="flex items-center gap-2 mb-1">
@@ -275,7 +255,7 @@
             <div class="p-4">
                 <h3 class="text-sm font-bold text-walmart-darkblue mb-4 uppercase tracking-wide">Evalúa tu Misión:</h3>
                 
-                <div class="mb-5 pb-4 border-b border-gray-100 last:border-0 last:pb-0">
+                <div class="mb-5 pb-4 border-b border-gray-100">
                     <p class="text-sm font-semibold text-gray-800 mb-3 flex gap-2"><span class="text-walmart-darkblue">•</span> Seleccionar medio de pago</p>
                     <div class="grid grid-cols-3 gap-2">
                         <label class="cursor-pointer relative h-full"><input type="radio" name="s4_i1" value="sin" class="peer sr-only"><div class="p-2 border border-gray-300 rounded-lg h-full flex flex-col items-center justify-center text-center peer-checked:border-green-600 peer-checked:bg-green-50 peer-checked:text-green-800 text-gray-500 transition-all"><span class="text-xl mb-1">✅</span><span class="font-medium text-[11px] leading-tight">Sin Fricción</span></div></label>
@@ -284,7 +264,7 @@
                     </div>
                 </div>
 
-                <div class="mb-5 pb-4 border-b border-gray-100 last:border-0 last:pb-0">
+                <div class="mb-5 pb-4 border-b border-gray-100">
                     <p class="text-sm font-semibold text-gray-800 mb-3 flex gap-2"><span class="text-walmart-darkblue">•</span> Entender cómo es el proceso de pago</p>
                     <div class="grid grid-cols-3 gap-2">
                         <label class="cursor-pointer relative h-full"><input type="radio" name="s4_i2" value="sin" class="peer sr-only"><div class="p-2 border border-gray-300 rounded-lg h-full flex flex-col items-center justify-center text-center peer-checked:border-green-600 peer-checked:bg-green-50 peer-checked:text-green-800 text-gray-500 transition-all"><span class="text-xl mb-1">✅</span><span class="font-medium text-[11px] leading-tight">Sin Fricción</span></div></label>
@@ -293,13 +273,7 @@
                     </div>
                 </div>
 
-                
-
-                
-
-                
-                                <!-- Tarea extra pan -->
-                <div class="mb-5 pb-4 border-b border-gray-100 last:border-0 last:pb-0">
+                <div class="mb-5 pb-4 border-b border-gray-100">
                     <p class="text-sm font-semibold text-gray-800 mb-3 flex gap-2"><span class="text-walmart-darkblue">•</span> Ya que estás en el supermercado aprovecha de llevar pan y luego pasa por caja</p>
                     <div class="grid grid-cols-3 gap-2">
                         <label class="cursor-pointer relative h-full"><input type="radio" name="s4_i3" value="sin" class="peer sr-only"><div class="p-2 border border-gray-300 rounded-lg h-full flex flex-col items-center justify-center text-center peer-checked:border-green-600 peer-checked:bg-green-50 peer-checked:text-green-800 text-gray-500 transition-all"><span class="text-xl mb-1">✅</span><span class="font-medium text-[11px] leading-tight">Sin Fricción</span></div></label>
@@ -307,14 +281,15 @@
                         <label class="cursor-pointer relative h-full"><input type="radio" name="s4_i3" value="no" class="peer sr-only"><div class="p-2 border border-gray-300 rounded-lg h-full flex flex-col items-center justify-center text-center peer-checked:border-red-600 peer-checked:bg-red-50 peer-checked:text-red-800 text-gray-500 transition-all"><span class="text-xl mb-1">❌</span><span class="font-medium text-[11px] leading-tight">No Logrado</span></div></label>
                     </div>
                 </div>
-<div class="mt-4 pt-4 border-t-2 border-gray-100">
+
+                <div class="mt-4 pt-4 border-t-2 border-gray-100">
                     <label class="block text-sm font-bold text-gray-800 mb-1">Observaciones</label>
-                    <textarea rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-walmart-darkblue focus:border-walmart-darkblue outline-none text-sm"></textarea>
+                    <textarea name="s4_obs" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-walmart-darkblue focus:border-walmart-darkblue outline-none text-sm"></textarea>
                 </div>
             </div>
         </div>
 
-<!-- STEP 5: ESPERA -->
+        <!-- STEP 5: Espera -->
         <div id="step-5" class="step-container hidden fade-in bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
             <div class="bg-gray-50 border-b border-gray-200 p-4">
                 <div class="flex items-center gap-2 mb-1">
@@ -332,11 +307,12 @@
                 
                 <div class="mt-4 pt-4 border-t-2 border-gray-100">
                     <label class="block text-sm font-bold text-gray-800 mb-1">Observaciones</label>
-                    <textarea rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-walmart-darkblue focus:border-walmart-darkblue outline-none text-sm" placeholder="Responde aquí a las preguntas anteriores y deja tus observaciones..."></textarea>
+                    <textarea name="s5_obs" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-walmart-darkblue focus:border-walmart-darkblue outline-none text-sm" placeholder="Responde aquí a las preguntas anteriores y deja tus observaciones..."></textarea>
                 </div>
             </div>
         </div>
 
+        <!-- Navigation Controls -->
         <div id="nav-controls" class="hidden flex gap-3 mt-6">
             <button onclick="prevStep()" class="flex-1 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-bold py-3 rounded-lg shadow-sm transition-transform active:scale-95 text-sm">
                 Volver
@@ -353,20 +329,15 @@
         const totalSteps = 5;
 
         function updateUI() {
-            // Esconder todas las vistas
             document.querySelectorAll('.step-container').forEach(el => el.classList.add('hidden'));
-            
-            // Mostrar vista actual
             document.getElementById(`step-${currentStep}`).classList.remove('hidden');
             
-            // Mostrar u ocultar barra de progreso y saludo
             if (currentStep > 0) {
                 document.getElementById('progress-container').classList.remove('hidden');
                 document.getElementById('greeting-card').classList.remove('hidden');
                 document.getElementById('nav-controls').classList.remove('hidden');
                 document.getElementById('nav-controls').classList.add('flex');
                 
-                // Setear progreso (1 a 6)
                 const pct = (currentStep / totalSteps) * 100;
                 document.getElementById('progress-bar').style.width = `${pct}%`;
             } else {
@@ -376,20 +347,15 @@
                 document.getElementById('nav-controls').classList.remove('flex');
             }
 
-            // Cambiar texto de boton si es ultimo paso
             const nextBtn = document.getElementById('next-btn');
             if (currentStep === totalSteps) {
                 nextBtn.innerText = "Finalizar y Enviar";
-                nextBtn.classList.remove('bg-walmart-darkblue');
-                nextBtn.classList.add('bg-walmart-green', 'hover:bg-green-700');
-                nextBtn.style.backgroundColor = '#2a8703'; // Force green color for finish
+                nextBtn.style.backgroundColor = '#2a8703';
             } else {
                 nextBtn.innerText = "Siguiente";
-                nextBtn.style.backgroundColor = ''; // Revert to tailwind class (darkblue)
-                nextBtn.classList.add('bg-walmart-darkblue');
+                nextBtn.style.backgroundColor = '';
             }
 
-            // Subir al top del body con suavidad
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -409,13 +375,8 @@
                 currentStep++;
                 updateUI();
             } else {
-                // Submit logic
-                alert("¡Evaluación enviada con éxito! Gracias por ponerte en los zapatos del cliente.");
-                // Reset form (Optional)
-                currentStep = 0;
-                document.querySelectorAll('input[type="text"], textarea').forEach(el => el.value = '');
-                document.querySelectorAll('input[type="radio"]').forEach(el => el.checked = false);
-                updateUI();
+                // ========== ENVIAR DATOS AL SERVIDOR ==========
+                submitForm();
             }
         }
 
@@ -426,6 +387,75 @@
             } else if (currentStep === 1) {
                 currentStep = 0;
                 updateUI();
+            }
+        }
+
+        function getRadioValue(name) {
+            const radio = document.querySelector(`input[name="${name}"]:checked`);
+            return radio ? radio.value : '';
+        }
+
+        function getTextareaValue(name) {
+            const ta = document.querySelector(`textarea[name="${name}"]`);
+            return ta ? ta.value : '';
+        }
+
+        async function submitForm() {
+            const nextBtn = document.getElementById('next-btn');
+            nextBtn.disabled = true;
+            nextBtn.innerText = 'Enviando...';
+
+            // Recolectar todos los datos
+            const formData = new FormData();
+            
+            // Datos iniciales
+            formData.append('nombre', document.getElementById('input-nombre').value || '');
+            formData.append('tienda', document.getElementById('input-tienda').value || '');
+            
+            // Step 1
+            formData.append('s1_i1', getRadioValue('s1_i1'));
+            formData.append('s1_i2', getRadioValue('s1_i2'));
+            formData.append('s1_obs', getTextareaValue('s1_obs'));
+            
+            // Step 2
+            formData.append('s2_i1', getRadioValue('s2_i1'));
+            formData.append('s2_i2', getRadioValue('s2_i2'));
+            formData.append('s2_i3', getRadioValue('s2_i3'));
+            formData.append('s2_obs', getTextareaValue('s2_obs'));
+            
+            // Step 3
+            formData.append('s3_i1', getRadioValue('s3_i1'));
+            formData.append('s3_i4', getRadioValue('s3_i4'));
+            formData.append('s3_i3', getRadioValue('s3_i3'));
+            formData.append('s3_obs', getTextareaValue('s3_obs'));
+            
+            // Step 4
+            formData.append('s4_i1', getRadioValue('s4_i1'));
+            formData.append('s4_i2', getRadioValue('s4_i2'));
+            formData.append('s4_i3', getRadioValue('s4_i3'));
+            formData.append('s4_obs', getTextareaValue('s4_obs'));
+            
+            // Step 5
+            formData.append('s5_obs', getTextareaValue('s5_obs'));
+
+            try {
+                const response = await fetch('/submit-punto-compra', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok || response.redirected) {
+                    // Redirigir a página de gracias
+                    window.location.href = '/gracias-punto-compra';
+                } else {
+                    throw new Error('Error en el servidor');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Hubo un error al enviar los datos. Por favor intenta de nuevo.');
+                nextBtn.disabled = false;
+                nextBtn.innerText = 'Finalizar y Enviar';
+                nextBtn.style.backgroundColor = '#2a8703';
             }
         }
     </script>
