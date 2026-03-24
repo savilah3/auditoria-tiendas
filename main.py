@@ -462,6 +462,58 @@ def exportar_excel(
                 e["q14_motivo_visita"], e["q15_aspectos_positivos"], e["q16_oportunidades_mejora"],
             ])
 
+    # Hoja 3: Atención - todos los campos
+    ws3 = wb.create_sheet(title="Atencion")
+    headers3 = [
+        "ID", "Fecha", "Usuario", "Local", "Geo Lat", "Geo Lng",
+        "Q4a Guardia Saludó", "Q4a Otro", "Q4b Guardia Preguntó", "Q4b Otro",
+        "Q5a Colab. Saludó", "Q5a Otro", "Q5b Colab. Ofreció Ayuda", "Q5b Otro",
+        "Q6 Colaborador Encontrado", "Q6 Otro", "Q8 Resolutivo (1-5)",
+        "Comentarios Sala",
+        "Tiempo Fila", "Q8 Cajero Tipo",
+        "Q9 Cajero Saludó", "Q10 PMC", "Q11 Líder BCI",
+        "Q12 Boleta Mail", "Q13 Despedida",
+        "Comentarios Pago", "Q17 Comentarios",
+    ]
+    ws3.append(headers3)
+    atencion_all = obtener_todas_atencion()
+    for r in atencion_all:
+        ws3.append([
+            r["id"], r["fecha"], r["usuario"], r["local"],
+            r.get("geo_lat", ""), r.get("geo_lng", ""),
+            r.get("q4a", ""), r.get("q4a_other", ""),
+            r.get("q4b", ""), r.get("q4b_other", ""),
+            r.get("q5a", ""), r.get("q5a_other", ""),
+            r.get("q5b", ""), r.get("q5b_other", ""),
+            r.get("q6", ""), r.get("q6_other", ""),
+            r.get("q8_resolutivo", ""),
+            r.get("comentarios_sala", ""),
+            r.get("tiempo_fila", ""),
+            r.get("q8_cajero_tipo", ""),
+            r.get("q9", ""), r.get("q10", ""), r.get("q11", ""),
+            r.get("q12", ""), r.get("q13", ""),
+            r.get("comentarios_pago", ""),
+            r.get("q17", ""),
+        ])
+
+    # Hoja 4: Entrevistas Atención
+    ws4 = wb.create_sheet(title="Entrevistas Atencion")
+    headers4 = [
+        "Atención ID", "Usuario", "Local", "# Cliente",
+        "Motivo Visita", "Aspectos Positivos", "Oportunidades Mejora",
+    ]
+    ws4.append(headers4)
+    for r in atencion_all:
+        entrevistas_at = obtener_entrevistas_atencion(r["id"])
+        for e in entrevistas_at:
+            ws4.append([
+                r["id"], r["usuario"], r["local"],
+                e["numero_cliente"],
+                e.get("motivo_visita", ""),
+                e.get("aspectos_positivos", ""),
+                e.get("oportunidades_mejora", ""),
+            ])
+
     stream = io.BytesIO()
     wb.save(stream)
     stream.seek(0)
