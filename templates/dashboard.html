@@ -264,10 +264,9 @@
                             <th class="px-3 py-3 text-left font-semibold text-gray-700">ID</th>
                             <th class="px-3 py-3 text-left font-semibold text-gray-700">Fecha</th>
                             <th class="px-3 py-3 text-left font-semibold text-gray-700">Usuario</th>
-                            <th class="px-3 py-3 text-left font-semibold text-gray-700">Formato</th>
                             <th class="px-3 py-3 text-left font-semibold text-gray-700">Local</th>
                             <th class="px-3 py-3 text-center font-semibold text-gray-700" title="Tiempo en fila">⏱️ Fila</th>
-                            <th class="px-3 py-3 text-center font-semibold text-gray-700" title="Escala 1-5">Q4-Q7</th>
+                            <th class="px-3 py-3 text-center font-semibold text-gray-700">Guardia / Pasillos</th>
                             <th class="px-3 py-3 text-center font-semibold text-gray-700">Entrev.</th>
                             <th class="px-3 py-3 text-center font-semibold text-gray-700">📍 Geo</th>
                             <th class="px-3 py-3 text-center font-semibold text-gray-700">Acciones</th>
@@ -279,20 +278,11 @@
                             <td class="px-3 py-3 font-mono text-xs">{{ row.id }}</td>
                             <td class="px-3 py-3 text-xs">{{ row.fecha }}</td>
                             <td class="px-3 py-3 font-mono text-xs">{{ row.usuario }}</td>
-                            <td class="px-3 py-3">
-                                <span class="px-2 py-1 rounded-full text-xs font-medium
-                                    {% if row.formato == 'Lider' %}bg-blue-100 text-blue-800
-                                    {% elif row.formato == 'Express' %}bg-green-100 text-green-800
-                                    {% elif row.formato == 'SBA' %}bg-purple-100 text-purple-800
-                                    {% else %}bg-orange-100 text-orange-800{% endif %}">
-                                    {{ row.formato }}
-                                </span>
-                            </td>
-                            <td class="px-3 py-3 text-xs max-w-xs truncate" title="{{ row.local }}">{{ row.local[:25] }}...</td>
+                            <td class="px-3 py-3 text-xs max-w-xs truncate" title="{{ row.local }}">{{ (row.local or '')[:25] }}...</td>
                             <td class="px-3 py-3 text-center font-mono text-xs">{{ row.tiempo_fila or '--:--' }}</td>
                             <td class="px-3 py-3 text-center">
                                 <span class="text-xs bg-gray-100 px-2 py-1 rounded">
-                                    {{ row.q4_guardia_3m or '-' }}/{{ row.q5_pasillos_3m or '-' }}/{{ row.q6_resolutivo or '-' }}/{{ row.q7_amable or '-' }}
+                                    {{ row.q4a or '-' }}/{{ row.q4b or '-' }}/{{ row.q5a or '-' }}/{{ row.q5b or '-' }}
                                 </span>
                             </td>
                             <td class="px-3 py-3 text-center">
@@ -441,24 +431,23 @@
                 id: {{ row.id }},
                 fecha: "{{ row.fecha }}",
                 usuario: "{{ row.usuario }}",
-                formato: "{{ row.formato }}",
-                local: "{{ row.local }}",
+                local: "{{ row.local or '' }}",
                 geo_lat: "{{ row.geo_lat or '' }}",
                 geo_lng: "{{ row.geo_lng or '' }}",
                 tiempo_fila: "{{ row.tiempo_fila or '--:--' }}",
-                q4: "{{ row.q4_guardia_3m or '-' }}",
-                q5: "{{ row.q5_pasillos_3m or '-' }}",
-                q6: "{{ row.q6_resolutivo or '-' }}",
-                q7: "{{ row.q7_amable or '-' }}",
+                q4a: "{{ row.q4a or '-' }}", q4a_other: "{{ row.q4a_other or '' }}",
+                q4b: "{{ row.q4b or '-' }}", q4b_other: "{{ row.q4b_other or '' }}",
+                q5a: "{{ row.q5a or '-' }}", q5a_other: "{{ row.q5a_other or '' }}",
+                q5b: "{{ row.q5b or '-' }}", q5b_other: "{{ row.q5b_other or '' }}",
+                q6: "{{ row.q6 or '-' }}", q6_other: "{{ row.q6_other or '' }}",
+                q8_resolutivo: "{{ row.q8_resolutivo or '-' }}",
                 comentarios_sala: "{{ row.comentarios_sala|default('', true)|replace('"', '\\"')|replace('\n', ' ') }}",
-                q8: "{{ row.q8_cajero_tipo or '-' }}",
-                q9: "{{ row.q9_cajero_3m or '-' }}",
-                q10: "{{ row.q10_pmc or '-' }}",
-                q11: "{{ row.q11_lider_bci or '-' }}",
-                q12: "{{ row.q12_boleta_mail or '-' }}",
-                q13: "{{ row.q13_despedida or '-' }}",
+                q8_cajero_tipo: "{{ row.q8_cajero_tipo or '-' }}",
+                q9: "{{ row.q9 or '-' }}", q10: "{{ row.q10 or '-' }}",
+                q11: "{{ row.q11 or '-' }}", q12: "{{ row.q12 or '-' }}",
+                q13: "{{ row.q13 or '-' }}",
                 comentarios_pago: "{{ row.comentarios_pago|default('', true)|replace('"', '\\"')|replace('\n', ' ') }}",
-                q17: "{{ row.q17_comentarios|default('', true)|replace('"', '\\"')|replace('\n', ' ') }}",
+                q17: "{{ row.q17|default('', true)|replace('"', '\\"')|replace('\n', ' ') }}",
                 entrevistas: [
                     {% for e in row.entrevistas %}
                     {
@@ -519,30 +508,38 @@
                     <div><span class="font-medium">ID:</span> ${data.id}</div>
                     <div><span class="font-medium">Fecha:</span> ${data.fecha}</div>
                     <div><span class="font-medium">Usuario:</span> ${data.usuario}</div>
-                    <div><span class="font-medium">Formato:</span> ${data.formato}</div>
                     <div class="col-span-2"><span class="font-medium">Local:</span> ${data.local}</div>
                     <div><span class="font-medium">Ubicación:</span> ${geoLink}</div>
                     <div><span class="font-medium">⏱️ Tiempo en fila:</span> <span class="font-mono font-bold text-walmart-blue">${data.tiempo_fila}</span></div>
                 </div>
 
-                <h3 class="font-bold text-lg text-walmart-blue mb-3 border-b pb-2">👋 Atención y Amabilidad (Escala 1-5)</h3>
-                <p class="text-xs text-gray-500 mb-3">1: Muy de acuerdo - 5: Muy en desacuerdo</p>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm mb-4">
-                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Q4 Guardia 3m:</span><br>${getScoreBadge(data.q4)}</div>
-                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Q5 Pasillos 3m:</span><br>${getScoreBadge(data.q5)}</div>
-                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Q6 Resolutivo:</span><br>${getScoreBadge(data.q6)}</div>
-                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Q7 Amable:</span><br>${getScoreBadge(data.q7)}</div>
+                <h3 class="font-bold text-lg text-walmart-blue mb-3 border-b pb-2">👋 Guardia</h3>
+                <div class="grid grid-cols-2 gap-3 text-sm mb-4">
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Saludó:</span> ${getYesNoBadge(data.q4a)}${data.q4a_other ? ' ('+data.q4a_other+')' : ''}</div>
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Preguntó si necesitabas algo:</span> ${getYesNoBadge(data.q4b)}${data.q4b_other ? ' ('+data.q4b_other+')' : ''}</div>
+                </div>
+
+                <h3 class="font-bold text-lg text-walmart-blue mb-3 border-b pb-2">🛍️ Pasillos</h3>
+                <div class="grid grid-cols-2 gap-3 text-sm mb-4">
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Colaborador saludó:</span> ${getYesNoBadge(data.q5a)}${data.q5a_other ? ' ('+data.q5a_other+')' : ''}</div>
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Ofreció ayuda:</span> ${getYesNoBadge(data.q5b)}${data.q5b_other ? ' ('+data.q5b_other+')' : ''}</div>
+                </div>
+
+                <h3 class="font-bold text-lg text-walmart-blue mb-3 border-b pb-2">🧑 Colaborador</h3>
+                <div class="grid grid-cols-2 gap-3 text-sm mb-4">
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Encontraste colaborador:</span> ${getYesNoBadge(data.q6)}${data.q6_other ? ' ('+data.q6_other+')' : ''}</div>
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Resolutivo (1-5):</span> ${getScoreBadge(data.q8_resolutivo)}</div>
                 </div>
                 ${data.comentarios_sala ? `<p class="bg-blue-50 p-3 rounded text-sm mb-4"><strong>Comentarios sala:</strong> ${data.comentarios_sala}</p>` : ''}
 
                 <h3 class="font-bold text-lg text-walmart-blue mb-3 border-b pb-2">💳 Zona de Pago</h3>
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm mb-4">
-                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Q8 Cajero:</span> ${data.q8}</div>
-                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Q9 3 metros:</span> ${getYesNoBadge(data.q9)}</div>
-                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Q10 PMC:</span> ${getYesNoBadge(data.q10)}</div>
-                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Q11 BCI:</span> ${getYesNoBadge(data.q11)}</div>
-                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Q12 Boleta mail:</span> ${getYesNoBadge(data.q12)}</div>
-                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Q13 Despedida:</span> ${getYesNoBadge(data.q13)}</div>
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Cajero:</span> ${data.q8_cajero_tipo}</div>
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Saludó:</span> ${getYesNoBadge(data.q9)}</div>
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">PMC:</span> ${getYesNoBadge(data.q10)}</div>
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Líder BCI:</span> ${getYesNoBadge(data.q11)}</div>
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Boleta mail:</span> ${getYesNoBadge(data.q12)}</div>
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Despedida:</span> ${getYesNoBadge(data.q13)}</div>
                 </div>
                 ${data.comentarios_pago ? `<p class="bg-blue-50 p-3 rounded text-sm mb-4"><strong>Comentarios pago:</strong> ${data.comentarios_pago}</p>` : ''}
 
