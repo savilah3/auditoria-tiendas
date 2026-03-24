@@ -130,6 +130,7 @@ CREATE TABLE IF NOT EXISTS entrevistas_visitas (
 
 
 
+CREATE_TABLE_PUNTO_COMPRA = """
 CREATE TABLE IF NOT EXISTS punto_compra (
     id SERIAL PRIMARY KEY,
     fecha TEXT NOT NULL,
