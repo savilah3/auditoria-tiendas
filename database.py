@@ -40,35 +40,32 @@ CREATE TABLE IF NOT EXISTS entrevistas_clientes (
 );
 """
 
-# Tabla para checklist de Atención (con geolocalización y timer)
+# Tabla para checklist de Atención v2 (campos nuevos del formulario Visitas con Sentido)
 CREATE_TABLE_ATENCION = """
 CREATE TABLE IF NOT EXISTS atencion (
     id SERIAL PRIMARY KEY,
     fecha TEXT NOT NULL,
-    -- Geolocalización
     geo_lat TEXT,
     geo_lng TEXT,
-    -- Datos iniciales
     usuario TEXT,
-    formato TEXT,
     local TEXT,
-    -- Paso 1: Atención y Amabilidad (escala 1-5)
-    q4_guardia_3m TEXT,
-    q5_pasillos_3m TEXT,
-    q6_resolutivo TEXT,
-    q7_amable TEXT,
+    -- Paso 1: Guardia
+    q4a TEXT, q4a_other TEXT,
+    q4b TEXT, q4b_other TEXT,
+    -- Paso 1: Pasillos
+    q5a TEXT, q5a_other TEXT,
+    q5b TEXT, q5b_other TEXT,
+    -- Paso 1: Colaborador
+    q6 TEXT, q6_other TEXT,
+    q8_resolutivo TEXT,
     comentarios_sala TEXT,
-    -- Paso 2: Zona de Pago
+    -- Paso 2: Zona de pago
     tiempo_fila TEXT,
     q8_cajero_tipo TEXT,
-    q9_cajero_3m TEXT,
-    q10_pmc TEXT,
-    q11_lider_bci TEXT,
-    q12_boleta_mail TEXT,
-    q13_despedida TEXT,
+    q9 TEXT, q10 TEXT, q11 TEXT, q12 TEXT, q13 TEXT,
     comentarios_pago TEXT,
     -- Paso 3: Comentarios finales
-    q17_comentarios TEXT
+    q17 TEXT
 );
 """
 
@@ -180,6 +177,17 @@ def init_db() -> None:
         conn.execute(CREATE_TABLE_PUNTO_COMPRA)
         conn.execute(CREATE_TABLE_VISITAS)
         conn.execute(CREATE_TABLE_ENTREVISTAS_VISITAS)
+
+        # Migracion: recrear tabla atencion si tiene esquema viejo (sin columna q4a)
+        old_schema = conn.execute("""
+            SELECT column_name FROM information_schema.columns
+            WHERE table_name = 'atencion' AND column_name = 'q4_guardia_3m'
+        """).fetchone()
+        if old_schema:
+            conn.execute("DROP TABLE IF EXISTS entrevistas_atencion CASCADE")
+            conn.execute("DROP TABLE IF EXISTS atencion CASCADE")
+            conn.execute(CREATE_TABLE_ATENCION)
+            conn.execute(CREATE_TABLE_ENTREVISTAS_ATENCION)
         
         # Migracion: renombrar 'rut' a 'usuario' si existe
         row = conn.execute("""
@@ -392,19 +400,25 @@ def eliminar_punto_compra(row_id: int) -> bool:
 # ============ Funciones para Atención ============
 
 def insertar_atencion(data: dict) -> int:
-    """Inserta una evaluación de atención y retorna el ID."""
+    """Inserta una evaluación de atención v2 y retorna el ID."""
     data["fecha"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     sql = """
     INSERT INTO atencion (
-        fecha, geo_lat, geo_lng, usuario, formato, local,
-        q4_guardia_3m, q5_pasillos_3m, q6_resolutivo, q7_amable, comentarios_sala,
-        tiempo_fila, q8_cajero_tipo, q9_cajero_3m, q10_pmc, q11_lider_bci,
-        q12_boleta_mail, q13_despedida, comentarios_pago, q17_comentarios
+        fecha, geo_lat, geo_lng, usuario, local,
+        q4a, q4a_other, q4b, q4b_other,
+        q5a, q5a_other, q5b, q5b_other,
+        q6, q6_other, q8_resolutivo, comentarios_sala,
+        tiempo_fila, q8_cajero_tipo,
+        q9, q10, q11, q12, q13,
+        comentarios_pago, q17
     ) VALUES (
-        %(fecha)s, %(geo_lat)s, %(geo_lng)s, %(usuario)s, %(formato)s, %(local)s,
-        %(q4_guardia_3m)s, %(q5_pasillos_3m)s, %(q6_resolutivo)s, %(q7_amable)s, %(comentarios_sala)s,
-        %(tiempo_fila)s, %(q8_cajero_tipo)s, %(q9_cajero_3m)s, %(q10_pmc)s, %(q11_lider_bci)s,
-        %(q12_boleta_mail)s, %(q13_despedida)s, %(comentarios_pago)s, %(q17_comentarios)s
+        %(fecha)s, %(geo_lat)s, %(geo_lng)s, %(usuario)s, %(local)s,
+        %(q4a)s, %(q4a_other)s, %(q4b)s, %(q4b_other)s,
+        %(q5a)s, %(q5a_other)s, %(q5b)s, %(q5b_other)s,
+        %(q6)s, %(q6_other)s, %(q8_resolutivo)s, %(comentarios_sala)s,
+        %(tiempo_fila)s, %(q8_cajero_tipo)s,
+        %(q9)s, %(q10)s, %(q11)s, %(q12)s, %(q13)s,
+        %(comentarios_pago)s, %(q17)s
     )
     RETURNING id
     """

@@ -198,17 +198,25 @@ def recibir_atencion(
     geo_lng: Annotated[str, Form()] = "",
     # Datos iniciales
     usuario: Annotated[str, Form()] = "",
-    formato: Annotated[str, Form()] = "",
     local: Annotated[str, Form()] = "",
-    # Paso 1: Atención
-    q4: Annotated[str, Form()] = "",
-    q5: Annotated[str, Form()] = "",
+    # Paso 1: Guardia
+    q4a: Annotated[str, Form()] = "",
+    q4a_other: Annotated[str, Form()] = "",
+    q4b: Annotated[str, Form()] = "",
+    q4b_other: Annotated[str, Form()] = "",
+    # Paso 1: Pasillos
+    q5a: Annotated[str, Form()] = "",
+    q5a_other: Annotated[str, Form()] = "",
+    q5b: Annotated[str, Form()] = "",
+    q5b_other: Annotated[str, Form()] = "",
+    # Paso 1: Colaborador
     q6: Annotated[str, Form()] = "",
-    q7: Annotated[str, Form()] = "",
+    q6_other: Annotated[str, Form()] = "",
+    q8_resolutivo: Annotated[str, Form()] = "",
     comentarios_sala: Annotated[str, Form()] = "",
     # Paso 2: Zona de Pago
     tiempo_fila: Annotated[str, Form()] = "",
-    q8: Annotated[str, Form()] = "",
+    q8_cajero_tipo: Annotated[str, Form()] = "",
     q9: Annotated[str, Form()] = "",
     q10: Annotated[str, Form()] = "",
     q11: Annotated[str, Form()] = "",
@@ -217,40 +225,34 @@ def recibir_atencion(
     comentarios_pago: Annotated[str, Form()] = "",
     # Paso 3: Comentarios
     q17: Annotated[str, Form()] = "",
-    # Entrevistas JSON
     entrevistas_json: Annotated[str, Form()] = "[]",
 ):
-    """Recibe la evaluación de atención."""
+    """Recibe la evaluación de atención v2."""
     atencion_id = insertar_atencion({
-        "geo_lat": geo_lat,
-        "geo_lng": geo_lng,
-        "usuario": usuario,
-        "formato": formato,
-        "local": local,
-        "q4_guardia_3m": q4,
-        "q5_pasillos_3m": q5,
-        "q6_resolutivo": q6,
-        "q7_amable": q7,
+        "geo_lat": geo_lat, "geo_lng": geo_lng,
+        "usuario": usuario, "local": local,
+        "q4a": q4a, "q4a_other": q4a_other,
+        "q4b": q4b, "q4b_other": q4b_other,
+        "q5a": q5a, "q5a_other": q5a_other,
+        "q5b": q5b, "q5b_other": q5b_other,
+        "q6": q6, "q6_other": q6_other,
+        "q8_resolutivo": q8_resolutivo,
         "comentarios_sala": comentarios_sala,
         "tiempo_fila": tiempo_fila,
-        "q8_cajero_tipo": q8,
-        "q9_cajero_3m": q9,
-        "q10_pmc": q10,
-        "q11_lider_bci": q11,
-        "q12_boleta_mail": q12,
-        "q13_despedida": q13,
+        "q8_cajero_tipo": q8_cajero_tipo,
+        "q9": q9, "q10": q10, "q11": q11,
+        "q12": q12, "q13": q13,
         "comentarios_pago": comentarios_pago,
-        "q17_comentarios": q17,
+        "q17": q17,
     })
-    
-    # Insertar entrevistas
+
     try:
         entrevistas = json.loads(entrevistas_json)
         if isinstance(entrevistas, list):
             insertar_entrevistas_atencion(atencion_id, entrevistas)
     except json.JSONDecodeError:
         pass
-    
+
     return RedirectResponse(url="/gracias-atencion", status_code=303)
 
 
