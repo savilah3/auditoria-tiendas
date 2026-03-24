@@ -1,8 +1,16 @@
 import os
 import psycopg
 import psycopg.rows
-from datetime import datetime
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 from typing import List, Dict, Any
+
+TZ_CHILE = ZoneInfo("America/Santiago")
+
+
+def now_chile() -> str:
+    """Retorna la fecha y hora actual en zona horaria Chile (America/Santiago)."""
+    return datetime.now(tz=TZ_CHILE).strftime("%Y-%m-%d %H:%M:%S")
 
 DATABASE_URL = os.getenv("DATABASE_URL", "")
 
@@ -216,9 +224,75 @@ def init_db() -> None:
         conn.commit()
 
 
+# ─── Migración: corregir fechas UTC → hora Chile ─────────────────────────
+
+CREATE_TABLE_MIGRACIONES = """
+CREATE TABLE IF NOT EXISTS migraciones (
+    nombre TEXT PRIMARY KEY,
+    aplicada_en TEXT NOT NULL
+);
+"""
+
+
+def _migracion_aplicada(conn, nombre: str) -> bool:
+    """Comprueba si una migración ya fue aplicada."""
+    conn.execute(CREATE_TABLE_MIGRACIONES)
+    row = conn.execute(
+        "SELECT nombre FROM migraciones WHERE nombre = %s", (nombre,)
+    ).fetchone()
+    return row is not None
+
+
+def _marcar_migracion(conn, nombre: str) -> None:
+    """Registra la migración como aplicada."""
+    conn.execute(
+        "INSERT INTO migraciones (nombre, aplicada_en) VALUES (%s, %s)",
+        (nombre, now_chile()),
+    )
+
+
+def _convertir_utc_a_chile(fecha_str: str) -> str:
+    """Convierte un string 'YYYY-MM-DD HH:MM:SS' interpretado como UTC a hora Chile."""
+    try:
+        dt_utc = datetime.strptime(fecha_str, "%Y-%m-%d %H:%M:%S").replace(
+            tzinfo=timezone.utc
+        )
+        dt_chile = dt_utc.astimezone(TZ_CHILE)
+        return dt_chile.strftime("%Y-%m-%d %H:%M:%S")
+    except (ValueError, TypeError):
+        return fecha_str  # Si el formato falla, dejar como está
+
+
+def migrar_fechas_a_chile() -> dict:
+    """Convierte fechas UTC → hora Chile en todas las tablas. Solo se ejecuta una vez."""
+    MIGRATION_NAME = "utc_to_chile_tz_v1"
+    tablas = ["respuestas", "punto_compra", "atencion", "visitas"]
+    conteos: Dict[str, int] = {t: 0 for t in tablas}
+
+    with get_conn() as conn:
+        if _migracion_aplicada(conn, MIGRATION_NAME):
+            return {"estado": "ya_aplicada", "conteos": conteos}
+
+        for tabla in tablas:
+            rows = conn.execute(f"SELECT id, fecha FROM {tabla}").fetchall()
+            for row in rows:
+                nueva_fecha = _convertir_utc_a_chile(row["fecha"])
+                if nueva_fecha != row["fecha"]:
+                    conn.execute(
+                        f"UPDATE {tabla} SET fecha = %s WHERE id = %s",
+                        (nueva_fecha, row["id"]),
+                    )
+                    conteos[tabla] += 1
+
+        _marcar_migracion(conn, MIGRATION_NAME)
+        conn.commit()
+
+    return {"estado": "aplicada", "conteos": conteos}
+
+
 def insertar_respuesta(data: dict) -> int:
     """Inserta una respuesta y retorna el ID generado."""
-    data["fecha"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    data["fecha"] = now_chile()
     sql = """
     INSERT INTO respuestas (
         fecha, formato, local, usuario,
@@ -355,7 +429,7 @@ def obtener_stats() -> dict:
 
 def insertar_punto_compra(data: dict) -> int:
     """Inserta una evaluación de punto de compra y retorna el ID."""
-    data["fecha"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    data["fecha"] = now_chile()
     sql = """
     INSERT INTO punto_compra (
         fecha, nombre, tienda,
@@ -401,7 +475,7 @@ def eliminar_punto_compra(row_id: int) -> bool:
 
 def insertar_atencion(data: dict) -> int:
     """Inserta una evaluación de atención v2 y retorna el ID."""
-    data["fecha"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    data["fecha"] = now_chile()
     sql = """
     INSERT INTO atencion (
         fecha, geo_lat, geo_lng, usuario, local,
@@ -482,7 +556,7 @@ def eliminar_atencion(row_id: int) -> bool:
 
 def insertar_visita(data: dict) -> int:
     """Inserta una visita y retorna el ID generado."""
-    data["fecha"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    data["fecha"] = now_chile()
     sql = """
     INSERT INTO visitas (
         fecha, geo_lat, geo_lng, usuario, local,

@@ -13,6 +13,7 @@ from fastapi.templating import Jinja2Templates
 from database import (
     eliminar_respuesta,
     init_db,
+    migrar_fechas_a_chile,
     insertar_entrevistas,
     insertar_respuesta,
     obtener_entrevistas,
@@ -45,6 +46,8 @@ DASHBOARD_PASS = os.getenv("DASHBOARD_PASS", "walmart2025")
 @app.on_event("startup")
 def on_startup() -> None:
     init_db()
+    resultado = migrar_fechas_a_chile()
+    print(f"[TZ Migration] {resultado}")
 
 
 # --- Autenticacion basica para el dashboard ---
