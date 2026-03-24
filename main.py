@@ -26,6 +26,11 @@ from database import (
     obtener_todas_atencion,
     obtener_entrevistas_atencion,
     eliminar_atencion,
+    insertar_visita,
+    insertar_entrevistas_visita,
+    obtener_todas_visitas,
+    obtener_entrevistas_visita,
+    eliminar_visita,
 )
 
 app = FastAPI(title="En los zapatos del cliente")
@@ -254,7 +259,71 @@ def gracias_atencion(request: Request):
     return templates.TemplateResponse("gracias_atencion.html", {"request": request})
 
 
-# --- Dashboard (protegido) ---
+# --- Formulario Visitas con Sentido ---
+@app.post("/submit-visita")
+def recibir_visita(
+    geo_lat: Annotated[str, Form()] = "",
+    geo_lng: Annotated[str, Form()] = "",
+    usuario: Annotated[str, Form()] = "",
+    local: Annotated[str, Form()] = "",
+    # Paso 1: Guardia
+    q4a: Annotated[str, Form()] = "",
+    q4a_other: Annotated[str, Form()] = "",
+    q4b: Annotated[str, Form()] = "",
+    q4b_other: Annotated[str, Form()] = "",
+    # Paso 1: Pasillos
+    q5a: Annotated[str, Form()] = "",
+    q5a_other: Annotated[str, Form()] = "",
+    q5b: Annotated[str, Form()] = "",
+    q5b_other: Annotated[str, Form()] = "",
+    # Paso 1: Colaborador
+    q6: Annotated[str, Form()] = "",
+    q6_other: Annotated[str, Form()] = "",
+    q8_resolutivo: Annotated[str, Form()] = "",
+    comentarios_sala: Annotated[str, Form()] = "",
+    # Paso 2: Zona de pago
+    tiempo_fila: Annotated[str, Form()] = "",
+    q8_cajero_tipo: Annotated[str, Form()] = "",
+    q9: Annotated[str, Form()] = "",
+    q10: Annotated[str, Form()] = "",
+    q11: Annotated[str, Form()] = "",
+    q12: Annotated[str, Form()] = "",
+    q13: Annotated[str, Form()] = "",
+    comentarios_pago: Annotated[str, Form()] = "",
+    # Paso 3: Comentarios finales
+    q17: Annotated[str, Form()] = "",
+    entrevistas_json: Annotated[str, Form()] = "[]",
+):
+    """Recibe el formulario Visitas con Sentido."""
+    visita_id = insertar_visita({
+        "geo_lat": geo_lat,
+        "geo_lng": geo_lng,
+        "usuario": usuario,
+        "local": local,
+        "q4a": q4a, "q4a_other": q4a_other,
+        "q4b": q4b, "q4b_other": q4b_other,
+        "q5a": q5a, "q5a_other": q5a_other,
+        "q5b": q5b, "q5b_other": q5b_other,
+        "q6": q6, "q6_other": q6_other,
+        "q8_resolutivo": q8_resolutivo,
+        "comentarios_sala": comentarios_sala,
+        "tiempo_fila": tiempo_fila,
+        "q8_cajero_tipo": q8_cajero_tipo,
+        "q9": q9, "q10": q10, "q11": q11,
+        "q12": q12, "q13": q13,
+        "comentarios_pago": comentarios_pago,
+        "q17": q17,
+    })
+    try:
+        entrevistas = json.loads(entrevistas_json)
+        if isinstance(entrevistas, list):
+            insertar_entrevistas_visita(visita_id, entrevistas)
+    except json.JSONDecodeError:
+        pass
+    return RedirectResponse(url="/gracias", status_code=303)
+
+
+
 @app.get("/dashboard", response_class=HTMLResponse)
 def dashboard(
     request: Request,
@@ -281,6 +350,13 @@ def dashboard(
     for row in atencion_rows:
         entrevistas = obtener_entrevistas_atencion(row["id"])
         atencion_con_entrevistas.append({**row, "entrevistas": entrevistas})
+
+    # Obtener datos de Visitas con Sentido
+    visita_rows = obtener_todas_visitas()
+    visitas_con_entrevistas = []
+    for row in visita_rows:
+        entrevistas = obtener_entrevistas_visita(row["id"])
+        visitas_con_entrevistas.append({**row, "entrevistas": entrevistas})
     
     stats = obtener_stats()
     return templates.TemplateResponse(
@@ -290,6 +366,7 @@ def dashboard(
             "rows": rows_con_entrevistas,
             "punto_compra_rows": punto_compra_rows,
             "atencion_rows": atencion_con_entrevistas,
+            "visita_rows": visitas_con_entrevistas,
             "stats": stats,
             "filtro": formato,
             "tab": tab,
@@ -325,6 +402,16 @@ def eliminar_at(
     """Elimina una evaluación de atención."""
     eliminar_atencion(row_id)
     return RedirectResponse(url="/dashboard?tab=atencion", status_code=303)
+
+
+@app.post("/dashboard/delete-visita/{row_id}")
+def eliminar_visita_endpoint(
+    row_id: int,
+    _: Annotated[str, Depends(verificar_credenciales)],
+):
+    """Elimina una visita con sentido."""
+    eliminar_visita(row_id)
+    return RedirectResponse(url="/dashboard?tab=visitas", status_code=303)
 
 
 @app.get("/dashboard/export")

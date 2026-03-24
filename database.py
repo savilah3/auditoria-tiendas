@@ -84,8 +84,52 @@ CREATE TABLE IF NOT EXISTS entrevistas_atencion (
 );
 """
 
-# Tabla para auditoría de Punto de Compra
-CREATE_TABLE_PUNTO_COMPRA = """
+# Tabla para "Visitas con Sentido" (nuevo formulario)
+CREATE_TABLE_VISITAS = """
+CREATE TABLE IF NOT EXISTS visitas (
+    id SERIAL PRIMARY KEY,
+    fecha TEXT NOT NULL,
+    geo_lat TEXT,
+    geo_lng TEXT,
+    usuario TEXT,
+    local TEXT,
+    -- Paso 1: Guardia
+    q4a TEXT, q4a_other TEXT,
+    q4b TEXT, q4b_other TEXT,
+    -- Paso 1: Pasillos
+    q5a TEXT, q5a_other TEXT,
+    q5b TEXT, q5b_other TEXT,
+    -- Paso 1: Colaborador resolutivo
+    q6 TEXT, q6_other TEXT,
+    q8_resolutivo TEXT,
+    comentarios_sala TEXT,
+    -- Paso 2: Zona de pago
+    tiempo_fila TEXT,
+    q8_cajero_tipo TEXT,
+    q9 TEXT,
+    q10 TEXT,
+    q11 TEXT,
+    q12 TEXT,
+    q13 TEXT,
+    comentarios_pago TEXT,
+    -- Paso 3: Comentarios finales
+    q17 TEXT
+);
+"""
+
+CREATE_TABLE_ENTREVISTAS_VISITAS = """
+CREATE TABLE IF NOT EXISTS entrevistas_visitas (
+    id SERIAL PRIMARY KEY,
+    visita_id INTEGER NOT NULL REFERENCES visitas(id) ON DELETE CASCADE,
+    numero_cliente INTEGER NOT NULL,
+    motivo_visita TEXT,
+    aspectos_positivos TEXT,
+    oportunidades_mejora TEXT
+);
+"""
+
+
+
 CREATE TABLE IF NOT EXISTS punto_compra (
     id SERIAL PRIMARY KEY,
     fecha TEXT NOT NULL,
@@ -133,6 +177,8 @@ def init_db() -> None:
         conn.execute(CREATE_TABLE_ATENCION)
         conn.execute(CREATE_TABLE_ENTREVISTAS_ATENCION)
         conn.execute(CREATE_TABLE_PUNTO_COMPRA)
+        conn.execute(CREATE_TABLE_VISITAS)
+        conn.execute(CREATE_TABLE_ENTREVISTAS_VISITAS)
         
         # Migracion: renombrar 'rut' a 'usuario' si existe
         row = conn.execute("""
@@ -412,6 +458,85 @@ def eliminar_atencion(row_id: int) -> bool:
     """Elimina una evaluación de atención y sus entrevistas (CASCADE)."""
     with get_conn() as conn:
         cur = conn.execute("DELETE FROM atencion WHERE id = %s", (row_id,))
+        deleted = cur.rowcount > 0
+        conn.commit()
+    return deleted
+
+
+# ============ Funciones para Visitas con Sentido ============
+
+def insertar_visita(data: dict) -> int:
+    """Inserta una visita y retorna el ID generado."""
+    data["fecha"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    sql = """
+    INSERT INTO visitas (
+        fecha, geo_lat, geo_lng, usuario, local,
+        q4a, q4a_other, q4b, q4b_other,
+        q5a, q5a_other, q5b, q5b_other,
+        q6, q6_other, q8_resolutivo, comentarios_sala,
+        tiempo_fila, q8_cajero_tipo, q9, q10, q11, q12, q13,
+        comentarios_pago, q17
+    ) VALUES (
+        %(fecha)s, %(geo_lat)s, %(geo_lng)s, %(usuario)s, %(local)s,
+        %(q4a)s, %(q4a_other)s, %(q4b)s, %(q4b_other)s,
+        %(q5a)s, %(q5a_other)s, %(q5b)s, %(q5b_other)s,
+        %(q6)s, %(q6_other)s, %(q8_resolutivo)s, %(comentarios_sala)s,
+        %(tiempo_fila)s, %(q8_cajero_tipo)s, %(q9)s, %(q10)s, %(q11)s, %(q12)s, %(q13)s,
+        %(comentarios_pago)s, %(q17)s
+    )
+    RETURNING id
+    """
+    with get_conn() as conn:
+        result = conn.execute(sql, data).fetchone()
+        conn.commit()
+        return result["id"]
+
+
+def insertar_entrevistas_visita(visita_id: int, entrevistas: List[Dict[str, str]]) -> None:
+    """Inserta las entrevistas de clientes de una visita."""
+    if not entrevistas:
+        return
+    sql = """
+    INSERT INTO entrevistas_visitas (
+        visita_id, numero_cliente, motivo_visita, aspectos_positivos, oportunidades_mejora
+    ) VALUES (
+        %(visita_id)s, %(numero_cliente)s, %(motivo_visita)s,
+        %(aspectos_positivos)s, %(oportunidades_mejora)s
+    )
+    """
+    with get_conn() as conn:
+        for i, e in enumerate(entrevistas, 1):
+            conn.execute(sql, {
+                "visita_id": visita_id,
+                "numero_cliente": i,
+                "motivo_visita": e.get("motivo", ""),
+                "aspectos_positivos": e.get("positivos", ""),
+                "oportunidades_mejora": e.get("oportunidades", ""),
+            })
+        conn.commit()
+
+
+def obtener_todas_visitas() -> List[Dict[str, Any]]:
+    """Obtiene todas las visitas ordenadas por fecha."""
+    with get_conn() as conn:
+        return conn.execute(
+            "SELECT * FROM visitas ORDER BY fecha DESC"
+        ).fetchall()
+
+
+def obtener_entrevistas_visita(visita_id: int) -> List[Dict[str, Any]]:
+    """Obtiene las entrevistas de una visita."""
+    with get_conn() as conn:
+        return conn.execute(
+            "SELECT * FROM entrevistas_visitas WHERE visita_id = %s ORDER BY numero_cliente",
+            (visita_id,)
+        ).fetchall()
+
+
+def eliminar_visita(row_id: int) -> bool:
+    """Elimina una visita y sus entrevistas (CASCADE)."""
+    with get_conn() as conn:
+        cur = conn.execute("DELETE FROM visitas WHERE id = %s", (row_id,))
         deleted = cur.rowcount > 0
         conn.commit()
     return deleted
