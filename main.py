@@ -11,14 +11,9 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.templating import Jinja2Templates
 
 from database import (
-    eliminar_respuesta,
     init_db,
     migrar_fechas_a_chile,
-    insertar_entrevistas,
-    insertar_respuesta,
-    obtener_entrevistas,
     obtener_stats,
-    obtener_todas,
     insertar_punto_compra,
     obtener_todas_punto_compra,
     eliminar_punto_compra,
@@ -28,7 +23,6 @@ from database import (
     obtener_entrevistas_visita,
     eliminar_visita,
     limpiar_visitas,
-    limpiar_respuestas,
     limpiar_punto_compra,
 )
 
@@ -63,64 +57,10 @@ def verificar_credenciales(
     return credentials.username
 
 
-# --- Formulario publico ---
+# --- Redireccion raiz ---
 @app.get("/", response_class=HTMLResponse)
-def mostrar_formulario(request: Request):
-    return templates.TemplateResponse("form.html", {"request": request})
-
-
-@app.post("/submit")
-def recibir_respuesta(
-    formato: Annotated[str, Form()] = "",
-    local: Annotated[str, Form()] = "",
-    usuario: Annotated[str, Form()] = "",
-    q4: Annotated[str, Form()] = "",
-    q5: Annotated[str, Form()] = "",
-    q6: Annotated[str, Form()] = "",
-    q7: Annotated[str, Form()] = "",
-    q8: Annotated[str, Form()] = "",
-    q9: Annotated[str, Form()] = "",
-    q10: Annotated[str, Form()] = "",
-    q11: Annotated[str, Form()] = "",
-    q12: Annotated[str, Form()] = "",
-    q13: Annotated[str, Form()] = "",
-    q17: Annotated[str, Form()] = "",
-    # Entrevistas a clientes (JSON array)
-    entrevistas_json: Annotated[str, Form()] = "[]",
-):
-    """Recibe el formulario completo con entrevistas a clientes."""
-    # Insertar respuesta principal
-    respuesta_id = insertar_respuesta({
-        "formato": formato,
-        "local": local,
-        "usuario": usuario,
-        "q4_guardia_saludo": q4,
-        "q5_pasillos_saludo": q5,
-        "q6_colaborador_resolutivo": q6,
-        "q7_atencion_amable": q7,
-        "q8_cajero_tipo": q8,
-        "q9_cajero_saludo": q9,
-        "q10_pmc": q10,
-        "q11_lider_bci": q11,
-        "q12_boleta_mail": q12,
-        "q13_despedida": q13,
-        "q17_comentarios": q17,
-    })
-    
-    # Insertar entrevistas a clientes
-    try:
-        entrevistas = json.loads(entrevistas_json)
-        if isinstance(entrevistas, list):
-            insertar_entrevistas(respuesta_id, entrevistas)
-    except json.JSONDecodeError:
-        pass  # Si falla el JSON, continuar sin entrevistas
-    
-    return RedirectResponse(url="/gracias", status_code=303)
-
-
-@app.get("/gracias", response_class=HTMLResponse)
-def gracias(request: Request):
-    return templates.TemplateResponse("gracias.html", {"request": request})
+def raiz(request: Request):
+    return RedirectResponse(url="/visitas", status_code=302)
 
 
 # --- Formulario Punto de Compra ---
@@ -263,19 +203,8 @@ def recibir_visita(
 def dashboard(
     request: Request,
     _: Annotated[str, Depends(verificar_credenciales)],
-    formato: str = "",
-    tab: str = "auditoria",
+    tab: str = "visitas",
 ):
-    rows = obtener_todas()
-    if formato:
-        rows = [r for r in rows if r["formato"] == formato]
-    
-    # Agregar entrevistas a cada row
-    rows_con_entrevistas = []
-    for row in rows:
-        entrevistas = obtener_entrevistas(row["id"])
-        rows_con_entrevistas.append({**row, "entrevistas": entrevistas})
-    
     # Obtener datos de punto de compra
     punto_compra_rows = obtener_todas_punto_compra()
 
@@ -285,7 +214,7 @@ def dashboard(
     for row in visita_rows:
         entrevistas = obtener_entrevistas_visita(row["id"])
         visitas_con_entrevistas.append({**row, "entrevistas": entrevistas})
-    
+
     stats = obtener_stats()
     return templates.TemplateResponse(
         "dashboard.html",
@@ -295,20 +224,9 @@ def dashboard(
             "punto_compra_rows": punto_compra_rows,
             "visita_rows": visitas_con_entrevistas,
             "stats": stats,
-            "filtro": formato,
             "tab": tab,
         },
     )
-
-
-@app.post("/dashboard/delete/{row_id}")
-def eliminar(
-    row_id: int,
-    _: Annotated[str, Depends(verificar_credenciales)],
-):
-    """Elimina una respuesta por ID y redirige al dashboard."""
-    eliminar_respuesta(row_id)
-    return RedirectResponse(url="/dashboard", status_code=303)
 
 
 @app.post("/dashboard/delete-punto-compra/{row_id}")
@@ -340,15 +258,6 @@ def limpiar_visitas_endpoint(
     return RedirectResponse(url="/dashboard?tab=visitas", status_code=303)
 
 
-@app.post("/dashboard/limpiar-auditoria")
-def limpiar_auditoria_endpoint(
-    _: Annotated[str, Depends(verificar_credenciales)],
-):
-    """Limpia TODOS los registros de Auditoría Tiendas."""
-    limpiar_respuestas()
-    return RedirectResponse(url="/dashboard?tab=auditoria", status_code=303)
-
-
 @app.post("/dashboard/limpiar-punto-compra")
 def limpiar_punto_compra_endpoint(
     _: Annotated[str, Depends(verificar_credenciales)],
@@ -361,48 +270,71 @@ def limpiar_punto_compra_endpoint(
 @app.get("/dashboard/export")
 def exportar_excel(
     _: Annotated[str, Depends(verificar_credenciales)],
-    formato: str = "",
 ):
-    """Exporta las respuestas y entrevistas a Excel."""
-    rows = obtener_todas()
-    if formato:
-        rows = [r for r in rows if r["formato"] == formato]
-
+    """Exporta visitas y punto de compra a Excel."""
     wb = openpyxl.Workbook()
-    
-    # Hoja 1: Respuestas principales
+
+    # Hoja 1: Visitas con Sentido
     ws1 = wb.active
-    ws1.title = "Respuestas"
+    ws1.title = "Visitas con Sentido"
     headers1 = [
-        "ID", "Fecha", "Formato", "Local", "Usuario",
-        "Guardia Saludo", "Pasillos Saludo", "Colaborador Resolutivo",
-        "Atencion Amable", "Cajero Tipo", "Cajero Saludo",
-        "PMC", "Lider BCI", "Boleta Mail", "Despedida", "Comentarios",
+        "ID", "Fecha", "Usuario", "Local", "Geo Lat", "Geo Lng",
+        "G. Saludó", "G. Preguntó",
+        "P. Saludó", "P. Ofreció Ayuda",
+        "Colaborador", "Resolutivo (1-5)", "Comentarios Sala",
+        "Tiempo Fila", "Cajero Tipo",
+        "Q9", "Q10 PMC", "Q11 Líder BCI", "Q12 Boleta Mail", "Q13 Despedida",
+        "Comentarios Pago", "Comentarios Adicionales",
     ]
     ws1.append(headers1)
-    for r in rows:
+    for r in obtener_todas_visitas():
         ws1.append([
-            r["id"], r["fecha"], r["formato"], r["local"], r["usuario"],
-            r["q4_guardia_saludo"], r["q5_pasillos_saludo"], r["q6_colaborador_resolutivo"],
-            r["q7_atencion_amable"], r["q8_cajero_tipo"], r["q9_cajero_saludo"],
-            r["q10_pmc"], r["q11_lider_bci"], r["q12_boleta_mail"], r["q13_despedida"],
-            r.get("q17_comentarios", ""),
+            r["id"], r["fecha"], r["usuario"], r["local"],
+            r.get("geo_lat", ""), r.get("geo_lng", ""),
+            r.get("q4a", ""), r.get("q4b", ""),
+            r.get("q5a", ""), r.get("q5b", ""),
+            r.get("q6", ""), r.get("q8_resolutivo", ""), r.get("comentarios_sala", ""),
+            r.get("tiempo_fila", ""), r.get("q8_cajero_tipo", ""),
+            r.get("q9", ""), r.get("q10", ""), r.get("q11", ""),
+            r.get("q12", ""), r.get("q13", ""),
+            r.get("comentarios_pago", ""), r.get("q17", ""),
         ])
-    
-    # Hoja 2: Entrevistas a clientes
-    ws2 = wb.create_sheet(title="Entrevistas Clientes")
+
+    # Hoja 2: Entrevistas de Visitas
+    ws2 = wb.create_sheet(title="Entrevistas Visitas")
     headers2 = [
-        "Respuesta ID", "Formato", "Local", "# Cliente",
+        "Visita ID", "Usuario", "Local", "# Cliente",
         "Motivo Visita", "Aspectos Positivos", "Oportunidades Mejora",
     ]
     ws2.append(headers2)
-    for r in rows:
-        entrevistas = obtener_entrevistas(r["id"])
-        for e in entrevistas:
+    for r in obtener_todas_visitas():
+        for e in obtener_entrevistas_visita(r["id"]):
             ws2.append([
-                r["id"], r["formato"], r["local"], e["numero_cliente"],
-                e["q14_motivo_visita"], e["q15_aspectos_positivos"], e["q16_oportunidades_mejora"],
+                r["id"], r["usuario"], r["local"],
+                e["numero_cliente"],
+                e.get("motivo_visita", ""),
+                e.get("aspectos_positivos", ""),
+                e.get("oportunidades_mejora", ""),
             ])
+
+    # Hoja 3: Punto de Compra
+    ws3 = wb.create_sheet(title="Punto de Compra")
+    headers3 = [
+        "ID", "Fecha", "Nombre", "Tienda",
+        "S1 Encontrar Sector", "S1 Exhibición", "S1 Obs",
+        "S2 Vitrinear", "S2 Info Precio", "S2 Obs",
+        "S3 Disponibilidad", "S3 Variedad", "S3 Obs",
+        "S4 Pago", "S4 Tiempo", "S4 Obs",
+    ]
+    ws3.append(headers3)
+    for r in obtener_todas_punto_compra():
+        ws3.append([
+            r["id"], r["fecha"], r["nombre"], r["tienda"],
+            r.get("s1_i1", ""), r.get("s1_i2", ""), r.get("s1_obs", ""),
+            r.get("s2_i1", ""), r.get("s2_i2", ""), r.get("s2_obs", ""),
+            r.get("s3_i1", ""), r.get("s3_i2", ""), r.get("s3_obs", ""),
+            r.get("s4_i1", ""), r.get("s4_i2", ""), r.get("s4_obs", ""),
+        ])
 
     stream = io.BytesIO()
     wb.save(stream)
@@ -410,5 +342,5 @@ def exportar_excel(
     return StreamingResponse(
         stream,
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        headers={"Content-Disposition": "attachment; filename=auditoria.xlsx"},
+        headers={"Content-Disposition": "attachment; filename=visitas_export.xlsx"},
     )

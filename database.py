@@ -290,101 +290,6 @@ def migrar_fechas_a_chile() -> dict:
     return {"estado": "aplicada", "conteos": conteos}
 
 
-def insertar_respuesta(data: dict) -> int:
-    """Inserta una respuesta y retorna el ID generado."""
-    data["fecha"] = now_chile()
-    sql = """
-    INSERT INTO respuestas (
-        fecha, formato, local, usuario,
-        q4_guardia_saludo, q5_pasillos_saludo, q6_colaborador_resolutivo,
-        q7_atencion_amable, q8_cajero_tipo, q9_cajero_saludo,
-        q10_pmc, q11_lider_bci, q12_boleta_mail, q13_despedida,
-        q17_comentarios
-    ) VALUES (
-        %(fecha)s, %(formato)s, %(local)s, %(usuario)s,
-        %(q4_guardia_saludo)s, %(q5_pasillos_saludo)s, %(q6_colaborador_resolutivo)s,
-        %(q7_atencion_amable)s, %(q8_cajero_tipo)s, %(q9_cajero_saludo)s,
-        %(q10_pmc)s, %(q11_lider_bci)s, %(q12_boleta_mail)s, %(q13_despedida)s,
-        %(q17_comentarios)s
-    )
-    RETURNING id
-    """
-    with get_conn() as conn:
-        result = conn.execute(sql, data).fetchone()
-        conn.commit()
-        return result["id"]
-
-
-def insertar_entrevistas(respuesta_id: int, entrevistas: List[Dict[str, str]]) -> None:
-    """Inserta las entrevistas a clientes asociadas a una respuesta."""
-    if not entrevistas:
-        return
-    
-    sql = """
-    INSERT INTO entrevistas_clientes (
-        respuesta_id, numero_cliente,
-        q14_motivo_visita, q15_aspectos_positivos, q16_oportunidades_mejora
-    ) VALUES (
-        %(respuesta_id)s, %(numero_cliente)s,
-        %(q14_motivo_visita)s, %(q15_aspectos_positivos)s, %(q16_oportunidades_mejora)s
-    )
-    """
-    with get_conn() as conn:
-        for i, entrevista in enumerate(entrevistas, 1):
-            conn.execute(sql, {
-                "respuesta_id": respuesta_id,
-                "numero_cliente": i,
-                "q14_motivo_visita": entrevista.get("motivo", ""),
-                "q15_aspectos_positivos": entrevista.get("positivos", ""),
-                "q16_oportunidades_mejora": entrevista.get("oportunidades", ""),
-            })
-        conn.commit()
-
-
-def obtener_todas() -> List[Dict[str, Any]]:
-    """Obtiene todas las respuestas ordenadas por fecha."""
-    with get_conn() as conn:
-        return conn.execute(
-            "SELECT * FROM respuestas ORDER BY fecha DESC"
-        ).fetchall()
-
-
-def obtener_entrevistas(respuesta_id: int) -> List[Dict[str, Any]]:
-    """Obtiene las entrevistas de una respuesta especifica."""
-    with get_conn() as conn:
-        return conn.execute(
-            "SELECT * FROM entrevistas_clientes WHERE respuesta_id = %s ORDER BY numero_cliente",
-            (respuesta_id,)
-        ).fetchall()
-
-
-def obtener_respuesta_con_entrevistas(respuesta_id: int) -> Dict[str, Any] | None:
-    """Obtiene una respuesta con sus entrevistas."""
-    with get_conn() as conn:
-        respuesta = conn.execute(
-            "SELECT * FROM respuestas WHERE id = %s", (respuesta_id,)
-        ).fetchone()
-        
-        if not respuesta:
-            return None
-        
-        entrevistas = conn.execute(
-            "SELECT * FROM entrevistas_clientes WHERE respuesta_id = %s ORDER BY numero_cliente",
-            (respuesta_id,)
-        ).fetchall()
-        
-        return {**respuesta, "entrevistas": entrevistas}
-
-
-def eliminar_respuesta(row_id: int) -> bool:
-    """Elimina una respuesta y sus entrevistas asociadas (CASCADE)."""
-    with get_conn() as conn:
-        cur = conn.execute("DELETE FROM respuestas WHERE id = %s", (row_id,))
-        deleted = cur.rowcount > 0
-        conn.commit()
-    return deleted
-
-
 # ============ Funciones de limpieza masiva ============
 
 def limpiar_visitas() -> int:
@@ -392,16 +297,6 @@ def limpiar_visitas() -> int:
     with get_conn() as conn:
         conn.execute("DELETE FROM entrevistas_visita")
         cur = conn.execute("DELETE FROM visitas")
-        deleted = cur.rowcount
-        conn.commit()
-    return deleted
-
-
-def limpiar_respuestas() -> int:
-    """Elimina TODOS los registros de auditoría y sus entrevistas. Retorna el número de filas borradas."""
-    with get_conn() as conn:
-        conn.execute("DELETE FROM entrevistas")
-        cur = conn.execute("DELETE FROM respuestas")
         deleted = cur.rowcount
         conn.commit()
     return deleted
@@ -417,35 +312,17 @@ def limpiar_punto_compra() -> int:
 
 
 def obtener_stats() -> dict:
-    """Obtiene estadisticas generales."""
+    """Obtiene estadísticas generales."""
     with get_conn() as conn:
-        total = conn.execute(
-            "SELECT COUNT(*) as total FROM respuestas"
-        ).fetchone()["total"]
-        
-        por_formato = [
-            (r["formato"], r["cnt"])
-            for r in conn.execute(
-                "SELECT formato, COUNT(*) as cnt FROM respuestas GROUP BY formato"
-            ).fetchall()
-        ]
-        
-        total_entrevistas = conn.execute(
-            "SELECT COUNT(*) as total FROM entrevistas_clientes"
-        ).fetchone()["total"]
-        
         total_punto_compra = conn.execute(
             "SELECT COUNT(*) as total FROM punto_compra"
         ).fetchone()["total"]
-        
+
         total_visitas = conn.execute(
             "SELECT COUNT(*) as total FROM visitas"
         ).fetchone()["total"]
-        
+
     return {
-        "total": total,
-        "por_formato": por_formato,
-        "total_entrevistas": total_entrevistas,
         "total_punto_compra": total_punto_compra,
         "total_visitas": total_visitas,
     }
