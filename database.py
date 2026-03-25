@@ -385,6 +385,37 @@ def eliminar_respuesta(row_id: int) -> bool:
     return deleted
 
 
+# ============ Funciones de limpieza masiva ============
+
+def limpiar_visitas() -> int:
+    """Elimina TODOS los registros de visitas y sus entrevistas. Retorna el número de visitas borradas."""
+    with get_conn() as conn:
+        conn.execute("DELETE FROM entrevistas_visita")
+        cur = conn.execute("DELETE FROM visitas")
+        deleted = cur.rowcount
+        conn.commit()
+    return deleted
+
+
+def limpiar_respuestas() -> int:
+    """Elimina TODOS los registros de auditoría y sus entrevistas. Retorna el número de filas borradas."""
+    with get_conn() as conn:
+        conn.execute("DELETE FROM entrevistas")
+        cur = conn.execute("DELETE FROM respuestas")
+        deleted = cur.rowcount
+        conn.commit()
+    return deleted
+
+
+def limpiar_punto_compra() -> int:
+    """Elimina TODOS los registros de punto de compra. Retorna el número de filas borradas."""
+    with get_conn() as conn:
+        cur = conn.execute("DELETE FROM punto_compra")
+        deleted = cur.rowcount
+        conn.commit()
+    return deleted
+
+
 def obtener_stats() -> dict:
     """Obtiene estadisticas generales."""
     with get_conn() as conn:

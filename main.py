@@ -27,6 +27,9 @@ from database import (
     obtener_todas_visitas,
     obtener_entrevistas_visita,
     eliminar_visita,
+    limpiar_visitas,
+    limpiar_respuestas,
+    limpiar_punto_compra,
 )
 
 app = FastAPI(title="En los zapatos del cliente")
@@ -195,6 +198,7 @@ def recibir_visita(
     geo_lng: Annotated[str, Form()] = "",
     usuario: Annotated[str, Form()] = "",
     local: Annotated[str, Form()] = "",
+    local_otro: Annotated[str, Form()] = "",
     # Paso 1: Guardia
     q4a: Annotated[str, Form()] = "",
     q4a_other: Annotated[str, Form()] = "",
@@ -224,11 +228,13 @@ def recibir_visita(
     entrevistas_json: Annotated[str, Form()] = "[]",
 ):
     """Recibe el formulario Visitas con Sentido."""
+    # Si seleccionó "otro", usar el texto libre como local
+    local_final = local_otro.strip() if local == "otro" and local_otro.strip() else local
     visita_id = insertar_visita({
         "geo_lat": geo_lat,
         "geo_lng": geo_lng,
         "usuario": usuario,
-        "local": local,
+        "local": local_final,
         "q4a": q4a, "q4a_other": q4a_other,
         "q4b": q4b, "q4b_other": q4b_other,
         "q5a": q5a, "q5a_other": q5a_other,
@@ -323,6 +329,33 @@ def eliminar_visita_endpoint(
     """Elimina una visita con sentido."""
     eliminar_visita(row_id)
     return RedirectResponse(url="/dashboard?tab=visitas", status_code=303)
+
+
+@app.post("/dashboard/limpiar-visitas")
+def limpiar_visitas_endpoint(
+    _: Annotated[str, Depends(verificar_credenciales)],
+):
+    """Limpia TODOS los registros de Visitas con Sentido."""
+    limpiar_visitas()
+    return RedirectResponse(url="/dashboard?tab=visitas", status_code=303)
+
+
+@app.post("/dashboard/limpiar-auditoria")
+def limpiar_auditoria_endpoint(
+    _: Annotated[str, Depends(verificar_credenciales)],
+):
+    """Limpia TODOS los registros de Auditoría Tiendas."""
+    limpiar_respuestas()
+    return RedirectResponse(url="/dashboard?tab=auditoria", status_code=303)
+
+
+@app.post("/dashboard/limpiar-punto-compra")
+def limpiar_punto_compra_endpoint(
+    _: Annotated[str, Depends(verificar_credenciales)],
+):
+    """Limpia TODOS los registros de Punto de Compra."""
+    limpiar_punto_compra()
+    return RedirectResponse(url="/dashboard?tab=punto-compra", status_code=303)
 
 
 @app.get("/dashboard/export")

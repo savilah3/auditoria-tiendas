@@ -499,7 +499,7 @@
                 <div class="grid grid-cols-1 gap-4 mb-4">
                     <div>
                         <label class="block text-sm font-medium mb-1">2. ¿En qué local te encuentras? <span class="text-red-500">*</span></label>
-                        <select id="localInput" name="local" required class="w-full border-gray-300 rounded-md shadow-sm p-3 border focus:ring-walmart-blue focus:border-walmart-blue bg-white">
+                        <select id="localInput" name="local" required onchange="if(this.value === 'otro') { document.getElementById('localOtroInput').classList.remove('hidden'); document.getElementById('localOtroInput').required=true; } else { document.getElementById('localOtroInput').classList.add('hidden'); document.getElementById('localOtroInput').required=false; }" class="w-full border-gray-300 rounded-md shadow-sm p-3 border focus:ring-walmart-blue focus:border-walmart-blue bg-white">
                             <option value="" disabled selected>Selecciona tu local...</option>
                             <option value="H - Suc. 003 Ñuñoa">H - Suc. 003 Ñuñoa</option>
                             <option value="H - Suc. 041 Huechuraba">H - Suc. 041 Huechuraba</option>
@@ -523,7 +523,9 @@
                             <option value="E - Suc. 061 Maipú">E - Suc. 061 Maipú</option>
                             <option value="EKONO Sub Centro Ltda.">EKONO Sub Centro Ltda.</option>
                             <option value="EKONO Independencia Hospital">EKONO Independencia Hospital</option>
+                            <option value="otro">Otro local...</option>
                         </select>
+                        <input type="text" id="localOtroInput" name="local_otro" placeholder="Escribe el formato y nombre del local..." class="hidden mt-3 w-full border-gray-300 rounded-md shadow-sm p-3 border focus:ring-walmart-blue focus:border-walmart-blue">
                     </div>
                 </div>
             </section>
