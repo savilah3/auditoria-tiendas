@@ -125,6 +125,11 @@ def gracias_punto_compra(request: Request):
     return templates.TemplateResponse("gracias_punto_compra.html", {"request": request})
 
 
+@app.get("/gracias", response_class=HTMLResponse)
+def gracias_visita(request: Request):
+    return templates.TemplateResponse("gracias.html", {"request": request})
+
+
 # --- Formulario Visitas con Sentido ---
 @app.get("/visitas", response_class=HTMLResponse)
 def mostrar_visitas(request: Request):
