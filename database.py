@@ -407,14 +407,6 @@ def obtener_stats() -> dict:
             "SELECT COUNT(*) as total FROM punto_compra"
         ).fetchone()["total"]
         
-        total_atencion = conn.execute(
-            "SELECT COUNT(*) as total FROM atencion"
-        ).fetchone()["total"]
-        
-        total_entrevistas_atencion = conn.execute(
-            "SELECT COUNT(*) as total FROM entrevistas_atencion"
-        ).fetchone()["total"]
-
         total_visitas = conn.execute(
             "SELECT COUNT(*) as total FROM visitas"
         ).fetchone()["total"]
@@ -424,8 +416,6 @@ def obtener_stats() -> dict:
         "por_formato": por_formato,
         "total_entrevistas": total_entrevistas,
         "total_punto_compra": total_punto_compra,
-        "total_atencion": total_atencion,
-        "total_entrevistas_atencion": total_entrevistas_atencion,
         "total_visitas": total_visitas,
     }
 
@@ -471,87 +461,6 @@ def eliminar_punto_compra(row_id: int) -> bool:
     """Elimina una evaluación de punto de compra."""
     with get_conn() as conn:
         cur = conn.execute("DELETE FROM punto_compra WHERE id = %s", (row_id,))
-        deleted = cur.rowcount > 0
-        conn.commit()
-    return deleted
-
-
-# ============ Funciones para Atención ============
-
-def insertar_atencion(data: dict) -> int:
-    """Inserta una evaluación de atención v2 y retorna el ID."""
-    data["fecha"] = now_chile()
-    sql = """
-    INSERT INTO atencion (
-        fecha, geo_lat, geo_lng, usuario, local,
-        q4a, q4a_other, q4b, q4b_other,
-        q5a, q5a_other, q5b, q5b_other,
-        q6, q6_other, q8_resolutivo, comentarios_sala,
-        tiempo_fila, q8_cajero_tipo,
-        q9, q10, q11, q12, q13,
-        comentarios_pago, q17
-    ) VALUES (
-        %(fecha)s, %(geo_lat)s, %(geo_lng)s, %(usuario)s, %(local)s,
-        %(q4a)s, %(q4a_other)s, %(q4b)s, %(q4b_other)s,
-        %(q5a)s, %(q5a_other)s, %(q5b)s, %(q5b_other)s,
-        %(q6)s, %(q6_other)s, %(q8_resolutivo)s, %(comentarios_sala)s,
-        %(tiempo_fila)s, %(q8_cajero_tipo)s,
-        %(q9)s, %(q10)s, %(q11)s, %(q12)s, %(q13)s,
-        %(comentarios_pago)s, %(q17)s
-    )
-    RETURNING id
-    """
-    with get_conn() as conn:
-        result = conn.execute(sql, data).fetchone()
-        conn.commit()
-        return result["id"]
-
-
-def insertar_entrevistas_atencion(atencion_id: int, entrevistas: List[Dict[str, str]]) -> None:
-    """Inserta las entrevistas asociadas a una evaluación de atención."""
-    if not entrevistas:
-        return
-    
-    sql = """
-    INSERT INTO entrevistas_atencion (
-        atencion_id, numero_cliente, motivo_visita, aspectos_positivos, oportunidades_mejora
-    ) VALUES (
-        %(atencion_id)s, %(numero_cliente)s, %(motivo_visita)s, %(aspectos_positivos)s, %(oportunidades_mejora)s
-    )
-    """
-    with get_conn() as conn:
-        for i, entrevista in enumerate(entrevistas, 1):
-            conn.execute(sql, {
-                "atencion_id": atencion_id,
-                "numero_cliente": i,
-                "motivo_visita": entrevista.get("motivo", ""),
-                "aspectos_positivos": entrevista.get("positivos", ""),
-                "oportunidades_mejora": entrevista.get("oportunidades", ""),
-            })
-        conn.commit()
-
-
-def obtener_todas_atencion() -> List[Dict[str, Any]]:
-    """Obtiene todas las evaluaciones de atención."""
-    with get_conn() as conn:
-        return conn.execute(
-            "SELECT * FROM atencion ORDER BY fecha DESC"
-        ).fetchall()
-
-
-def obtener_entrevistas_atencion(atencion_id: int) -> List[Dict[str, Any]]:
-    """Obtiene las entrevistas de una evaluación de atención."""
-    with get_conn() as conn:
-        return conn.execute(
-            "SELECT * FROM entrevistas_atencion WHERE atencion_id = %s ORDER BY numero_cliente",
-            (atencion_id,)
-        ).fetchall()
-
-
-def eliminar_atencion(row_id: int) -> bool:
-    """Elimina una evaluación de atención y sus entrevistas (CASCADE)."""
-    with get_conn() as conn:
-        cur = conn.execute("DELETE FROM atencion WHERE id = %s", (row_id,))
         deleted = cur.rowcount > 0
         conn.commit()
     return deleted

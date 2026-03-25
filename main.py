@@ -22,11 +22,6 @@ from database import (
     insertar_punto_compra,
     obtener_todas_punto_compra,
     eliminar_punto_compra,
-    insertar_atencion,
-    insertar_entrevistas_atencion,
-    obtener_todas_atencion,
-    obtener_entrevistas_atencion,
-    eliminar_atencion,
     insertar_visita,
     insertar_entrevistas_visita,
     obtener_todas_visitas,
@@ -187,83 +182,6 @@ def gracias_punto_compra(request: Request):
     return templates.TemplateResponse("gracias_punto_compra.html", {"request": request})
 
 
-# --- Formulario Atención ---
-@app.get("/atencion", response_class=HTMLResponse)
-def mostrar_atencion(request: Request):
-    """Formulario de evaluación de Atención."""
-    return templates.TemplateResponse("atencion.html", {"request": request})
-
-
-@app.post("/submit-atencion")
-def recibir_atencion(
-    # Geolocalización
-    geo_lat: Annotated[str, Form()] = "",
-    geo_lng: Annotated[str, Form()] = "",
-    # Datos iniciales
-    usuario: Annotated[str, Form()] = "",
-    local: Annotated[str, Form()] = "",
-    # Paso 1: Guardia
-    q4a: Annotated[str, Form()] = "",
-    q4a_other: Annotated[str, Form()] = "",
-    q4b: Annotated[str, Form()] = "",
-    q4b_other: Annotated[str, Form()] = "",
-    # Paso 1: Pasillos
-    q5a: Annotated[str, Form()] = "",
-    q5a_other: Annotated[str, Form()] = "",
-    q5b: Annotated[str, Form()] = "",
-    q5b_other: Annotated[str, Form()] = "",
-    # Paso 1: Colaborador
-    q6: Annotated[str, Form()] = "",
-    q6_other: Annotated[str, Form()] = "",
-    q8_resolutivo: Annotated[str, Form()] = "",
-    comentarios_sala: Annotated[str, Form()] = "",
-    # Paso 2: Zona de Pago
-    tiempo_fila: Annotated[str, Form()] = "",
-    q8_cajero_tipo: Annotated[str, Form()] = "",
-    q9: Annotated[str, Form()] = "",
-    q10: Annotated[str, Form()] = "",
-    q11: Annotated[str, Form()] = "",
-    q12: Annotated[str, Form()] = "",
-    q13: Annotated[str, Form()] = "",
-    comentarios_pago: Annotated[str, Form()] = "",
-    # Paso 3: Comentarios
-    q17: Annotated[str, Form()] = "",
-    entrevistas_json: Annotated[str, Form()] = "[]",
-):
-    """Recibe la evaluación de atención v2."""
-    atencion_id = insertar_atencion({
-        "geo_lat": geo_lat, "geo_lng": geo_lng,
-        "usuario": usuario, "local": local,
-        "q4a": q4a, "q4a_other": q4a_other,
-        "q4b": q4b, "q4b_other": q4b_other,
-        "q5a": q5a, "q5a_other": q5a_other,
-        "q5b": q5b, "q5b_other": q5b_other,
-        "q6": q6, "q6_other": q6_other,
-        "q8_resolutivo": q8_resolutivo,
-        "comentarios_sala": comentarios_sala,
-        "tiempo_fila": tiempo_fila,
-        "q8_cajero_tipo": q8_cajero_tipo,
-        "q9": q9, "q10": q10, "q11": q11,
-        "q12": q12, "q13": q13,
-        "comentarios_pago": comentarios_pago,
-        "q17": q17,
-    })
-
-    try:
-        entrevistas = json.loads(entrevistas_json)
-        if isinstance(entrevistas, list):
-            insertar_entrevistas_atencion(atencion_id, entrevistas)
-    except json.JSONDecodeError:
-        pass
-
-    return RedirectResponse(url="/gracias-atencion", status_code=303)
-
-
-@app.get("/gracias-atencion", response_class=HTMLResponse)
-def gracias_atencion(request: Request):
-    return templates.TemplateResponse("gracias_atencion.html", {"request": request})
-
-
 # --- Formulario Visitas con Sentido ---
 @app.get("/visitas", response_class=HTMLResponse)
 def mostrar_visitas(request: Request):
@@ -354,13 +272,6 @@ def dashboard(
     
     # Obtener datos de punto de compra
     punto_compra_rows = obtener_todas_punto_compra()
-    
-    # Obtener datos de atención
-    atencion_rows = obtener_todas_atencion()
-    atencion_con_entrevistas = []
-    for row in atencion_rows:
-        entrevistas = obtener_entrevistas_atencion(row["id"])
-        atencion_con_entrevistas.append({**row, "entrevistas": entrevistas})
 
     # Obtener datos de Visitas con Sentido
     visita_rows = obtener_todas_visitas()
@@ -376,7 +287,6 @@ def dashboard(
             "request": request,
             "rows": rows_con_entrevistas,
             "punto_compra_rows": punto_compra_rows,
-            "atencion_rows": atencion_con_entrevistas,
             "visita_rows": visitas_con_entrevistas,
             "stats": stats,
             "filtro": formato,
@@ -403,16 +313,6 @@ def eliminar_pc(
     """Elimina una evaluación de punto de compra."""
     eliminar_punto_compra(row_id)
     return RedirectResponse(url="/dashboard?tab=punto-compra", status_code=303)
-
-
-@app.post("/dashboard/delete-atencion/{row_id}")
-def eliminar_at(
-    row_id: int,
-    _: Annotated[str, Depends(verificar_credenciales)],
-):
-    """Elimina una evaluación de atención."""
-    eliminar_atencion(row_id)
-    return RedirectResponse(url="/dashboard?tab=atencion", status_code=303)
 
 
 @app.post("/dashboard/delete-visita/{row_id}")
@@ -469,58 +369,6 @@ def exportar_excel(
             ws2.append([
                 r["id"], r["formato"], r["local"], e["numero_cliente"],
                 e["q14_motivo_visita"], e["q15_aspectos_positivos"], e["q16_oportunidades_mejora"],
-            ])
-
-    # Hoja 3: Atención - todos los campos
-    ws3 = wb.create_sheet(title="Atencion")
-    headers3 = [
-        "ID", "Fecha", "Usuario", "Local", "Geo Lat", "Geo Lng",
-        "Q4a Guardia Saludó", "Q4a Otro", "Q4b Guardia Preguntó", "Q4b Otro",
-        "Q5a Colab. Saludó", "Q5a Otro", "Q5b Colab. Ofreció Ayuda", "Q5b Otro",
-        "Q6 Colaborador Encontrado", "Q6 Otro", "Q8 Resolutivo (1-5)",
-        "Comentarios Sala",
-        "Tiempo Fila", "Q8 Cajero Tipo",
-        "Q9 Cajero Saludó", "Q10 PMC", "Q11 Líder BCI",
-        "Q12 Boleta Mail", "Q13 Despedida",
-        "Comentarios Pago", "Q17 Comentarios",
-    ]
-    ws3.append(headers3)
-    atencion_all = obtener_todas_atencion()
-    for r in atencion_all:
-        ws3.append([
-            r["id"], r["fecha"], r["usuario"], r["local"],
-            r.get("geo_lat", ""), r.get("geo_lng", ""),
-            r.get("q4a", ""), r.get("q4a_other", ""),
-            r.get("q4b", ""), r.get("q4b_other", ""),
-            r.get("q5a", ""), r.get("q5a_other", ""),
-            r.get("q5b", ""), r.get("q5b_other", ""),
-            r.get("q6", ""), r.get("q6_other", ""),
-            r.get("q8_resolutivo", ""),
-            r.get("comentarios_sala", ""),
-            r.get("tiempo_fila", ""),
-            r.get("q8_cajero_tipo", ""),
-            r.get("q9", ""), r.get("q10", ""), r.get("q11", ""),
-            r.get("q12", ""), r.get("q13", ""),
-            r.get("comentarios_pago", ""),
-            r.get("q17", ""),
-        ])
-
-    # Hoja 4: Entrevistas Atención
-    ws4 = wb.create_sheet(title="Entrevistas Atencion")
-    headers4 = [
-        "Atención ID", "Usuario", "Local", "# Cliente",
-        "Motivo Visita", "Aspectos Positivos", "Oportunidades Mejora",
-    ]
-    ws4.append(headers4)
-    for r in atencion_all:
-        entrevistas_at = obtener_entrevistas_atencion(r["id"])
-        for e in entrevistas_at:
-            ws4.append([
-                r["id"], r["usuario"], r["local"],
-                e["numero_cliente"],
-                e.get("motivo_visita", ""),
-                e.get("aspectos_positivos", ""),
-                e.get("oportunidades_mejora", ""),
             ])
 
     stream = io.BytesIO()
