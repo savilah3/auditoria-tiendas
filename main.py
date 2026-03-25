@@ -265,6 +265,12 @@ def gracias_atencion(request: Request):
 
 
 # --- Formulario Visitas con Sentido ---
+@app.get("/visitas", response_class=HTMLResponse)
+def mostrar_visitas(request: Request):
+    """Formulario Visitas con Sentido."""
+    return templates.TemplateResponse("visitas.html", {"request": request})
+
+
 @app.post("/submit-visita")
 def recibir_visita(
     geo_lat: Annotated[str, Form()] = "",

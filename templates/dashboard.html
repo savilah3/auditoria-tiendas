@@ -58,6 +58,10 @@
                     <div class="text-3xl font-bold text-orange-600">{{ stats.total_atencion }}</div>
                     <div class="text-sm text-gray-600">Atención</div>
                 </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-teal-600">{{ stats.total_visitas }}</div>
+                    <div class="text-sm text-gray-600">Visitas con Sentido</div>
+                </div>
                 {% for formato, cnt in stats.por_formato %}
                 <div class="text-center">
                     <div class="text-2xl font-bold text-gray-700">{{ cnt }}</div>
@@ -81,6 +85,10 @@
                 <a href="/dashboard?tab=atencion" 
                    class="px-6 py-3 font-semibold border-b-2 transition {% if tab == 'atencion' %}text-walmart-blue border-walmart-blue bg-blue-50{% else %}text-gray-600 border-transparent hover:text-walmart-blue hover:bg-gray-50{% endif %}">
                     👤 Atención
+                </a>
+                <a href="/dashboard?tab=visitas" 
+                   class="px-6 py-3 font-semibold border-b-2 transition {% if tab == 'visitas' %}text-walmart-blue border-walmart-blue bg-blue-50{% else %}text-gray-600 border-transparent hover:text-walmart-blue hover:bg-gray-50{% endif %}">
+                    🕵️ Visitas con Sentido
                 </a>
             </div>
         </div>
@@ -408,6 +416,121 @@
             {% endif %}
         </div>
         {% endif %}
+
+        <!-- Tab: Visitas con Sentido -->
+        {% if tab == 'visitas' %}
+        <div class="bg-white border-b px-4 py-2 flex flex-wrap gap-4 text-xs text-gray-600">
+            <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded bg-blue-50 border border-blue-200"></span> Guardia</span>
+            <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded bg-green-50 border border-green-200"></span> Pasillos</span>
+            <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded bg-yellow-50 border border-yellow-200"></span> Colaborador</span>
+            <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded bg-orange-50 border border-orange-200"></span> Zona de Pago</span>
+            <span class="ml-auto font-medium text-gray-500">{{ visita_rows|length }} registros &mdash; <span class="text-green-600">✓ = Sí</span> &nbsp;<span class="text-red-600">✗ = No</span></span>
+        </div>
+        <div class="bg-white shadow-lg rounded-b-xl overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-xs whitespace-nowrap">
+                    <thead class="bg-gray-50 border-b">
+                        <tr>
+                            <th class="px-2 py-3 text-left font-semibold text-gray-700">ID</th>
+                            <th class="px-2 py-3 text-left font-semibold text-gray-700">Fecha</th>
+                            <th class="px-2 py-3 text-left font-semibold text-gray-700">Usuario</th>
+                            <th class="px-2 py-3 text-left font-semibold text-gray-700">Local</th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-blue-50" title="Guardia Saludó">G. Saludó</th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-blue-50" title="Guardia Preguntó">G. Preguntó</th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-green-50" title="Pasillo Saludó">P. Saludó</th>
+                            <th class="xt-center font-semibold text-gray-700 bg-green-50" title="Pasillo Ofreció ayuda">P. Ayuda</th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-yellow-50" title="Colaborador encontrado">Colab.</th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-yellow-50" title="Resolutivo 1-5">Resolut.</th>
+                            <th class="px-2 py-3 text-left font-semibold text-gray-700 bg-yellow-50" title="Comentarios sala">Com. Sala</th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Tiempo en fila">⏱ Fila</th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Tipo cajero">Cajero</th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Q9 Saludó">Q9</th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Q10 PMC">Q10</th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Q11 Líder BCI">Q11</th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Q12 Boleta Mail">Q12</th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Q13 Despedida">Q13</th>
+                            <th class="px-2 py-3 text-left font-semibold text-gray-700 bg-orange-50" title="Comentarios pago">Com. Pago</th>
+                            <th class="px-2 py-3 text-left font-semibold text-gray-700">Comentarios</th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700">Entrev.</th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700">📍</th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% for row in visita_rows %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-2 py-2 font-mono">{{ row.id }}</td>
+                            <td class="px-2 py-2">{{ row.fecha }}</td>
+                            <td class="px-2 py-2 font-mono">{{ row.usuario }}</td>
+                            <td class="px-2 py-2 max-w-[120px] truncate" title="{{ row.local }}">{{ (row.local or '')[:20] }}</td>
+                            <td class="px-2 py-2 text-center bg-blue-50">
+                                {% if row.q4a == 'si' %}<span class="text-green-600 font-bold">✓</span>
+                                {% elif row.q4a == 'no' %}<span class="text-red-600 font-bold">✗</span>
+                                {% else %}{{ row.q4a or '-' }}{% endif %}
+                            </td>
+                            <td class="px-2 py-2 text-center bg-blue-50">
+                                {% if row.q4b == 'si' %}<span class="text-green-600 font-bold">✓</span>
+                                {% elif row.q4b == 'no' %}<span class="text-red-600 font-bold">✗</span>
+                                {% else %}{{ row.q4b or '-' }}{% endif %}
+                            </td>
+                            <td class="px-2 py-2 text-center bg-green-50">
+                                {% if row.q5a == 'si' %}<span class="text-green-600 font-bold">✓</span>
+                                {% elif row.q5a == 'no' %}<span class="text-red-600 font-bold">✗</span>
+                                {% else %}{{ row.q5a or '-' }}{% endif %}
+                            </td>
+                            <td class="px-2 py-2 text-center bg-green-50">
+                                {% if row.q5b == 'si' %}<span class="text-green-600 font-bold">✓</span>
+                                {% elif row.q5b == 'no' %}<span class="text-red-600 font-bold">✗</span>
+                                {% else %}{{ row.q5b or '-' }}{% endif %}
+                            </td>
+                            <td class="px-2 py-2 text-center bg-yellow-50">
+                                {% if row.q6 == 'si' %}<span class="text-green-600 font-bold">✓</span>
+                                {% elif row.q6 == 'no' %}<span class="text-red-600 font-bold">✗</span>
+                                {% else %}{{ row.q6 or '-' }}{% endif %}
+                            </td>
+                            <td class="px-2 py-2 text-center bg-yellow-50">
+                                {% set r = row.q8_resolutivo %}
+                                {% if r == '1' %}<span class="bg-green-100 text-green-800 px-1 rounded font-bold">1</span>
+                                {% elif r == '2' %}<span class="bg-green-50 text-green-700 px-1 rounded font-bold">2</span>
+                                {% elif r == '3' %}<span class="bg-yellow-100 text-yellow-800 px-1 rounded font-bold">3</span>
+                                {% elif r == '4' %}<span class="bg-orange-100 text-orange-800 px-1 rounded font-bold">4</span>
+                                {% elif r == '5' %}<span class="bg-red-100 text-red-800 px-1 rounded font-bold">5</span>
+                                {% else %}-{% endif %}
+                            </td>
+                            <td class="px-2 py-2 bg-yellow-50 max-w-[100px] truncate" title="{{ row.comentarios_sala or '' }}">{{ (row.comentarios_sala or '')[:20] }}</td>
+                            <td class="px-2 py-2 text-center bg-orange-50 font-mono">{{ row.tiempo_fila or '--:--' }}</td>
+                            <td class="px-2 py-2 text-center bg-orange-50">{{ row.q8_cajero_tipo or '-' }}</td>
+                            <td class="px-2 py-2 text-center bg-orange-50">{% if row.q9 == 'si' %}<span class="text-green-600 font-bold">✓</span>{% elif row.q9 == 'no' %}<span class="text-red-600 font-bold">✗</span>{% else %}-{% endif %}</td>
+                            <td class="px-2 py-2 text-center bg-orange-50">{% if row.q10 == 'si' %}<span class="text-green-600 font-bold">✓</span>{% elif row.q10 == 'no' %}<span class="text-red-600 font-bold">✗</span>{% else %}-{% endif %}</td>
+                            <td class="px-2 py-2 text-center bg-orange-50">{% if row.q11 == 'si' %}<span class="text-green-600 font-bold">✓</span>{% elif row.q11 == 'no' %}<span class="text-red-600 font-bold">✗</span>{% else %}-{% endif %}</td>
+                            <td class="px-2 py-2 text-center bg-orange-50">{% if row.q12 == 'si' %}<span class="text-green-600 font-bold">✓</span>{% elif row.q12 == 'no' %}<span class="text-red-600 font-bold">✗</span>{% else %}-{% endif %}</td>
+                            <td class="px-2 py-2 text-center bg-orange-50">{% if row.q13 == 'si' %}<span class="text-green-600 font-bold">✓</span>{% elif row.q13 == 'no' %}<span class="text-red-600 font-bold">✗</span>{% else %}-{% endif %}</td>
+                            <td class="px-2 py-2 bg-orange-50 max-w-[100px] truncate" title="{{ row.comentarios_pago or '' }}">{{ (row.comentarios_pago or '')[:20] }}</td>
+                            <td class="px-2 py-2 max-w-[120px] truncate" title="{{ row.q17 or '' }}">{{ (row.q17 or '')[:20] }}</td>
+                            <td class="px-2 py-2 text-center">
+                                <span class="bg-walmart-spark text-black px-2 py-0.5 rounded-full font-bold">{{ row.entrevistas|length }}</span>
+                            </td>
+                            <td class="px-2 py-2 text-center">
+                                {% if row.geo_lat and row.geo_lng %}
+                                <a href="https://www.google.com/maps?q={{ row.geo_lat }},{{ row.geo_lng }}" target="_blank" class="text-walmart-blue hover:underline">📍</a>
+                                {% else %}-{% endif %}
+                            </td>
+                            <td class="px-2 py-2 text-center">
+                                <button onclick="showVisitaDetails({{ row.id }})" class="text-walmart-blue hover:underline mr-1">Ver</button>
+                                <form method="POST" action="/dashboard/delete-visita/{{ row.id }}" class="inline" onsubmit="return confirm('Eliminar esta visita?');">
+                                    <button type="submit" class="text-red-600 hover:underline">Eliminar</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if not visita_rows %}
+            <div class="p-8 text-center text-gray-500">No hay visitas con sentido registradas.</div>
+            {% endif %}
+        </div>
+        {% endif %}
     </div>
 
     <!-- Modal para detalles -->
@@ -658,6 +781,121 @@
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closeModal();
         });
+
+        // Datos de Visitas con Sentido
+        const visitaData = {
+            {% for row in visita_rows %}
+            {{ row.id }}: {
+                id: {{ row.id }},
+                fecha: "{{ row.fecha }}",
+                usuario: "{{ row.usuario }}",
+                local: "{{ row.local or '' }}",
+                geo_lat: "{{ row.geo_lat or '' }}",
+                geo_lng: "{{ row.geo_lng or '' }}",
+                tiempo_fila: "{{ row.tiempo_fila or '--:--' }}",
+                q4a: "{{ row.q4a or '-' }}", q4a_other: "{{ row.q4a_other or '' }}",
+                q4b: "{{ row.q4b or '-' }}", q4b_other: "{{ row.q4b_other or '' }}",
+                q5a: "{{ row.q5a or '-' }}", q5a_other: "{{ row.q5a_other or '' }}",
+                q5b: "{{ row.q5b or '-' }}", q5b_other: "{{ row.q5b_other or '' }}",
+                q6: "{{ row.q6 or '-' }}", q6_other: "{{ row.q6_other or '' }}",
+                q8_resolutivo: "{{ row.q8_resolutivo or '-' }}",
+                comentarios_sala: "{{ row.comentarios_sala|default('', true)|replace('"', '\\"')|replace('\n', ' ') }}",
+                q8_cajero_tipo: "{{ row.q8_cajero_tipo or '-' }}",
+                q9: "{{ row.q9 or '-' }}", q10: "{{ row.q10 or '-' }}",
+                q11: "{{ row.q11 or '-' }}", q12: "{{ row.q12 or '-' }}",
+                q13: "{{ row.q13 or '-' }}",
+                comentarios_pago: "{{ row.comentarios_pago|default('', true)|replace('"', '\\"')|replace('\n', ' ') }}",
+                q17: "{{ row.q17|default('', true)|replace('"', '\\"')|replace('\n', ' ') }}",
+                entrevistas: [
+                    {% for e in row.entrevistas %}
+                    {
+                        numero: {{ e.numero_cliente }},
+                        motivo: "{{ e.motivo_visita|default('', true)|replace('"', '\\"')|replace('\n', ' ') }}",
+                        positivos: "{{ e.aspectos_positivos|default('', true)|replace('"', '\\"')|replace('\n', ' ') }}",
+                        oportunidades: "{{ e.oportunidades_mejora|default('', true)|replace('"', '\\"')|replace('\n', ' ') }}"
+                    },
+                    {% endfor %}
+                ]
+            },
+            {% endfor %}
+        };
+
+        function showVisitaDetails(id) {
+            const data = visitaData[id];
+            if (!data) return;
+
+            let entrevistasHTML = '';
+            if (data.entrevistas.length > 0) {
+                entrevistasHTML = `
+                    <h3 class="font-bold text-lg text-walmart-blue mt-6 mb-3 border-b pb-2">Entrevistas a Clientes (${data.entrevistas.length})</h3>
+                    ${data.entrevistas.map(e => `
+                        <div class="bg-gray-50 p-4 rounded-lg mb-3 border-l-4 border-walmart-spark">
+                            <h4 class="font-bold text-walmart-blue mb-2">Cliente ${e.numero}</h4>
+                            <div class="space-y-2 text-sm">
+                                <p><span class="font-medium">¿Por qué visitó el local?</span> ${e.motivo || '-'}</p>
+                                <p><span class="font-medium">Aspectos positivos:</span> ${e.positivos || '-'}</p>
+                                <p><span class="font-medium">Oportunidades:</span> ${e.oportunidades || '-'}</p>
+                            </div>
+                        </div>
+                    `).join('')}
+                `;
+            }
+
+            const geoLink = data.geo_lat && data.geo_lng
+                ? `<a href="https://www.google.com/maps?q=${data.geo_lat},${data.geo_lng}" target="_blank" class="text-walmart-blue hover:underline">📍 Ver en mapa</a>`
+                : '<span class="text-gray-400">No disponible</span>';
+
+            document.getElementById('modalContent').innerHTML = `
+                <div class="grid grid-cols-2 gap-4 text-sm mb-6">
+                    <div><span class="font-medium">ID:</span> ${data.id}</div>
+                    <div><span class="font-medium">Fecha:</span> ${data.fecha}</div>
+                    <div><span class="font-medium">Usuario:</span> ${data.usuario}</div>
+                    <div class="col-span-2"><span class="font-medium">Local:</span> ${data.local}</div>
+                    <div><span class="font-medium">Ubicación:</span> ${geoLink}</div>
+                    <div><span class="font-medium">⏱ Tiempo en fila:</span> <span class="font-mono font-bold text-walmart-blue">${data.tiempo_fila}</span></div>
+                </div>
+
+                <h3 class="font-bold text-lg text-walmart-blue mb-3 border-b pb-2">👮 Guardia</h3>
+                <div class="grid grid-cols-2 gap-3 text-sm mb-4">
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Saludó:</span> ${getYesNoBadge(data.q4a)}${data.q4a_other ? ' ('+data.q4a_other+')' : ''}</div>
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Preguntó si necesitabas algo:</span> ${getYesNoBadge(data.q4b)}${data.q4b_other ? ' ('+data.q4b_other+')' : ''}</div>
+                </div>
+
+                <h3 class="font-bold text-lg text-walmart-blue mb-3 border-b pb-2">🛍️ Pasillos</h3>
+                <div class="grid grid-cols-2 gap-3 text-sm mb-4">
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Colab. saludó:</span> ${getYesNoBadge(data.q5a)}${data.q5a_other ? ' ('+data.q5a_other+')' : ''}</div>
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Ofreció ayuda:</span> ${getYesNoBadge(data.q5b)}${data.q5b_other ? ' ('+data.q5b_other+')' : ''}</div>
+                </div>
+
+                <h3 class="font-bold text-lg text-walmart-blue mb-3 border-b pb-2">🧑 Colaborador</h3>
+                <div class="grid grid-cols-2 gap-3 text-sm mb-4">
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Lo encontraste:</span> ${getYesNoBadge(data.q6)}${data.q6_other ? ' ('+data.q6_other+')' : ''}</div>
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Resolutivo (1-5):</span> ${getScoreBadge(data.q8_resolutivo)}</div>
+                </div>
+                ${data.comentarios_sala ? `<p class="bg-blue-50 p-3 rounded text-sm mb-4"><strong>Comentarios sala:</strong> ${data.comentarios_sala}</p>` : ''}
+
+                <h3 class="font-bold text-lg text-walmart-blue mb-3 border-b pb-2">💳 Zona de Pago</h3>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm mb-4">
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Cajero:</span> ${data.q8_cajero_tipo}</div>
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Saludó:</span> ${getYesNoBadge(data.q9)}</div>
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">PMC:</span> ${getYesNoBadge(data.q10)}</div>
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Líder BCI:</span> ${getYesNoBadge(data.q11)}</div>
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Boleta mail:</span> ${getYesNoBadge(data.q12)}</div>
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Despedida:</span> ${getYesNoBadge(data.q13)}</div>
+                </div>
+                ${data.comentarios_pago ? `<p class="bg-blue-50 p-3 rounded text-sm mb-4"><strong>Comentarios pago:</strong> ${data.comentarios_pago}</p>` : ''}
+
+                ${entrevistasHTML}
+
+                ${data.q17 ? `
+                    <h3 class="font-bold text-lg text-walmart-blue mt-6 mb-3 border-b pb-2">Comentarios Adicionales</h3>
+                    <p class="bg-gray-50 p-4 rounded text-sm">${data.q17}</p>
+                ` : ''}
+            `;
+
+            document.getElementById('detailsModal').classList.remove('hidden');
+            document.getElementById('detailsModal').classList.add('flex');
+        }
 
         // Datos de Punto de Compra
         const pcData = {

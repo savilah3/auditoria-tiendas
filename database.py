@@ -414,6 +414,10 @@ def obtener_stats() -> dict:
         total_entrevistas_atencion = conn.execute(
             "SELECT COUNT(*) as total FROM entrevistas_atencion"
         ).fetchone()["total"]
+
+        total_visitas = conn.execute(
+            "SELECT COUNT(*) as total FROM visitas"
+        ).fetchone()["total"]
         
     return {
         "total": total,
@@ -422,6 +426,7 @@ def obtener_stats() -> dict:
         "total_punto_compra": total_punto_compra,
         "total_atencion": total_atencion,
         "total_entrevistas_atencion": total_entrevistas_atencion,
+        "total_visitas": total_visitas,
     }
 
 
