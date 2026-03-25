@@ -295,7 +295,7 @@ def migrar_fechas_a_chile() -> dict:
 def limpiar_visitas() -> int:
     """Elimina TODOS los registros de visitas y sus entrevistas. Retorna el número de visitas borradas."""
     with get_conn() as conn:
-        conn.execute("DELETE FROM entrevistas_visita")
+        conn.execute("DELETE FROM entrevistas_visitas")
         cur = conn.execute("DELETE FROM visitas")
         deleted = cur.rowcount
         conn.commit()

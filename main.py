@@ -220,7 +220,7 @@ def dashboard(
         "dashboard.html",
         {
             "request": request,
-            "rows": rows_con_entrevistas,
+            "rows": visitas_con_entrevistas,
             "punto_compra_rows": punto_compra_rows,
             "visita_rows": visitas_con_entrevistas,
             "stats": stats,
