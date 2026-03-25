@@ -141,8 +141,7 @@ CREATE TABLE IF NOT EXISTS punto_compra (
     fecha TEXT NOT NULL,
     nombre TEXT,
     tienda TEXT,
-    -- Step 1: Encuentra el sector
-    s1_encontrar_sector TEXT,
+    -- Step 1: Entrada al local
     s1_encontrar_punto TEXT,
     s1_observaciones TEXT,
     -- Step 2: Vitrinear
@@ -158,7 +157,6 @@ CREATE TABLE IF NOT EXISTS punto_compra (
     -- Step 4: Pago
     s4_medio_pago TEXT,
     s4_proceso_pago TEXT,
-    s4_pan_caja TEXT,
     s4_observaciones TEXT,
     -- Step 5: Espera
     s5_observaciones TEXT
@@ -221,6 +219,23 @@ def init_db() -> None:
         if not row:
             conn.execute("ALTER TABLE respuestas ADD COLUMN q17_comentarios TEXT")
         
+        # Migracion punto_compra v2: eliminar columnas obsoletas del nuevo checklist
+        # DROP s1_encontrar_sector (el nuevo step1 solo tiene 1 item)
+        col_sector = conn.execute("""
+            SELECT column_name FROM information_schema.columns
+            WHERE table_name = 'punto_compra' AND column_name = 's1_encontrar_sector'
+        """).fetchone()
+        if col_sector:
+            conn.execute("ALTER TABLE punto_compra DROP COLUMN s1_encontrar_sector")
+
+        # DROP s4_pan_caja (eliminado del checklist de pago)
+        col_pan = conn.execute("""
+            SELECT column_name FROM information_schema.columns
+            WHERE table_name = 'punto_compra' AND column_name = 's4_pan_caja'
+        """).fetchone()
+        if col_pan:
+            conn.execute("ALTER TABLE punto_compra DROP COLUMN s4_pan_caja")
+
         conn.commit()
 
 
@@ -336,17 +351,17 @@ def insertar_punto_compra(data: dict) -> int:
     sql = """
     INSERT INTO punto_compra (
         fecha, nombre, tienda,
-        s1_encontrar_sector, s1_encontrar_punto, s1_observaciones,
+        s1_encontrar_punto, s1_observaciones,
         s2_vitrinear, s2_comparar, s2_autonomo, s2_observaciones,
         s3_agregar_carro, s3_crear_usuario, s3_despacho_retiro, s3_observaciones,
-        s4_medio_pago, s4_proceso_pago, s4_pan_caja, s4_observaciones,
+        s4_medio_pago, s4_proceso_pago, s4_observaciones,
         s5_observaciones
     ) VALUES (
         %(fecha)s, %(nombre)s, %(tienda)s,
-        %(s1_encontrar_sector)s, %(s1_encontrar_punto)s, %(s1_observaciones)s,
+        %(s1_encontrar_punto)s, %(s1_observaciones)s,
         %(s2_vitrinear)s, %(s2_comparar)s, %(s2_autonomo)s, %(s2_observaciones)s,
         %(s3_agregar_carro)s, %(s3_crear_usuario)s, %(s3_despacho_retiro)s, %(s3_observaciones)s,
-        %(s4_medio_pago)s, %(s4_proceso_pago)s, %(s4_pan_caja)s, %(s4_observaciones)s,
+        %(s4_medio_pago)s, %(s4_proceso_pago)s, %(s4_observaciones)s,
         %(s5_observaciones)s
     )
     RETURNING id

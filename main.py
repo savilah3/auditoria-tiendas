@@ -74,34 +74,31 @@ def mostrar_punto_compra(request: Request):
 def recibir_punto_compra(
     nombre: Annotated[str, Form()] = "",
     tienda: Annotated[str, Form()] = "",
-    # Step 1
+    # Step 1: Entrada al local
     s1_i1: Annotated[str, Form()] = "",
-    s1_i2: Annotated[str, Form()] = "",
     s1_obs: Annotated[str, Form()] = "",
-    # Step 2
+    # Step 2: Vitrinear
     s2_i1: Annotated[str, Form()] = "",
     s2_i2: Annotated[str, Form()] = "",
     s2_i3: Annotated[str, Form()] = "",
     s2_obs: Annotated[str, Form()] = "",
-    # Step 3
+    # Step 3: Selección
     s3_i1: Annotated[str, Form()] = "",
     s3_i4: Annotated[str, Form()] = "",
     s3_i3: Annotated[str, Form()] = "",
     s3_obs: Annotated[str, Form()] = "",
-    # Step 4
+    # Step 4: Pago
     s4_i1: Annotated[str, Form()] = "",
     s4_i2: Annotated[str, Form()] = "",
-    s4_i3: Annotated[str, Form()] = "",
     s4_obs: Annotated[str, Form()] = "",
-    # Step 5
+    # Step 5: Espera
     s5_obs: Annotated[str, Form()] = "",
 ):
     """Recibe la evaluación de punto de compra."""
     insertar_punto_compra({
         "nombre": nombre,
         "tienda": tienda,
-        "s1_encontrar_sector": s1_i1,
-        "s1_encontrar_punto": s1_i2,
+        "s1_encontrar_punto": s1_i1,
         "s1_observaciones": s1_obs,
         "s2_vitrinear": s2_i1,
         "s2_comparar": s2_i2,
@@ -113,7 +110,6 @@ def recibir_punto_compra(
         "s3_observaciones": s3_obs,
         "s4_medio_pago": s4_i1,
         "s4_proceso_pago": s4_i2,
-        "s4_pan_caja": s4_i3,
         "s4_observaciones": s4_obs,
         "s5_observaciones": s5_obs,
     })
@@ -326,19 +322,21 @@ def exportar_excel(
     ws3 = wb.create_sheet(title="Punto de Compra")
     headers3 = [
         "ID", "Fecha", "Nombre", "Tienda",
-        "S1 Encontrar Sector", "S1 Exhibición", "S1 Obs",
-        "S2 Vitrinear", "S2 Info Precio", "S2 Obs",
-        "S3 Disponibilidad", "S3 Variedad", "S3 Obs",
-        "S4 Pago", "S4 Tiempo", "S4 Obs",
+        "S1 Encontrar Punto", "S1 Obs",
+        "S2 Vitrinear", "S2 Comparar", "S2 Autónomo", "S2 Obs",
+        "S3 Agregar Carro", "S3 Crear Usuario", "S3 Despacho/Retiro", "S3 Obs",
+        "S4 Medio Pago", "S4 Proceso Pago", "S4 Obs",
+        "S5 Obs",
     ]
     ws3.append(headers3)
     for r in obtener_todas_punto_compra():
         ws3.append([
             r["id"], r["fecha"], r["nombre"], r["tienda"],
-            r.get("s1_i1", ""), r.get("s1_i2", ""), r.get("s1_obs", ""),
-            r.get("s2_i1", ""), r.get("s2_i2", ""), r.get("s2_obs", ""),
-            r.get("s3_i1", ""), r.get("s3_i2", ""), r.get("s3_obs", ""),
-            r.get("s4_i1", ""), r.get("s4_i2", ""), r.get("s4_obs", ""),
+            r.get("s1_encontrar_punto", ""), r.get("s1_observaciones", ""),
+            r.get("s2_vitrinear", ""), r.get("s2_comparar", ""), r.get("s2_autonomo", ""), r.get("s2_observaciones", ""),
+            r.get("s3_agregar_carro", ""), r.get("s3_crear_usuario", ""), r.get("s3_despacho_retiro", ""), r.get("s3_observaciones", ""),
+            r.get("s4_medio_pago", ""), r.get("s4_proceso_pago", ""), r.get("s4_observaciones", ""),
+            r.get("s5_observaciones", ""),
         ])
 
     stream = io.BytesIO()

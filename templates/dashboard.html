@@ -88,7 +88,7 @@
                             <th class="px-3 py-3 text-left font-semibold text-gray-700">Fecha</th>
                             <th class="px-3 py-3 text-left font-semibold text-gray-700">Nombre</th>
                             <th class="px-3 py-3 text-left font-semibold text-gray-700">Tienda</th>
-                            <th class="px-3 py-3 text-center font-semibold text-gray-700" title="Encontrar sector">📍 Sector</th>
+                            <th class="px-3 py-3 text-center font-semibold text-gray-700" title="Entrada al local">🖥️ Entrada</th>
                             <th class="px-3 py-3 text-center font-semibold text-gray-700" title="Vitrinear">👁️ Vitrinear</th>
                             <th class="px-3 py-3 text-center font-semibold text-gray-700" title="Selección">🛒 Selección</th>
                             <th class="px-3 py-3 text-center font-semibold text-gray-700" title="Pago">💳 Pago</th>
@@ -103,9 +103,8 @@
                             <td class="px-3 py-3">{{ row.nombre }}</td>
                             <td class="px-3 py-3">{{ row.tienda }}</td>
                             <td class="px-3 py-3 text-center">
-                                {% set s1_score = [row.s1_encontrar_sector, row.s1_encontrar_punto]|select('equalto', 'sin')|list|length %}
-                                {% if s1_score == 2 %}<span class="text-green-600 font-bold">✅</span>
-                                {% elif s1_score == 1 %}<span class="text-yellow-600 font-bold">⚠️</span>
+                                {% if row.s1_encontrar_punto == 'sin' %}<span class="text-green-600 font-bold">✅</span>
+                                {% elif row.s1_encontrar_punto == 'con' %}<span class="text-yellow-600 font-bold">⚠️</span>
                                 {% else %}<span class="text-red-600 font-bold">❌</span>{% endif %}
                             </td>
                             <td class="px-3 py-3 text-center">
@@ -121,9 +120,9 @@
                                 {% else %}<span class="text-red-600 font-bold">❌</span>{% endif %}
                             </td>
                             <td class="px-3 py-3 text-center">
-                                {% set s4_score = [row.s4_medio_pago, row.s4_proceso_pago, row.s4_pan_caja]|select('equalto', 'sin')|list|length %}
-                                {% if s4_score == 3 %}<span class="text-green-600 font-bold">✅</span>
-                                {% elif s4_score >= 1 %}<span class="text-yellow-600 font-bold">⚠️</span>
+                                {% set s4_score = [row.s4_medio_pago, row.s4_proceso_pago]|select('equalto', 'sin')|list|length %}
+                                {% if s4_score == 2 %}<span class="text-green-600 font-bold">✅</span>
+                                {% elif s4_score == 1 %}<span class="text-yellow-600 font-bold">⚠️</span>
                                 {% else %}<span class="text-red-600 font-bold">❌</span>{% endif %}
                             </td>
                             <td class="px-3 py-3 text-center">
@@ -430,7 +429,6 @@
                 fecha: "{{ row.fecha }}",
                 nombre: "{{ row.nombre }}",
                 tienda: "{{ row.tienda }}",
-                s1_sector: "{{ row.s1_encontrar_sector or '-' }}",
                 s1_punto: "{{ row.s1_encontrar_punto or '-' }}",
                 s1_obs: "{{ row.s1_observaciones|default('', true)|replace('"', '\\"')|replace('\n', ' ') }}",
                 s2_vitrinear: "{{ row.s2_vitrinear or '-' }}",
@@ -443,7 +441,6 @@
                 s3_obs: "{{ row.s3_observaciones|default('', true)|replace('"', '\\"')|replace('\n', ' ') }}",
                 s4_medio: "{{ row.s4_medio_pago or '-' }}",
                 s4_proceso: "{{ row.s4_proceso_pago or '-' }}",
-                s4_pan: "{{ row.s4_pan_caja or '-' }}",
                 s4_obs: "{{ row.s4_observaciones|default('', true)|replace('"', '\\"')|replace('\n', ' ') }}",
                 s5_obs: "{{ row.s5_observaciones|default('', true)|replace('"', '\\"')|replace('\n', ' ') }}"
             },
@@ -469,10 +466,9 @@
                     <div><span class="font-medium">Tienda:</span> ${data.tienda}</div>
                 </div>
 
-                <h3 class="font-bold text-lg text-walmart-blue mb-3 border-b pb-2">📍 Step 1: Encuentra el sector</h3>
-                <div class="grid grid-cols-2 gap-3 text-sm mb-4">
-                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Encontrar sector:</span> ${getStatusBadge(data.s1_sector)}</div>
-                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Encontrar punto:</span> ${getStatusBadge(data.s1_punto)}</div>
+                <h3 class="font-bold text-lg text-walmart-blue mb-3 border-b pb-2">🖥️ Step 1: Entrada al local</h3>
+                <div class="grid grid-cols-1 gap-3 text-sm mb-4">
+                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Encontrar punto de compra:</span> ${getStatusBadge(data.s1_punto)}</div>
                 </div>
                 ${data.s1_obs ? `<p class="bg-blue-50 p-3 rounded text-sm mb-4"><strong>Obs:</strong> ${data.s1_obs}</p>` : ''}
 
@@ -493,10 +489,9 @@
                 ${data.s3_obs ? `<p class="bg-blue-50 p-3 rounded text-sm mb-4"><strong>Obs:</strong> ${data.s3_obs}</p>` : ''}
 
                 <h3 class="font-bold text-lg text-walmart-blue mb-3 border-b pb-2">💳 Step 4: Pago</h3>
-                <div class="grid grid-cols-3 gap-3 text-sm mb-4">
+                <div class="grid grid-cols-2 gap-3 text-sm mb-4">
                     <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Medio pago:</span> ${getStatusBadge(data.s4_medio)}</div>
                     <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Proceso pago:</span> ${getStatusBadge(data.s4_proceso)}</div>
-                    <div class="bg-gray-50 p-3 rounded"><span class="font-medium">Pan/Caja:</span> ${getStatusBadge(data.s4_pan)}</div>
                 </div>
                 ${data.s4_obs ? `<p class="bg-blue-50 p-3 rounded text-sm mb-4"><strong>Obs:</strong> ${data.s4_obs}</p>` : ''}
 
