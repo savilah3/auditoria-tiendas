@@ -327,21 +327,21 @@
                 
                 <div>
                     <label class="block text-sm font-medium mb-2">¿Por qué vino a este local hoy? <span class="text-xs text-gray-500 font-normal">(Indagar sobre los motivos de compra)</span> <span class="text-red-500">*</span></label>
-                    <textarea data-campo="motivo" rows="3" required placeholder="Escribe aquí la respuesta del cliente..." class="w-full border-gray-300 rounded-md shadow-sm p-3 border focus:ring-walmart-blue focus:border-walmart-blue"></textarea>
+                    <textarea data-campo="motivo" rows="3" placeholder="Escribe aquí la respuesta del cliente..." class="w-full border-gray-300 rounded-md shadow-sm p-3 border focus:ring-walmart-blue focus:border-walmart-blue"></textarea>
                 </div>
 
                 <hr class="border-gray-200">
 
                 <div>
                     <label class="block text-sm font-medium mb-2">¿Qué aspectos positivos destacas de tu experiencia? <span class="text-red-500">*</span></label>
-                    <textarea data-campo="positivos" rows="3" required placeholder="Escribe aquí la respuesta del cliente..." class="w-full border-gray-300 rounded-md shadow-sm p-3 border focus:ring-walmart-blue focus:border-walmart-blue"></textarea>
+                    <textarea data-campo="positivos" rows="3" placeholder="Escribe aquí la respuesta del cliente..." class="w-full border-gray-300 rounded-md shadow-sm p-3 border focus:ring-walmart-blue focus:border-walmart-blue"></textarea>
                 </div>
 
                 <hr class="border-gray-200">
 
                 <div>
                     <label class="block text-sm font-medium mb-2">¿Qué oportunidades para mejorar percibes? <span class="text-red-500">*</span></label>
-                    <textarea data-campo="oportunidades" rows="3" required placeholder="Escribe aquí la respuesta del cliente..." class="w-full border-gray-300 rounded-md shadow-sm p-3 border focus:ring-walmart-blue focus:border-walmart-blue"></textarea>
+                    <textarea data-campo="oportunidades" rows="3" placeholder="Escribe aquí la respuesta del cliente..." class="w-full border-gray-300 rounded-md shadow-sm p-3 border focus:ring-walmart-blue focus:border-walmart-blue"></textarea>
                 </div>
             `;
             
@@ -401,7 +401,58 @@
                 });
             });
             document.getElementById('entrevistas_json').value = JSON.stringify(entrevistas);
-            return true; // Continuar con el envio normal del form
+        }
+
+        // Enviar formulario con fetch y manejo de errores
+        async function enviarFormulario(event) {
+            event.preventDefault();
+            
+            // Preparar datos de entrevistas
+            prepararEnvio();
+            
+            const submitBtn = document.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            
+            // Mostrar loading
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="animate-pulse">Enviando... Por favor espera</span>';
+            
+            try {
+                const form = document.getElementById('evaluationForm');
+                const formData = new FormData(form);
+                
+                // Timeout de 30 segundos
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 30000);
+                
+                const response = await fetch('/submit-visita', {
+                    method: 'POST',
+                    body: formData,
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                if (response.redirected) {
+                    window.location.href = response.url;
+                } else if (response.ok) {
+                    window.location.href = '/gracias';
+                } else {
+                    throw new Error('Error del servidor: ' + response.status);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+                
+                if (error.name === 'AbortError') {
+                    alert('La conexión tardó demasiado. Por favor verifica tu conexión e intenta de nuevo.');
+                } else {
+                    alert('Error al enviar: ' + error.message + '\n\nPor favor intenta de nuevo.');
+                }
+            }
+            
+            return false;
         }
 
         // Geolocation Logic
@@ -438,7 +489,7 @@
         </div>
 
         <!-- Form -->
-        <form id="evaluationForm" class="p-6 md:p-8 space-y-8" action="/submit-visita" method="POST" onsubmit="return prepararEnvio()">
+        <form id="evaluationForm" class="p-6 md:p-8 space-y-8" action="/submit-visita" method="POST" onsubmit="return enviarFormulario(event)">
             
             <!-- Hidden inputs for Geolocation -->
             <input type="hidden" name="geo_lat" id="geo_lat" value="">
