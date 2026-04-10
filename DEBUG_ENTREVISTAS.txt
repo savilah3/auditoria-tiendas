@@ -1,0 +1,204 @@
+╔════════════════════════════════════════════════════════════════╗
+║                                                                ║
+║   🔍 DEBUG: Ver por qué entrevistas aparecen vacías            ║
+║                                                                ║
+╚════════════════════════════════════════════════════════════════╝
+
+PROBLEMA REPORTADO
+═══════════════════════════════════════════════════════════════════
+
+✍️ Llenás los campos de entrevistas (Paso 3)
+❌ Aparecen "empty" en dashboard
+❌ No están en Excel
+
+
+CAMBIO TEMPORAL DE DEBUG (Commit 4f5fd0e)
+═══════════════════════════════════════════════════════════════════
+
+Agregué logs super detallados para ver EXACTAMENTE qué llega al servidor:
+
+✅ Muestra TODOS los campos del formulario
+✅ Muestra valores completos (o truncados si son largos)
+✅ Muestra longitud de campos de entrevistas
+✅ Indica si están vacíos o llenos
+
+
+CÓMO PROBAR (5 PASOS)
+═══════════════════════════════════════════════════════════════════
+
+PASO 1️⃣: ESPERAR DEPLOY (2-3 min)
+   → Render: https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g
+   → Esperar: 🟢 "Live" (verde)
+
+
+PASO 2️⃣: ABRIR LOGS DE RENDER (EN OTRA PESTAÑA)
+   → URL: https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g/logs
+   → Dejar abierto para ver en tiempo real
+   → Click en "Auto-scroll" (si está disponible)
+
+
+PASO 3️⃣: LLENAR FORMULARIO
+   → URL: https://auditoria-tiendas.onrender.com/visitas
+   
+   📝 PASO 1 - Atención:
+      - Usuario: Elige uno
+      - Local: Elige uno
+      - Q3-Q7: Llena todo
+      - Q8 CSAT: Mueve slider a 6
+      - Q9 Cartelería: Sí
+      - Click "Siguiente →"
+   
+   ⏱ PASO 2 - Zona de Pago:
+      - Cronómetro: Iniciar → 10 seg → Detener
+      - Llena Q9-Q13 (todo Sí)
+      - Click "Siguiente →"
+   
+   💬 PASO 3 - ENTREVISTAS:
+      
+      ✍️ ¿Por qué vino hoy?
+      → Escribe EXACTAMENTE: "Test de entrevistas"
+      
+      ✍️ Aspectos positivos:
+      → Escribe EXACTAMENTE: "Probando sistema"
+      
+      ✍️ Oportunidades de mejora:
+      → Escribe EXACTAMENTE: "Debug en progreso"
+      
+      💭 Comentarios finales:
+      → Escribe: "Testing"
+      
+      ✅ Click "Finalizar y Enviar"
+
+
+PASO 4️⃣: VER LOGS DE RENDER
+   → Inmediatamente después de enviar
+   → Buscar líneas que digan:
+   
+   ════════════════════════════════════════════════════════
+   [INICIO] Recibiendo formulario visitas
+   [DEBUG] TODOS LOS CAMPOS RECIBIDOS (XX total):
+     geo_lat = ...
+     geo_lng = ...
+     usuario = ...
+     ...
+     entrevista_1_motivo = Test de entrevistas
+     entrevista_1_positivos = Probando sistema
+     entrevista_1_mejoras = Debug en progreso
+     q17 = Testing
+   ════════════════════════════════════════════════════════
+   [DATA ENTREVISTAS]:
+     entrevista_1_motivo = 'Test de entrevistas' (len=19)
+     entrevista_1_positivos = 'Probando sistema' (len=16)
+     entrevista_1_mejoras = 'Debug en progreso' (len=17)
+   ════════════════════════════════════════════════════════
+
+
+PASO 5️⃣: COPIARME LOS LOGS
+   → Copia TODA la sección desde [INICIO] hasta ════════
+   → Pégamela COMPLETA
+   
+   Especialmente busca:
+   
+   ✅ CASO 1: Si los campos APARECEN en logs:
+      entrevista_1_motivo = Test de entrevistas (len=19)
+      → Entonces SÍ se están enviando
+      → El problema es en el guardado
+   
+   ❌ CASO 2: Si los campos NO APARECEN o están vacíos:
+      entrevista_1_motivo = '' (len=0)
+      → Entonces NO se están enviando
+      → El problema es en el HTML/JavaScript
+
+
+QUÉ BUSCAR EN LOS LOGS
+═══════════════════════════════════════════════════════════════════
+
+🔍 ESCENARIO A: Campos SÍ llegan
+   [DEBUG] TODOS LOS CAMPOS RECIBIDOS (50 total):  ← Muchos campos
+     ...
+     entrevista_1_motivo = Test de entrevistas     ← LLENO
+     entrevista_1_positivos = Probando sistema     ← LLENO
+     entrevista_1_mejoras = Debug en progreso      ← LLENO
+   
+   [DATA ENTREVISTAS]:
+     entrevista_1_motivo = 'Test...' (len=19)      ← len > 0
+     entrevista_1_positivos = 'Probando...' (len=16)
+     entrevista_1_mejoras = 'Debug...' (len=17)
+   
+   → ENTONCES: Problema en inserción a BD
+   → SOLUCIÓN: Revisar database.py
+
+
+🔍 ESCENARIO B: Campos NO llegan
+   [DEBUG] TODOS LOS CAMPOS RECIBIDOS (30 total):  ← Pocos campos
+     ...
+     (no aparecen entrevista_1_* en la lista)
+   
+   [DATA ENTREVISTAS]:
+     entrevista_1_motivo = '' (len=0)              ← VACÍO
+     entrevista_1_positivos = '' (len=0)           ← VACÍO
+     entrevista_1_mejoras = '' (len=0)             ← VACÍO
+   
+   → ENTONCES: Problema en HTML/JavaScript
+   → SOLUCIÓN: Revisar visitas.html
+
+
+🔍 ESCENARIO C: Campos llegan con nombre diferente
+   [DEBUG] TODOS LOS CAMPOS RECIBIDOS (50 total):
+     ...
+     entrevista_motivo = Test de entrevistas       ← SIN "1_"
+     cliente1_motivo = Test de entrevistas         ← NOMBRE DISTINTO
+   
+   → ENTONCES: Nombres no coinciden
+   → SOLUCIÓN: Corregir nombres en HTML o main.py
+
+
+POSIBLES CAUSAS
+═══════════════════════════════════════════════════════════════════
+
+1️⃣ JavaScript no incluye campos del Paso 3
+   → Validación de pasos impide agregar campos
+   → FormData no captura textareas correctamente
+
+2️⃣ Campos están fuera del <form>
+   → HTML mal estructurado
+   → Campos en div separado
+
+3️⃣ Nombres no coinciden
+   → HTML dice "entrevista_motivo"
+   → Backend espera "entrevista_1_motivo"
+
+4️⃣ Se guardan pero mal
+   → BD rechaza los datos
+   → Error silencioso al insertar
+
+
+PRÓXIMO PASO
+═══════════════════════════════════════════════════════════════════
+
+1. ⏱ Espera deploy (2-3 min)
+2. 📋 Abre logs de Render
+3. 📝 Llena formulario completo
+4. 👀 Mira los logs
+5. 📋 Cópiame TODO el output desde [INICIO] hasta fin
+
+Con eso sabremos EXACTAMENTE dónde está el problema.
+
+
+ESTADO ACTUAL
+═══════════════════════════════════════════════════════════════════
+
+✅ Commit: 4f5fd0e
+✅ Push: Exitoso
+🔵 Render: Deployando... (~2-3 min)
+
+
+ENLACES
+═══════════════════════════════════════════════════════════════════
+
+• Render Deploy: https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g
+• Render Logs: https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g/logs
+• Formulario: https://auditoria-tiendas.onrender.com/visitas
+
+
+═══════════════════════════════════════════════════════════════════
