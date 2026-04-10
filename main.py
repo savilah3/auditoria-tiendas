@@ -351,7 +351,7 @@ def reset_database(
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
 
 
-@app.get("/dashboard")
+@app.get("/exportar-excel")
 def exportar_excel(
     _: Annotated[str, Depends(verificar_credenciales)],
 ):

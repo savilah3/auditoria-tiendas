@@ -32,9 +32,9 @@
                     <h1 class="text-2xl font-bold">Dashboard - En los zapatos del cliente</h1>
                     <p class="text-sm opacity-80 mt-1">Panel de administracion de respuestas</p>
                 </div>
-                <a href="/dashboard/export" 
+                <a href="/exportar-excel" 
                    class="bg-white text-walmart-blue px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition">
-                    Exportar Excel
+                    📥 Exportar Excel
                 </a>
             </div>
         </header>
@@ -169,23 +169,23 @@
                             <th class="px-2 py-3 text-left font-semibold text-gray-700">Usuario</th>
                             <th class="px-2 py-3 text-left font-semibold text-gray-700">Local</th>
                             <!-- Atención -->
-                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-blue-50" title="Q3: Guardia Saludó">Q3</th>
-                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-blue-50" title="Q4: Guardia Preguntó">Q4</th>
-                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-green-50" title="Q5: Pasillo Saludó">Q5</th>
-                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-green-50" title="Q6: Pasillo Preguntó">Q6</th>
-                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-yellow-50" title="Q7: Encontró Colaborador">Q7</th>
-                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-yellow-50" title="Q8: CSAT 1-7">CSAT</th>
-                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-purple-50" title="Q9: Te sentiste bienvenido">Q9</th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-blue-50" title="Q3: ¿El guardia te saludó?">Q3<br><span class="text-xs font-normal">Guardia saludó</span></th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-blue-50" title="Q4: ¿El guardia te preguntó cómo te podía ayudar?">Q4<br><span class="text-xs font-normal">Guardia preguntó</span></th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-green-50" title="Q5: ¿Alguna persona de pasillos te saludó?">Q5<br><span class="text-xs font-normal">Pasillos saludó</span></th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-green-50" title="Q6: ¿Alguna persona de pasillos te preguntó si necesitabas ayuda?">Q6<br><span class="text-xs font-normal">Pasillos preguntó</span></th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-yellow-50" title="Q7: ¿Encontraste a un colaborador cuando lo necesitaste?">Q7<br><span class="text-xs font-normal">Encontró colab</span></th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-yellow-50" title="Q8: CSAT - Del 1 al 7 ¿qué tan satisfecho estás?">CSAT<br><span class="text-xs font-normal">1-7</span></th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-purple-50" title="Q9: ¿Te sentiste bienvenido durante tu visita?">Q9<br><span class="text-xs font-normal">Bienvenida</span></th>
                             <!-- Zona de Pago -->
-                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Q8: Tipo cajero">Cajero</th>
-                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Q9: Saludó">Q9</th>
-                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Q10: PMC">Q10</th>
-                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Q11: Líder BCI">Q11</th>
-                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Q12: Boleta Mail">Q12</th>
-                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Q13: Despedida">Q13</th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Tipo de cajero">Cajero<br><span class="text-xs font-normal">Int/Ext</span></th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Q9 Pago: ¿El cajero te saludó?">Q9<br><span class="text-xs font-normal">Cajero saludó</span></th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Q10: ¿Te ofreció el PMC?">Q10<br><span class="text-xs font-normal">PMC</span></th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Q11: ¿Había líder de BCI?">Q11<br><span class="text-xs font-normal">Líder BCI</span></th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Q12: ¿Te enviaron la boleta al mail?">Q12<br><span class="text-xs font-normal">Boleta mail</span></th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Q13: ¿El cajero se despidió de ti?">Q13<br><span class="text-xs font-normal">Despedida</span></th>
                             <!-- Comentarios -->
-                            <th class="px-2 py-3 text-left font-semibold text-gray-700">Comentarios</th>
-                            <th class="px-2 py-3 text-center font-semibold text-gray-700">📍</th>
+                            <th class="px-2 py-3 text-left font-semibold text-gray-700" title="Comentarios finales">Comentarios</th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700" title="Geolocalización">📍</th>
                             <th class="px-2 py-3 text-center font-semibold text-gray-700">Acciones</th>
                         </tr>
                     </thead>
