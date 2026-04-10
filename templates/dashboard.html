@@ -168,23 +168,23 @@
                             <th class="px-2 py-3 text-left font-semibold text-gray-700">Fecha</th>
                             <th class="px-2 py-3 text-left font-semibold text-gray-700">Usuario</th>
                             <th class="px-2 py-3 text-left font-semibold text-gray-700">Local</th>
-                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-blue-50" title="Guardia Saludó">G. Saludó</th>
-                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-blue-50" title="Guardia Preguntó">G. Preguntó</th>
-                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-green-50" title="Pasillo Saludó">P. Saludó</th>
-                            <th class="xt-center font-semibold text-gray-700 bg-green-50" title="Pasillo Ofreció ayuda">P. Ayuda</th>
-                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-yellow-50" title="Colaborador encontrado">Colab.</th>
-                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-yellow-50" title="Resolutivo 1-5">Resolut.</th>
-                            <th class="px-2 py-3 text-left font-semibold text-gray-700 bg-yellow-50" title="Comentarios sala">Com. Sala</th>
-                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Tiempo en fila">⏱ Fila</th>
-                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Tipo cajero">Cajero</th>
-                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Q9 Saludó">Q9</th>
-                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Q10 PMC">Q10</th>
-                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Q11 Líder BCI">Q11</th>
-                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Q12 Boleta Mail">Q12</th>
-                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Q13 Despedida">Q13</th>
-                            <th class="px-2 py-3 text-left font-semibold text-gray-700 bg-orange-50" title="Comentarios pago">Com. Pago</th>
+                            <!-- Atención -->
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-blue-50" title="Q3: Guardia Saludó">Q3</th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-blue-50" title="Q4: Guardia Preguntó">Q4</th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-green-50" title="Q5: Pasillo Saludó">Q5</th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-green-50" title="Q6: Pasillo Preguntó">Q6</th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-yellow-50" title="Q7: Encontró Colaborador">Q7</th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-yellow-50" title="Q8: CSAT 1-7">CSAT</th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-purple-50" title="Q9: Te sentiste bienvenido">Q9</th>
+                            <!-- Zona de Pago -->
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Q8: Tipo cajero">Cajero</th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Q9: Saludó">Q9</th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Q10: PMC">Q10</th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Q11: Líder BCI">Q11</th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Q12: Boleta Mail">Q12</th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Q13: Despedida">Q13</th>
+                            <!-- Comentarios -->
                             <th class="px-2 py-3 text-left font-semibold text-gray-700">Comentarios</th>
-                            <th class="px-2 py-3 text-center font-semibold text-gray-700">Entrev.</th>
                             <th class="px-2 py-3 text-center font-semibold text-gray-700">📍</th>
                             <th class="px-2 py-3 text-center font-semibold text-gray-700">Acciones</th>
                         </tr>
@@ -193,65 +193,86 @@
                         {% for row in visita_rows %}
                         <tr class="hover:bg-gray-50">
                             <td class="px-2 py-2 font-mono">{{ row.id }}</td>
-                            <td class="px-2 py-2">{{ row.fecha }}</td>
-                            <td class="px-2 py-2 font-mono">{{ row.usuario }}</td>
+                            <td class="px-2 py-2 text-sm">{{ row.fecha }}</td>
+                            <td class="px-2 py-2 font-medium">{{ row.usuario }}</td>
                             <td class="px-2 py-2 max-w-[120px] truncate" title="{{ row.local }}">{{ (row.local or '')[:20] }}</td>
+                            <!-- Q3: Guardia saludó -->
                             <td class="px-2 py-2 text-center bg-blue-50">
-                                {% if row.q4a == 'si' %}<span class="text-green-600 font-bold">✓</span>
-                                {% elif row.q4a == 'no' %}<span class="text-red-600 font-bold">✗</span>
-                                {% else %}{{ row.q4a or '-' }}{% endif %}
-                            </td>
-                            <td class="px-2 py-2 text-center bg-blue-50">
-                                {% if row.q4b == 'si' %}<span class="text-green-600 font-bold">✓</span>
-                                {% elif row.q4b == 'no' %}<span class="text-red-600 font-bold">✗</span>
-                                {% else %}{{ row.q4b or '-' }}{% endif %}
-                            </td>
-                            <td class="px-2 py-2 text-center bg-green-50">
-                                {% if row.q5a == 'si' %}<span class="text-green-600 font-bold">✓</span>
-                                {% elif row.q5a == 'no' %}<span class="text-red-600 font-bold">✗</span>
-                                {% else %}{{ row.q5a or '-' }}{% endif %}
-                            </td>
-                            <td class="px-2 py-2 text-center bg-green-50">
-                                {% if row.q5b == 'si' %}<span class="text-green-600 font-bold">✓</span>
-                                {% elif row.q5b == 'no' %}<span class="text-red-600 font-bold">✗</span>
-                                {% else %}{{ row.q5b or '-' }}{% endif %}
-                            </td>
-                            <td class="px-2 py-2 text-center bg-yellow-50">
-                                {% if row.q6 == 'si' %}<span class="text-green-600 font-bold">✓</span>
-                                {% elif row.q6 == 'no' %}<span class="text-red-600 font-bold">✗</span>
-                                {% else %}{{ row.q6 or '-' }}{% endif %}
-                            </td>
-                            <td class="px-2 py-2 text-center bg-yellow-50">
-                                {% set r = row.q8_resolutivo %}
-                                {% if r == '1' %}<span class="bg-green-100 text-green-800 px-1 rounded font-bold">1</span>
-                                {% elif r == '2' %}<span class="bg-green-50 text-green-700 px-1 rounded font-bold">2</span>
-                                {% elif r == '3' %}<span class="bg-yellow-100 text-yellow-800 px-1 rounded font-bold">3</span>
-                                {% elif r == '4' %}<span class="bg-orange-100 text-orange-800 px-1 rounded font-bold">4</span>
-                                {% elif r == '5' %}<span class="bg-red-100 text-red-800 px-1 rounded font-bold">5</span>
+                                {% if row.q3 == 'si' %}<span class="text-green-600 font-bold">✓</span>
+                                {% elif row.q3 == 'no' %}<span class="text-red-600 font-bold">✗</span>
+                                {% elif row.q3 == 'otro' %}<span class="text-blue-600 text-xs" title="{{ row.q3_otro_text }}">📝</span>
                                 {% else %}-{% endif %}
                             </td>
-                            <td class="px-2 py-2 bg-yellow-50 max-w-[100px] truncate" title="{{ row.comentarios_sala or '' }}">{{ (row.comentarios_sala or '')[:20] }}</td>
-                            <td class="px-2 py-2 text-center bg-orange-50 font-mono">{{ row.tiempo_fila or '--:--' }}</td>
-                            <td class="px-2 py-2 text-center bg-orange-50">{{ row.q8_cajero_tipo or '-' }}</td>
+                            <!-- Q4: Guardia preguntó -->
+                            <td class="px-2 py-2 text-center bg-blue-50">
+                                {% if row.q4 == 'si' %}<span class="text-green-600 font-bold">✓</span>
+                                {% elif row.q4 == 'no' %}<span class="text-red-600 font-bold">✗</span>
+                                {% elif row.q4 == 'otro' %}<span class="text-blue-600 text-xs" title="{{ row.q4_otro_text }}">📝</span>
+                                {% else %}-{% endif %}
+                            </td>
+                            <!-- Q5: Pasillo saludó -->
+                            <td class="px-2 py-2 text-center bg-green-50">
+                                {% if row.q5 == 'si' %}<span class="text-green-600 font-bold">✓</span>
+                                {% elif row.q5 == 'no' %}<span class="text-red-600 font-bold">✗</span>
+                                {% elif row.q5 == 'otro' %}<span class="text-blue-600 text-xs" title="{{ row.q5_otro_text }}">📝</span>
+                                {% else %}-{% endif %}
+                            </td>
+                            <!-- Q6: Pasillo preguntó -->
+                            <td class="px-2 py-2 text-center bg-green-50">
+                                {% if row.q6 == 'si' %}<span class="text-green-600 font-bold">✓</span>
+                                {% elif row.q6 == 'no' %}<span class="text-red-600 font-bold">✗</span>
+                                {% elif row.q6 == 'otro' %}<span class="text-blue-600 text-xs" title="{{ row.q6_otro_text }}">📝</span>
+                                {% else %}-{% endif %}
+                            </td>
+                            <!-- Q7: Encontró colaborador -->
+                            <td class="px-2 py-2 text-center bg-yellow-50">
+                                {% if row.q7 == 'si' %}<span class="text-green-600 font-bold">✓</span>
+                                {% elif row.q7 == 'no' %}<span class="text-red-600 font-bold">✗</span>
+                                {% elif row.q7 == 'otro' %}<span class="text-blue-600 text-xs" title="{{ row.q7_otro_text }}">📝</span>
+                                {% else %}-{% endif %}
+                            </td>
+                            <!-- Q8: CSAT 1-7 -->
+                            <td class="px-2 py-2 text-center bg-yellow-50">
+                                {% set csat = row.q8_csat %}
+                                {% if csat == '1' or csat == '2' %}<span class="bg-red-100 text-red-800 px-2 py-1 rounded font-bold">{{ csat }}</span>
+                                {% elif csat == '3' or csat == '4' %}<span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded font-bold">{{ csat }}</span>
+                                {% elif csat == '5' or csat == '6' %}<span class="bg-green-100 text-green-700 px-2 py-1 rounded font-bold">{{ csat }}</span>
+                                {% elif csat == '7' %}<span class="bg-green-200 text-green-900 px-2 py-1 rounded font-bold">{{ csat }}</span>
+                                {% else %}-{% endif %}
+                            </td>
+                            <!-- Q9: Te sentiste bienvenido -->
+                            <td class="px-2 py-2 text-center bg-purple-50">
+                                {% if row.q9_new == 'si' %}<span class="text-green-600 font-bold">✓</span>
+                                {% elif row.q9_new == 'no' %}<span class="text-red-600 font-bold">✗</span>
+                                {% elif row.q9_new == 'otro' %}<span class="text-blue-600 text-xs" title="{{ row.q9_new_otro_text }}">📝</span>
+                                {% else %}-{% endif %}
+                            </td>
+                            <!-- Q8: Tipo cajero -->
+                            <td class="px-2 py-2 text-center bg-orange-50 text-xs">
+                                {% if row.q8 == 'interno' %}<span class="bg-walmart-blue text-white px-1 rounded">INT</span>
+                                {% elif row.q8 == 'externo' %}<span class="bg-gray-500 text-white px-1 rounded">EXT</span>
+                                {% else %}-{% endif %}
+                            </td>
+                            <!-- Q9-Q13: Zona de pago -->
                             <td class="px-2 py-2 text-center bg-orange-50">{% if row.q9 == 'si' %}<span class="text-green-600 font-bold">✓</span>{% elif row.q9 == 'no' %}<span class="text-red-600 font-bold">✗</span>{% else %}-{% endif %}</td>
                             <td class="px-2 py-2 text-center bg-orange-50">{% if row.q10 == 'si' %}<span class="text-green-600 font-bold">✓</span>{% elif row.q10 == 'no' %}<span class="text-red-600 font-bold">✗</span>{% else %}-{% endif %}</td>
                             <td class="px-2 py-2 text-center bg-orange-50">{% if row.q11 == 'si' %}<span class="text-green-600 font-bold">✓</span>{% elif row.q11 == 'no' %}<span class="text-red-600 font-bold">✗</span>{% else %}-{% endif %}</td>
                             <td class="px-2 py-2 text-center bg-orange-50">{% if row.q12 == 'si' %}<span class="text-green-600 font-bold">✓</span>{% elif row.q12 == 'no' %}<span class="text-red-600 font-bold">✗</span>{% else %}-{% endif %}</td>
                             <td class="px-2 py-2 text-center bg-orange-50">{% if row.q13 == 'si' %}<span class="text-green-600 font-bold">✓</span>{% elif row.q13 == 'no' %}<span class="text-red-600 font-bold">✗</span>{% else %}-{% endif %}</td>
-                            <td class="px-2 py-2 bg-orange-50 max-w-[100px] truncate" title="{{ row.comentarios_pago or '' }}">{{ (row.comentarios_pago or '')[:20] }}</td>
-                            <td class="px-2 py-2 max-w-[120px] truncate" title="{{ row.q17 or '' }}">{{ (row.q17 or '')[:20] }}</td>
-                            <td class="px-2 py-2 text-center">
-                                <span class="bg-walmart-spark text-black px-2 py-0.5 rounded-full font-bold">{{ row.entrevistas|length }}</span>
-                            </td>
+                            <!-- Q17: Comentarios finales -->
+                            <td class="px-2 py-2 max-w-[150px] truncate" title="{{ row.q17 or '' }}">{{ (row.q17 or '')[:30] }}</td>
+                            <!-- Geo -->
                             <td class="px-2 py-2 text-center">
                                 {% if row.geo_lat and row.geo_lng %}
-                                <a href="https://www.google.com/maps?q={{ row.geo_lat }},{{ row.geo_lng }}" target="_blank" class="text-walmart-blue hover:underline">📍</a>
+                                <a href="https://www.google.com/maps?q={{ row.geo_lat }},{{ row.geo_lng }}" target="_blank" class="text-walmart-blue hover:text-walmart-blueHover">
+                                    📍
+                                </a>
                                 {% else %}-{% endif %}
                             </td>
+                            <!-- Acciones -->
                             <td class="px-2 py-2 text-center">
-                                <button onclick="showVisitaDetails({{ row.id }})" class="text-walmart-blue hover:underline mr-1">Ver</button>
-                                <form method="POST" action="/dashboard/delete-visita/{{ row.id }}" class="inline" onsubmit="return confirm('Eliminar esta visita?');">
-                                    <button type="submit" class="text-red-600 hover:underline">Eliminar</button>
+                                <form method="POST" action="/dashboard/delete-visita/{{ row.id }}" class="inline" onsubmit="return confirm('¿Eliminar esta visita?');">
+                                    <button type="submit" class="text-red-600 hover:underline text-sm">Eliminar</button>
                                 </form>
                             </td>
                         </tr>

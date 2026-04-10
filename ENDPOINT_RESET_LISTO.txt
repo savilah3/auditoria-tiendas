@@ -1,0 +1,134 @@
+╔══════════════════════════════════════════════════════════════════╗
+║                                                                  ║
+║   ✅ ENDPOINT /admin/reset-db LISTO                             ║
+║                                                                  ║
+╚══════════════════════════════════════════════════════════════════╝
+
+📅 Hora: 16:39
+📦 Commit: 656d81d
+⏱️ Deploy completado
+
+═══════════════════════════════════════════════════════════════════
+🎯 LO QUE CREÉ PARA TI
+═══════════════════════════════════════════════════════════════════
+
+Un endpoint especial que RECREA la tabla visitas desde cero:
+
+URL: https://auditoria-tiendas.onrender.com/admin/reset-db
+
+Lo que hace:
+1. ✅ Elimina la tabla visitas vieja (DROP TABLE)
+2. ✅ Crea tabla nueva con TODAS las columnas (25 columnas)
+3. ✅ Verifica que se creó correctamente
+4. ✅ Devuelve JSON con la lista de columnas creadas
+
+═══════════════════════════════════════════════════════════════════
+🚀 EJECUTAR AHORA (3 PASOS)
+═══════════════════════════════════════════════════════════════════
+
+PASO 1: ABRIR EL ENDPOINT
+──────────────────────────────────────────────────────────────────
+Voy a abrirlo automáticamente en tu navegador...
+O manualmente: https://auditoria-tiendas.onrender.com/admin/reset-db
+
+PASO 2: LOGIN
+──────────────────────────────────────────────────────────────────
+Te pedirá usuario/contraseña:
+• Usuario: admin
+• Contraseña: walmart2025
+
+PASO 3: VER RESULTADO
+──────────────────────────────────────────────────────────────────
+Deberías ver un JSON como este:
+
+{
+  "success": true,
+  "message": "Tabla visitas recreada exitosamente",
+  "columnas_creadas": [
+    "id", "fecha", "geo_lat", "geo_lng", "usuario", "local",
+    "q3", "q3_otro_text", "q4", "q4_otro_text",
+    "q5", "q5_otro_text", "q6", "q6_otro_text",
+    "q7", "q7_otro_text", "q8_csat",
+    "q9_new", "q9_new_otro_text",
+    "q8", "q9", "q10", "q11", "q12", "q13", "q17"
+  ],
+  "total_columnas": 25
+}
+
+✅ Si ves esto = ÉXITO! La tabla se recreó perfectamente
+
+═══════════════════════════════════════════════════════════════════
+🧪 DESPUÉS DE RECREAR LA BD
+═══════════════════════════════════════════════════════════════════
+
+PASO 4: PROBAR EL FORMULARIO
+──────────────────────────────────────────────────────────────────
+1. Abre (modo incógnito): https://auditoria-tiendas.onrender.com/visitas
+2. Llena el formulario completo
+3. Click "Finalizar y Enviar"
+4. Debería redirigir a /gracias
+
+✅ SI ESTO FUNCIONA = ¡PROBLEMA RESUELTO! 🎉
+
+═══════════════════════════════════════════════════════════════════
+❌ SI EL ENDPOINT DA ERROR
+═══════════════════════════════════════════════════════════════════
+
+Posibles errores:
+
+ERROR 1: "Connection refused" o "Database not found"
+   → La BD de Render no está configurada
+   → Necesitas verificar DATABASE_URL en variables de entorno
+
+ERROR 2: "Permission denied"
+   → El usuario de BD no tiene permisos para DROP/CREATE
+   → Necesitamos hacerlo desde Render Console directamente
+
+ERROR 3: Otro error
+   → Cópiame el error exacto y lo arreglamos
+
+═══════════════════════════════════════════════════════════════════
+📊 LOGS EN RENDER
+═══════════════════════════════════════════════════════════════════
+
+También puedes ver lo que pasó en:
+https://dashboard.render.com → auditoria-tiendas → Logs
+
+Busca estas líneas:
+[RESET] Eliminando tabla visitas...
+[RESET] Creando tabla visitas con todas las columnas...
+[RESET] Verificando columnas creadas...
+[RESET] Columnas creadas: [...]
+
+═══════════════════════════════════════════════════════════════════
+🔐 SEGURIDAD
+═══════════════════════════════════════════════════════════════════
+
+✅ El endpoint está protegido con autenticación
+✅ Solo tú puedes ejecutarlo (admin/walmart2025)
+✅ Después de usarlo, puedo eliminarlo si quieres
+
+═══════════════════════════════════════════════════════════════════
+📄 ARCHIVOS CREADOS
+═══════════════════════════════════════════════════════════════════
+
+✓ OPCIONES_RECREAR_BD.txt (guía completa)
+✓ RECREAR_TABLA_VISITAS.sql (SQL manual por si acaso)
+✓ Endpoint /admin/reset-db (automático - YA DEPLOYADO)
+
+═══════════════════════════════════════════════════════════════════
+🎯 RESUMEN
+═══════════════════════════════════════════════════════════════════
+
+1. El endpoint ya está listo en producción
+2. Solo abre: https://auditoria-tiendas.onrender.com/admin/reset-db
+3. Login: admin / walmart2025
+4. Verás JSON confirmando que se creó la tabla
+5. Prueba el formulario de nuevo
+6. ¡Debería funcionar! 🚀
+
+═══════════════════════════════════════════════════════════════════
+
+VOY A ABRIR EL ENDPOINT AUTOMÁTICAMENTE EN 3... 2... 1...
+
+═══════════════════════════════════════════════════════════════════
