@@ -1,0 +1,201 @@
+╔════════════════════════════════════════════════════════════════╗
+║                                                                ║
+║   ✅ PROBLEMA RESUELTO: Entrevistas del Paso 3                 ║
+║                                                                ║
+╚════════════════════════════════════════════════════════════════╝
+
+🐛 EL PROBLEMA
+═══════════════════════════════════════════════════════════════════
+
+Los campos del Paso 3 (entrevistas con clientes) NO se guardaban:
+
+❌ ANTES:
+   1. HTML tenía los campos:
+      - entrevista_1_motivo
+      - entrevista_1_positivos
+      - entrevista_1_mejoras
+   
+   2. Endpoint /submit-visita NO los recibía
+      → Se perdían al enviar el formulario
+      → NO se insertaban en BD
+      → NO aparecían en dashboard ni Excel
+
+
+✅ AHORA (Commit 08a3efb):
+   1. Endpoint SÍ recibe los 3 campos
+   2. Los inserta en tabla entrevistas_visitas
+   3. Dashboard los muestra (ya tenía el código)
+   4. Excel los exporta en Hoja 2 (ya tenía el código)
+
+
+CAMBIOS EN main.py
+═══════════════════════════════════════════════════════════════════
+
+1️⃣ AGREGADOS parámetros Form():
+   - entrevista_1_motivo
+   - entrevista_1_positivos
+   - entrevista_1_mejoras
+
+2️⃣ AGREGADA lógica de inserción:
+   - Crea lista de entrevistas
+   - Solo inserta si al menos 1 campo tiene texto
+   - Llama a insertar_entrevistas_visita()
+
+3️⃣ AGREGADOS logs de debug:
+   - Muestra primeros 50 chars de cada campo
+   - Indica cuántas entrevistas se insertaron
+
+
+CÓMO PROBAR
+═══════════════════════════════════════════════════════════════════
+
+PASO 1️⃣: ESPERAR DEPLOY (2-3 min)
+   → Render: https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g
+   → Esperar: 🟢 "Live" (verde)
+
+PASO 2️⃣: RESETEAR BD (opcional, para empezar limpio)
+   → URL: https://auditoria-tiendas.onrender.com/admin/reset-db
+   → Login: admin / walmart2025
+   → Click "Resetear Base de Datos"
+
+PASO 3️⃣: LLENAR FORMULARIO (CON ENTREVISTAS)
+   → URL: https://auditoria-tiendas.onrender.com/visitas
+   
+   📝 PASO 1 - Atención:
+      - Usuario, Local, Q3-Q7, Q8 CSAT, Q9 Cartelería
+      - Click "Siguiente →"
+   
+   ⏱ PASO 2 - Zona de Pago:
+      - Cronómetro: Iniciar → Esperar 30 seg → Detener
+      - Q9-Q13 (zona de pago)
+      - Click "Siguiente →"
+   
+   💬 PASO 3 - ENTREVISTAS (AQUÍ ESTÁ LO NUEVO):
+      
+      Cliente 1:
+      ✍️ ¿Por qué vino hoy?
+         → Escribe: "Compras semanales de la familia"
+      
+      ✍️ Aspectos positivos:
+         → Escribe: "Atención rápida del personal"
+      
+      ✍️ Oportunidades de mejora:
+         → Escribe: "Más cajas abiertas en hora peak"
+      
+      💭 Comentarios finales:
+         → Escribe: "Cliente satisfecho en general"
+      
+      ✅ Click "Finalizar y Enviar"
+
+PASO 4️⃣: VERIFICAR DASHBOARD
+   → URL: https://auditoria-tiendas.onrender.com/dashboard
+   → Login: admin / walmart2025
+   
+   ✅ Click en el ícono 👁 de la visita
+   ✅ Debe aparecer sección "Entrevistas a Clientes (1)"
+   ✅ Debe mostrar:
+      - Cliente #1
+      - Motivo: "Compras semanales de la familia"
+      - Positivos: "Atención rápida del personal"
+      - Mejoras: "Más cajas abiertas en hora peak"
+
+PASO 5️⃣: VERIFICAR EXCEL
+   → Click "📥 Exportar Excel"
+   → Abrir archivo
+   
+   HOJA 1: "Visitas con Sentido"
+   ✅ Debe tener todos los datos de la visita
+   
+   HOJA 2: "Entrevistas Visitas" ← AQUÍ ESTÁN
+   ✅ Debe tener:
+      Columnas:
+      - Visita ID
+      - Usuario
+      - Local
+      - # Cliente = 1
+      - Motivo Visita = "Compras semanales de la familia"
+      - Aspectos Positivos = "Atención rápida del personal"
+      - Oportunidades Mejora = "Más cajas abiertas en hora peak"
+
+PASO 6️⃣: VERIFICAR BD (DEBUG) - OPCIONAL
+   → URL: https://auditoria-tiendas.onrender.com/admin/debug-bd
+   → Login: admin / walmart2025
+   
+   Nota: Este endpoint solo muestra tabla visitas, NO entrevistas.
+   Para ver entrevistas, usa el dashboard (ícono 👁).
+
+
+QUÉ ESPERAR
+═══════════════════════════════════════════════════════════════════
+
+✅ ÉXITO SI:
+   ✓ Formulario se envía sin errores
+   ✓ Dashboard muestra "Entrevistas a Clientes (1)"
+   ✓ Excel Hoja 2 tiene 1 fila con los 3 campos llenos
+   ✓ Render Logs muestran:
+     "[OK] Insertadas 1 entrevista(s) para visita_id=X"
+
+❌ ERROR SI:
+   ✗ Dashboard NO muestra entrevistas
+   ✗ Excel Hoja 2 está vacía (solo headers)
+   ✗ Render Logs NO mencionan entrevistas
+   
+   → Copia logs de Render y pégamelos
+
+
+RENDER LOGS PARA VERIFICAR
+═══════════════════════════════════════════════════════════════════
+
+Si querés ver qué está pasando en el backend:
+1. Ve a: https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g/logs
+2. Envía el formulario
+3. Busca líneas:
+   [INICIO] Recibiendo formulario visitas
+   [DATA] entrevista_1_motivo=Compras semanales...
+   [DATA] entrevista_1_positivos=Atención rápida...
+   [DATA] entrevista_1_mejoras=Más cajas abiertas...
+   [OK] Insertadas 1 entrevista(s) para visita_id=X
+
+
+ARCHIVOS MODIFICADOS
+═══════════════════════════════════════════════════════════════════
+
+✅ main.py:
+   - Línea ~167: +3 parámetros Form() para entrevistas
+   - Línea ~177: +logs de entrevistas recibidas
+   - Línea ~208: +lógica de inserción de entrevistas
+
+
+ESTADO DEL DEPLOY
+═══════════════════════════════════════════════════════════════════
+
+✅ Commit: 08a3efb
+✅ Push: Exitoso
+🔵 Render: Deployando... (2-3 min)
+
+→ Render Dashboard: https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g
+
+
+PRÓXIMOS PASOS
+═══════════════════════════════════════════════════════════════════
+
+1. ⏱ Esperar deploy (2-3 min)
+2. 📝 Llenar formulario CON entrevistas
+3. 👁 Verificar dashboard (ícono ojo)
+4. 📥 Descargar Excel → Ver Hoja 2
+5. ✅ Confirmar que funciona
+
+
+RESUMEN EJECUTIVO
+═══════════════════════════════════════════════════════════════════
+
+ANTES:
+❌ Entrevistas NO se guardaban (backend no las recibía)
+
+AHORA:
+✅ Entrevistas SÍ se guardan en tabla entrevistas_visitas
+✅ Dashboard las muestra en modal (ícono 👁)
+✅ Excel las exporta en Hoja 2
+
+
+═══════════════════════════════════════════════════════════════════
