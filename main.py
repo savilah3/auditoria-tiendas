@@ -172,7 +172,7 @@ def recibir_visita(
     print("="*60)
     print("[INICIO] Recibiendo formulario visitas")
     print(f"[DATA] usuario={usuario}, local={local}")
-    print(f"[DATA] q3={q3}, q7={q7}, q9_new={q9_new}")
+    print(f"[DATA] q3={q3}, q7={q7}, q9_carteleria={q9_carteleria}")
     print("="*60)
     
     try:
