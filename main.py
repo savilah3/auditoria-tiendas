@@ -165,6 +165,10 @@ def recibir_visita(
     q11: Annotated[str, Form()] = "",
     q12: Annotated[str, Form()] = "",
     q13: Annotated[str, Form()] = "",
+    # Paso 3: Entrevistas
+    entrevista_1_motivo: Annotated[str, Form()] = "",
+    entrevista_1_positivos: Annotated[str, Form()] = "",
+    entrevista_1_mejoras: Annotated[str, Form()] = "",
     # Paso 3: Comentarios finales
     q17: Annotated[str, Form()] = "",
 ):
@@ -173,6 +177,9 @@ def recibir_visita(
     print("[INICIO] Recibiendo formulario visitas")
     print(f"[DATA] usuario={usuario}, local={local}")
     print(f"[DATA] q3={q3}, q7={q7}, q9_carteleria={q9_carteleria}")
+    print(f"[DATA] entrevista_1_motivo={entrevista_1_motivo[:50] if entrevista_1_motivo else 'vacio'}...")
+    print(f"[DATA] entrevista_1_positivos={entrevista_1_positivos[:50] if entrevista_1_positivos else 'vacio'}...")
+    print(f"[DATA] entrevista_1_mejoras={entrevista_1_mejoras[:50] if entrevista_1_mejoras else 'vacio'}...")
     print("="*60)
     
     try:
@@ -198,6 +205,21 @@ def recibir_visita(
             "q9": q9, "q10": q10, "q11": q11, "q12": q12, "q13": q13,
             "q17": q17,
         })
+        
+        # Insertar entrevistas si tienen contenido
+        entrevistas = []
+        if entrevista_1_motivo.strip() or entrevista_1_positivos.strip() or entrevista_1_mejoras.strip():
+            entrevistas.append({
+                "numero_cliente": 1,
+                "motivo_visita": entrevista_1_motivo.strip(),
+                "aspectos_positivos": entrevista_1_positivos.strip(),
+                "oportunidades_mejora": entrevista_1_mejoras.strip(),
+            })
+        
+        if entrevistas:
+            insertar_entrevistas_visita(visita_id, entrevistas)
+            print(f"[OK] Insertadas {len(entrevistas)} entrevista(s) para visita_id={visita_id}")
+        
         return RedirectResponse(url="/gracias", status_code=303)
     except Exception as e:
         print(f"ERROR al insertar visita: {e}")
