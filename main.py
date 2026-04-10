@@ -143,6 +143,7 @@ def recibir_visita(
     q1_otro_text: Annotated[str, Form()] = "",  # Usuario otro
     local: Annotated[str, Form()] = "",
     q2_otro_text: Annotated[str, Form()] = "",  # Local otro
+    tiempo_fila: Annotated[str, Form()] = "00:00",  # Timer
     # Paso 1: Atención
     q3: Annotated[str, Form()] = "",
     q3_otro_text: Annotated[str, Form()] = "",
@@ -155,9 +156,8 @@ def recibir_visita(
     q7: Annotated[str, Form()] = "",
     q7_otro_text: Annotated[str, Form()] = "",
     q8_csat: Annotated[str, Form()] = "",
-    q9_new: Annotated[str, Form()] = "",
-    q9_otro_text: Annotated[str, Form()] = "",  # Para q9_new
-    q9_new_otro_text: Annotated[str, Form()] = "",  # Por si HTML usa este nombre
+    q9_carteleria: Annotated[str, Form()] = "",  # CAMBIO: de q9_new a q9_carteleria
+    q9_carteleria_otro_text: Annotated[str, Form()] = "",  # CAMBIO
     # Paso 2: Zona de pago
     q8: Annotated[str, Form()] = "",  # Tipo cajero
     q9: Annotated[str, Form()] = "",
@@ -180,24 +180,22 @@ def recibir_visita(
         usuario_final = q1_otro_text.strip() if usuario == "otro" and q1_otro_text.strip() else usuario
         local_final = q2_otro_text.strip() if local == "otro" and q2_otro_text.strip() else local
         
-        # Usar q9_new_otro_text si existe, sino q9_otro_text
-        q9_final_otro = q9_new_otro_text.strip() if q9_new_otro_text.strip() else q9_otro_text.strip()
-        
         visita_id = insertar_visita({
             "geo_lat": geo_lat,
             "geo_lng": geo_lng,
             "usuario": usuario_final,
             "local": local_final,
+            "tiempo_fila": tiempo_fila,
             "q3": q3, "q3_otro_text": q3_otro_text,
             "q4": q4, "q4_otro_text": q4_otro_text,
             "q5": q5, "q5_otro_text": q5_otro_text,
             "q6": q6, "q6_otro_text": q6_otro_text,
             "q7": q7, "q7_otro_text": q7_otro_text,
             "q8_csat": q8_csat,
-            "q9_new": q9_new, "q9_new_otro_text": q9_final_otro,
+            "q9_carteleria": q9_carteleria,
+            "q9_carteleria_otro_text": q9_carteleria_otro_text,
             "q8": q8,
-            "q9": q9, "q10": q10, "q11": q11,
-            "q12": q12, "q13": q13,
+            "q9": q9, "q10": q10, "q11": q11, "q12": q12, "q13": q13,
             "q17": q17,
         })
         return RedirectResponse(url="/gracias", status_code=303)
@@ -301,6 +299,7 @@ def reset_database(
                 geo_lng TEXT,
                 usuario TEXT,
                 local TEXT,
+                tiempo_fila TEXT,
                 q3 TEXT,
                 q3_otro_text TEXT,
                 q4 TEXT,
@@ -312,8 +311,8 @@ def reset_database(
                 q7 TEXT,
                 q7_otro_text TEXT,
                 q8_csat TEXT,
-                q9_new TEXT,
-                q9_new_otro_text TEXT,
+                q9_carteleria TEXT,
+                q9_carteleria_otro_text TEXT,
                 q8 TEXT,
                 q9 TEXT,
                 q10 TEXT,
@@ -362,14 +361,14 @@ def exportar_excel(
     ws1 = wb.active
     ws1.title = "Visitas con Sentido"
     headers1 = [
-        "ID", "Fecha", "Usuario", "Local", "Geo Lat", "Geo Lng",
+        "ID", "Fecha", "Usuario", "Local", "Geo Lat", "Geo Lng", "Tiempo Fila",
         "Q3: Guardia saludó", "Q3 Otro",
         "Q4: Guardia preguntó", "Q4 Otro",
         "Q5: Pasillos saludo", "Q5 Otro",
         "Q6: Pasillos preguntaron", "Q6 Otro",
         "Q7: Encontró colaborador", "Q7 Otro",
         "Q8: CSAT Resolutividad (1-7)",
-        "Q9: Te sentiste bienvenido", "Q9 Otro",
+        "Q9: Cartelería TyC", "Q9 Otro",
         "Q8: Tipo Cajero",
         "Q9: Cajero saludó", "Q10: PMC", "Q11: Líder BCI", 
         "Q12: Boleta Mail", "Q13: Despedida",
@@ -379,14 +378,14 @@ def exportar_excel(
     for r in obtener_todas_visitas():
         ws1.append([
             r["id"], r["fecha"], r["usuario"], r["local"],
-            r.get("geo_lat", ""), r.get("geo_lng", ""),
+            r.get("geo_lat", ""), r.get("geo_lng", ""), r.get("tiempo_fila", "--:--"),
             r.get("q3", ""), r.get("q3_otro_text", ""),
             r.get("q4", ""), r.get("q4_otro_text", ""),
             r.get("q5", ""), r.get("q5_otro_text", ""),
             r.get("q6", ""), r.get("q6_otro_text", ""),
             r.get("q7", ""), r.get("q7_otro_text", ""),
             r.get("q8_csat", ""),
-            r.get("q9_new", ""), r.get("q9_new_otro_text", ""),
+            r.get("q9_carteleria", ""), r.get("q9_carteleria_otro_text", ""),
             r.get("q8", ""),
             r.get("q9", ""), r.get("q10", ""), r.get("q11", ""),
             r.get("q12", ""), r.get("q13", ""),

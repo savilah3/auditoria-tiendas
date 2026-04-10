@@ -426,13 +426,14 @@ def insertar_visita(data: dict) -> int:
     # Valores por defecto para evitar errores si faltan campos
     defaults = {
         "geo_lat": "", "geo_lng": "", "usuario": "", "local": "",
+        "tiempo_fila": "00:00",
         "q3": "", "q3_otro_text": "",
         "q4": "", "q4_otro_text": "",
         "q5": "", "q5_otro_text": "",
         "q6": "", "q6_otro_text": "",
         "q7": "", "q7_otro_text": "",
         "q8_csat": "",
-        "q9_new": "", "q9_new_otro_text": "",
+        "q9_carteleria": "", "q9_carteleria_otro_text": "",
         "q8": "", "q9": "", "q10": "", "q11": "", "q12": "", "q13": "",
         "q17": ""
     }
@@ -460,16 +461,16 @@ def insertar_visita(data: dict) -> int:
             print("[INFO] Usando INSERT completo con campos nuevos")
             sql = """
             INSERT INTO visitas (
-                fecha, geo_lat, geo_lng, usuario, local,
+                fecha, geo_lat, geo_lng, usuario, local, tiempo_fila,
                 q3, q3_otro_text, q4, q4_otro_text,
                 q5, q5_otro_text, q6, q6_otro_text,
-                q7, q7_otro_text, q8_csat, q9_new, q9_new_otro_text,
+                q7, q7_otro_text, q8_csat, q9_carteleria, q9_carteleria_otro_text,
                 q8, q9, q10, q11, q12, q13, q17
             ) VALUES (
-                %(fecha)s, %(geo_lat)s, %(geo_lng)s, %(usuario)s, %(local)s,
+                %(fecha)s, %(geo_lat)s, %(geo_lng)s, %(usuario)s, %(local)s, %(tiempo_fila)s,
                 %(q3)s, %(q3_otro_text)s, %(q4)s, %(q4_otro_text)s,
                 %(q5)s, %(q5_otro_text)s, %(q6)s, %(q6_otro_text)s,
-                %(q7)s, %(q7_otro_text)s, %(q8_csat)s, %(q9_new)s, %(q9_new_otro_text)s,
+                %(q7)s, %(q7_otro_text)s, %(q8_csat)s, %(q9_carteleria)s, %(q9_carteleria_otro_text)s,
                 %(q8)s, %(q9)s, %(q10)s, %(q11)s, %(q12)s, %(q13)s, %(q17)s
             )
             RETURNING id

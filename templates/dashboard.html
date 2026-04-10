@@ -175,7 +175,8 @@
                             <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-green-50" title="Q6: ¿Alguna persona de pasillos te preguntó si necesitabas ayuda?">Q6<br><span class="text-xs font-normal">Pasillos preguntó</span></th>
                             <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-yellow-50" title="Q7: ¿Encontraste a un colaborador cuando lo necesitaste?">Q7<br><span class="text-xs font-normal">Encontró colab</span></th>
                             <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-yellow-50" title="Q8: CSAT - Del 1 al 7 ¿qué tan satisfecho estás?">CSAT<br><span class="text-xs font-normal">1-7</span></th>
-                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-purple-50" title="Q9: ¿Te sentiste bienvenido durante tu visita?">Q9<br><span class="text-xs font-normal">Bienvenida</span></th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-purple-50" title="Q9: ¿La cartelería de Términos y Condiciones está visible?">Q9<br><span class="text-xs font-normal">Cartelería TyC</span></th>
+                            <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-pink-50" title="Tiempo en fila">⏱<br><span class="text-xs font-normal">Tiempo Fila</span></th>
                             <!-- Zona de Pago -->
                             <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Tipo de cajero">Cajero<br><span class="text-xs font-normal">Int/Ext</span></th>
                             <th class="px-2 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Q9 Pago: ¿El cajero te saludó?">Q9<br><span class="text-xs font-normal">Cajero saludó</span></th>
@@ -240,13 +241,15 @@
                                 {% elif csat == '7' %}<span class="bg-green-200 text-green-900 px-2 py-1 rounded font-bold">{{ csat }}</span>
                                 {% else %}-{% endif %}
                             </td>
-                            <!-- Q9: Te sentiste bienvenido -->
+                            <!-- Q9: Cartelería TyC -->
                             <td class="px-2 py-2 text-center bg-purple-50">
-                                {% if row.q9_new == 'si' %}<span class="text-green-600 font-bold">✓</span>
-                                {% elif row.q9_new == 'no' %}<span class="text-red-600 font-bold">✗</span>
-                                {% elif row.q9_new == 'otro' %}<span class="text-blue-600 text-xs" title="{{ row.q9_new_otro_text }}">📝</span>
+                                {% if row.q9_carteleria == 'si' %}<span class="text-green-600 font-bold">✓</span>
+                                {% elif row.q9_carteleria == 'no' %}<span class="text-red-600 font-bold">✗</span>
+                                {% elif row.q9_carteleria == 'otro' %}<span class="text-blue-600 text-xs" title="{{ row.q9_carteleria_otro_text }}">📝</span>
                                 {% else %}-{% endif %}
                             </td>
+                            <!-- Tiempo Fila -->
+                            <td class="px-2 py-2 text-center bg-pink-50 font-mono font-bold text-sm">{{ row.tiempo_fila or '--:--' }}</td>
                             <!-- Q8: Tipo cajero -->
                             <td class="px-2 py-2 text-center bg-orange-50 text-xs">
                                 {% if row.q8 == 'interno' %}<span class="bg-walmart-blue text-white px-1 rounded">INT</span>

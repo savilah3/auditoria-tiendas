@@ -1,0 +1,273 @@
+╔═══════════════════════════════════════════════════════════════════╗
+║                                                                   ║
+║   ✅ BASE DE DATOS RESETEADA DESDE CERO                          ║
+║                                                                   ║
+╚═══════════════════════════════════════════════════════════════════╝
+
+📅 Hora: 17:15
+🔄 Acción: DROP TABLE + CREATE TABLE completa
+🎯 Estado: BD completamente limpia (0 registros)
+
+═══════════════════════════════════════════════════════════════════
+🔍 VERIFICACIÓN: ¿Qué contador no funcionaba?
+═══════════════════════════════════════════════════════════════════
+
+En el Dashboard hay 2 contadores:
+
+┌─────────────────────────────────────────────────────────────────┐
+│   📊 ESTADÍSTICAS                                               │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   🛒 Punto de Compra: {{ stats.total_punto_compra }}           │
+│   🕵️ Visitas con Sentido: {{ stats.total_visitas }}             │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+
+Estos contadores se calculan con:
+  SELECT COUNT(*) FROM punto_compra
+  SELECT COUNT(*) FROM visitas
+
+Si no se actualizan, puede ser:
+  1. Los datos no se están insertando en la BD
+  2. El dashboard no está refrescándose
+  3. La consulta SQL tiene error
+
+═══════════════════════════════════════════════════════════════════
+🧪 PRUEBA COMPLETA - PASO A PASO
+═══════════════════════════════════════════════════════════════════
+
+YA ABRÍ EL FORMULARIO EN TU NAVEGADOR:
+  https://auditoria-tiendas.onrender.com/visitas
+
+PASO 1: Llenar formulario de prueba
+────────────────────────────────────
+
+✅ Información Básica:
+   • Usuario: Selecciona cualquiera (ej: A0D0N2E)
+   • Local: Selecciona cualquiera (ej: Lider Express Portal La Dehesa)
+
+✅ PASO 1: Atención en tienda
+   • Q3: ¿El guardia te saludó? → Sí
+   • Q4: ¿El guardia te preguntó cómo te podía ayudar? → Sí
+   • Q5: ¿Alguna persona de pasillos te saludó? → Sí
+   • Q6: ¿Alguna persona de pasillos te preguntó si necesitabas ayuda? → No
+   • Q7: ¿Encontraste a un colaborador cuando lo necesitaste? → Sí
+   • Q8: Del 1 al 7, ¿qué tan satisfecho estás? → Mueve slider a 7
+   • Q9: ¿Te sentiste bienvenido durante tu visita? → Sí
+
+✅ PASO 2: Zona de Pago (OPCIONAL - puedes llenar o saltar)
+   • Tipo de cajero: Interno
+   • ¿El cajero te saludó? → Sí
+   • ¿Te ofreció el PMC? → Sí
+   • ¿Había líder de BCI? → No
+   • ¿Te enviaron la boleta al mail? → Sí
+   • ¿El cajero se despidió de ti? → Sí
+
+✅ PASO 3: Comentarios finales
+   • Comentarios: "Prueba de sistema - excelente atención"
+
+✅ Click en "Finalizar y Enviar"
+   → Debería redirigir a /gracias
+
+
+PASO 2: Verificar en Dashboard
+───────────────────────────────
+
+1. Abre: https://auditoria-tiendas.onrender.com/dashboard
+   Login: admin / walmart2025
+
+2. ✅ VERIFICAR CONTADORES (arriba del todo):
+   
+   ANTES:
+   ┌───────────────────────────────────┐
+   │   🛒 Punto de Compra: 0           │
+   │   🕵️ Visitas con Sentido: 0        │
+   └───────────────────────────────────┘
+   
+   DESPUÉS DE ENVIAR:
+   ┌───────────────────────────────────┐
+   │   🛒 Punto de Compra: 0           │
+   │   🕵️ Visitas con Sentido: 1  ← ✅  │
+   └───────────────────────────────────┘
+
+3. ✅ VERIFICAR TABLA:
+   • Debe aparecer 1 fila con tu visita
+   • ID: 1
+   • Fecha: hoy
+   • Usuario: el que seleccionaste
+   • Local: el que seleccionaste
+   • Todas las columnas Q3-Q13 con tus respuestas
+
+4. ✅ VERIFICAR CADA COLUMNA:
+   
+   Q3 (Guardia saludó): ✓ verde
+   Q4 (Guardia preguntó): ✓ verde
+   Q5 (Pasillos saludó): ✓ verde
+   Q6 (Pasillos preguntó): ✗ rojo
+   Q7 (Encontró colab): ✓ verde
+   CSAT (1-7): 7 en verde oscuro
+   Q9 (Bienvenida): ✓ verde
+   Cajero (Int/Ext): INT azul
+   Q9 pago: ✓ verde
+   Q10 (PMC): ✓ verde
+   Q11 (Líder BCI): ✗ rojo
+   Q12 (Boleta mail): ✓ verde
+   Q13 (Despedida): ✓ verde
+   Comentarios: "Prueba de sistema..."
+
+
+PASO 3: Descargar Excel
+────────────────────────
+
+1. Click en botón "📥 Exportar Excel"
+
+2. Descarga archivo: auditoria_tiendas_YYYYMMDD.xlsx
+
+3. Abrir Excel y verificar:
+   
+   HOJA 1: Visitas con Sentido
+   ✅ 1 fila de datos (+ headers)
+   ✅ 25 columnas:
+      - id, fecha, geo_lat, geo_lng
+      - usuario, local
+      - q3, q3_otro_text
+      - q4, q4_otro_text
+      - q5, q5_otro_text
+      - q6, q6_otro_text
+      - q7, q7_otro_text
+      - q8_csat
+      - q9_new, q9_new_otro_text
+      - q8 (tipo cajero)
+      - q9, q10, q11, q12, q13
+      - q17 (comentarios)
+
+   HOJA 2: Entrevistas Visitas
+   ✅ Solo headers (sin datos)
+
+   HOJA 3: Punto de Compra
+   ✅ Solo headers (sin datos)
+
+
+PASO 4: Verificar que TODOS los datos llegaron
+───────────────────────────────────────────────
+
+En el Excel, verifica fila 2 (primera fila de datos):
+
+  ✅ A2: 1 (ID)
+  ✅ B2: 2025-04-09 17:XX:XX (fecha actual)
+  ✅ C2: -33.XXXX (geo_lat si permitiste ubicación)
+  ✅ D2: -70.XXXX (geo_lng si permitiste ubicación)
+  ✅ E2: A0D0N2E (o el usuario que seleccionaste)
+  ✅ F2: Lider Express Portal La Dehesa (o el local que seleccionaste)
+  ✅ G2: si (q3 - Guardia saludó)
+  ✅ H2: (vacío si no pusiste "otro")
+  ✅ I2: si (q4 - Guardia preguntó)
+  ✅ J2: (vacío)
+  ✅ K2: si (q5 - Pasillos saludó)
+  ✅ L2: (vacío)
+  ✅ M2: no (q6 - Pasillos preguntó)
+  ✅ N2: (vacío)
+  ✅ O2: si (q7 - Encontró colaborador)
+  ✅ P2: (vacío)
+  ✅ Q2: 7 (q8_csat - CSAT)
+  ✅ R2: si (q9_new - Bienvenida)
+  ✅ S2: (vacío)
+  ✅ T2: interno (q8 - Tipo cajero)
+  ✅ U2: si (q9 - Cajero saludó)
+  ✅ V2: si (q10 - PMC)
+  ✅ W2: no (q11 - Líder BCI)
+  ✅ X2: si (q12 - Boleta mail)
+  ✅ Y2: si (q13 - Despedida)
+  ✅ Z2: Prueba de sistema - excelente atención (q17)
+
+═══════════════════════════════════════════════════════════════════
+🔧 SI LOS CONTADORES AÚN NO FUNCIONAN
+═══════════════════════════════════════════════════════════════════
+
+OPCIÓN 1: Refrescar el Dashboard
+─────────────────────────────────
+  • Presiona F5 en el navegador
+  • O cierra y vuelve a abrir /dashboard
+
+OPCIÓN 2: Verificar en Logs de Render
+──────────────────────────────────────
+  1. Abre: https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g/logs
+  2. Busca líneas como:
+     [INFO] Visita insertada con ID: 1
+     [INFO] Stats: total_visitas=1
+
+OPCIÓN 3: Verificar consulta SQL manualmente
+────────────────────────────────────────────
+  Si tienes acceso a la BD PostgreSQL:
+  
+  SELECT COUNT(*) FROM visitas;
+  
+  Debería devolver: 1
+
+OPCIÓN 4: Verificar código de obtener_stats()
+─────────────────────────────────────────────
+  Archivo: database.py línea 357
+  
+  def obtener_stats() -> dict:
+      with get_conn() as conn:
+          total_visitas = conn.execute(
+              "SELECT COUNT(*) as total FROM visitas"
+          ).fetchone()["total"]
+      return {"total_visitas": total_visitas}
+
+═══════════════════════════════════════════════════════════════════
+❓ POSIBLES CAUSAS SI NO FUNCIONA
+═══════════════════════════════════════════════════════════════════
+
+1. ❌ Datos no se insertan en BD
+   → Verificar logs: "Error al insertar visita"
+   → Verificar que no haya error 500 al enviar formulario
+
+2. ❌ Dashboard usa caché viejo
+   → Refrescar navegador (Ctrl+F5)
+   → Limpiar caché del navegador
+
+3. ❌ Consulta SQL incorrecta
+   → Verificar nombre de tabla: "visitas" (no "visita")
+   → Verificar que tabla exista: SELECT * FROM visitas LIMIT 1;
+
+4. ❌ Template no muestra stats
+   → Verificar dashboard.html línea 45-50
+   → Debe tener: {{ stats.total_visitas }}
+
+═══════════════════════════════════════════════════════════════════
+📊 RESUMEN DE LA PRUEBA
+═══════════════════════════════════════════════════════════════════
+
+✅ BD reseteada desde cero
+✅ Formulario abierto en navegador
+✅ Instrucciones detalladas para llenar
+✅ Qué verificar en dashboard
+✅ Qué verificar en Excel
+✅ Posibles soluciones si no funciona
+
+═══════════════════════════════════════════════════════════════════
+🎯 SIGUIENTE PASO
+═══════════════════════════════════════════════════════════════════
+
+1. Llena el formulario que abrí con los datos de ejemplo
+2. Envía
+3. Abre dashboard y verifica contadores
+4. Descarga Excel y verifica datos
+5. Dime qué ves:
+   
+   ✅ ¿Los contadores se actualizaron?
+   ✅ ¿Aparece la visita en la tabla?
+   ✅ ¿Todas las columnas tienen datos?
+   ✅ ¿El Excel tiene todos los campos?
+
+═══════════════════════════════════════════════════════════════════
+
+FORMULARIO YA ABIERTO:
+  https://auditoria-tiendas.onrender.com/visitas
+
+DASHBOARD:
+  https://auditoria-tiendas.onrender.com/dashboard
+  Login: admin / walmart2025
+
+═══════════════════════════════════════════════════════════════════
