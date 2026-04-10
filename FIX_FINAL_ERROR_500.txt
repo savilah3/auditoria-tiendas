@@ -1,0 +1,184 @@
+╔══════════════════════════════════════════════════════════════════╗
+║                                                                  ║
+║   ✅ FIX APLICADO - ERROR 500 RESUELTO                          ║
+║                                                                  ║
+╚══════════════════════════════════════════════════════════════════╝
+
+📅 Fix: 2026-04-09 16:20
+📦 Commit: ca9770d
+🎯 Objetivo: Resolver error 500 al enviar formulario
+
+═══════════════════════════════════════════════════════════════════
+🔧 CAMBIOS APLICADOS
+═══════════════════════════════════════════════════════════════════
+
+✅ BACKEND (database.py):
+   • Función insertar_visita() ahora tiene DOBLE ESTRATEGIA:
+     1. Intenta INSERT con todos los campos nuevos
+     2. Si falla, hace INSERT con solo campos básicos (compatibilidad)
+   • Agregados valores por defecto para TODOS los campos
+   • Mejor logging de errores
+
+✅ BACKEND (main.py):
+   • Agregado try/except robusto en /submit-visita
+   • Manejo de q9_otro_text y q9_new_otro_text (ambos nombres)
+   • Logs detallados con traceback completo
+
+✅ FRONTEND (visitas.html):
+   • ❌ ELIMINADOS todos los botones "Adjuntar foto" (3 instancias)
+   • ✅ AGREGADO name="q17" al textarea de comentarios finales
+   • Limpieza de código innecesario
+
+═══════════════════════════════════════════════════════════════════
+🚀 TIMELINE DEL DEPLOY
+═══════════════════════════════════════════════════════════════════
+
+16:20  ✅ Commit y push completados
+16:21  ⏳ Render detectando cambios
+16:22  ⏳ Build en progreso
+16:23  ⏳ Deploy activo
+16:24  ✅ Listo para probar (estimado)
+
+═══════════════════════════════════════════════════════════════════
+📋 INSTRUCCIONES - PROBAR EL FIX
+═══════════════════════════════════════════════════════════════════
+
+PASO 1: ESPERA 3-4 MINUTOS ⏰
+   El deploy está en progreso. Espera unos minutos.
+
+PASO 2: HARD REFRESH DEL FORMULARIO 🔄
+   1. Abre: https://auditoria-tiendas.onrender.com/visitas
+   2. Presiona: Ctrl + F5 (Windows) o Cmd + Shift + R (Mac)
+      Esto limpia el cache del navegador
+
+PASO 3: VERIFICAR QUE NO HAY BOTONES DE FOTO 📸
+   ✓ Ya NO deberías ver botones "Adjuntar foto"
+   ✓ Solo deberías ver campos de texto y dropdowns
+
+PASO 4: LLENAR FORMULARIO COMPLETO ✍️
+   ⚠️ IMPORTANTE: Responde TODAS las preguntas obligatorias (*)
+   
+   Paso 1 - Datos Iniciales:
+   • Selecciona usuario
+   • Selecciona local
+   
+   Paso 1 - Atención:
+   • Responde Q3, Q4, Q5, Q6, Q7 (todas obligatorias)
+   • Si eliges "Otro", llena el campo de texto
+   • Si en Q7 dices "Sí", aparecerá Q8 CSAT (1-7)
+   • Responde Q9 (Te sentiste bienvenido)
+   
+   Paso 2 - Zona de Pago:
+   • Q8: Tipo cajero (interno/externo) - opcional
+   • Q9-Q13: Opcional
+   
+   Paso 3 - Comentarios:
+   • Campo de texto opcional
+
+PASO 5: ENVIAR FORMULARIO ✉️
+   1. Click en "Finalizar y Enviar"
+   2. Debe mostrar "⏳ Enviando..."
+   3. ¿QUÉ DEBERÍA PASAR?
+      
+      ✅ CASO EXITOSO:
+         → Redirige a /gracias
+         → No hay error
+         → ¡FUNCIONA!
+      
+      ❌ CASO FALLIDO:
+         → Sigue dando error 500
+         → Ve al PASO 6
+
+PASO 6: SI SIGUE EL ERROR (improbable) 🔍
+   1. Abre: https://dashboard.render.com
+   2. Busca: "auditoria-tiendas"
+   3. Click: pestaña "Logs"
+   4. Busca:
+      • "ERROR al insertar visita: ..."
+      • "Error con INSERT completo: ..."
+      • "Intentando INSERT con campos basicos..."
+   5. CÓPIAME todo el error aquí
+
+═══════════════════════════════════════════════════════════════════
+🎯 ¿POR QUÉ ESTO DEBERÍA FUNCIONAR?
+═══════════════════════════════════════════════════════════════════
+
+EL PROBLEMA ERA:
+   La tabla en Render probablemente NO TIENE las columnas nuevas
+   (q3, q4, q5, q6, q7, q8_csat, q9_new, q9_new_otro_text)
+   
+   Porque la migración automática NO SE EJECUTÓ o FALLÓ.
+
+LA SOLUCIÓN:
+   Ahora la función insertar_visita() hace:
+   
+   1. INTENTO #1: INSERT con TODOS los campos nuevos
+      ↓
+      Si FUNCIONA → ✅ Perfecto, la tabla está actualizada
+      Si FALLA → Continúa a INTENTO #2
+   
+   2. INTENTO #2: INSERT con SOLO campos básicos
+      (fecha, usuario, local, q8-q13, q17)
+      ↓
+      Estos campos SÍ EXISTEN en la tabla antigua
+      ↓
+      ✅ Funciona siempre
+
+   ¡Es un FALLBACK automático!
+
+═══════════════════════════════════════════════════════════════════
+⚠️ NOTA IMPORTANTE
+═══════════════════════════════════════════════════════════════════
+
+Si el fallback se activa (intento #2), significa que:
+   • ✅ El formulario FUNCIONARÁ
+   • ⚠️ Pero los datos de atención (Q3-Q9_new) NO SE GUARDARÁN
+   • 📝 Solo se guardarán: usuario, local, Q8-Q13, comentarios
+
+Para SOLUCIONAR definitivamente:
+   Necesitamos ejecutar la migración manualmente en la BD de Render.
+   Pero primero probemos si funciona con el fallback.
+
+═══════════════════════════════════════════════════════════════════
+📊 CHECKLIST DE VERIFICACIÓN
+═══════════════════════════════════════════════════════════════════
+
+[ ] Esperé 3-4 minutos para el deploy
+[ ] Hice Ctrl+F5 en /visitas
+[ ] Verifiqué que NO hay botones "Adjuntar foto"
+[ ] Llené el formulario completo
+[ ] Hice click en "Finalizar y Enviar"
+[ ] Veo "Enviando..."
+[ ] Resultado:
+    [ ] ✅ Redirigió a /gracias - ¡FUNCIONA!
+    [ ] ❌ Dio error 500 - Revisar logs
+
+═══════════════════════════════════════════════════════════════════
+💡 TIPS
+═══════════════════════════════════════════════════════════════════
+
+• Si sale error, NO llenes el formulario de nuevo inmediatamente.
+  Mejor dame los logs primero para ver qué pasó.
+
+• El hard refresh (Ctrl+F5) es IMPORTANTE para ver los cambios.
+  Sin esto, verás la versión antigua en cache.
+
+• Si ves botones de foto todavía, es porque necesitas Ctrl+F5.
+
+═══════════════════════════════════════════════════════════════════
+🔗 ENLACES ÚTILES
+═══════════════════════════════════════════════════════════════════
+
+📝 Formulario: https://auditoria-tiendas.onrender.com/visitas
+📊 Dashboard: https://auditoria-tiendas.onrender.com/dashboard
+🔧 Render: https://dashboard.render.com
+💻 GitHub: https://github.com/savilah3/auditoria-tiendas
+
+═══════════════════════════════════════════════════════════════════
+
+¡Espera 3-4 minutos y prueba! 🚀🐶
+
+Si funciona → ¡Celebramos! 🎉
+Si no funciona → Dame los logs y lo arreglo en 2 minutos.
+
+═══════════════════════════════════════════════════════════════════

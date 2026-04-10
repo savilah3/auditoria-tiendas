@@ -30,6 +30,8 @@ app = FastAPI(title="En los zapatos del cliente")
 templates = Jinja2Templates(directory="templates")
 security = HTTPBasic()
 
+# Version: 2.1.0 - Fix error 500 con fallback a campos basicos
+
 # Credenciales del dashboard (configurar en Render como env vars)
 DASHBOARD_USER = os.getenv("DASHBOARD_USER", "admin")
 DASHBOARD_PASS = os.getenv("DASHBOARD_PASS", "walmart2025")
