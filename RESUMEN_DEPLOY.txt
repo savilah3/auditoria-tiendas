@@ -1,0 +1,54 @@
+════════════════════════════════════════════════════════════════════
+🎉 ¡PUSH EXITOSO!
+════════════════════════════════════════════════════════════════════
+
+✅ Los 2 commits llegaron a GitHub
+✅ Render está detectando cambios
+✅ Deploy en progreso (2-3 minutos)
+
+
+┌────────────────────────────────────────────────────────────────┐
+│  AHORA MISMO:                                                  │
+│  🔵 Deploy iniciando en Render...                             │
+│                                                                │
+│  VE A:                                                         │
+│  https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g   │
+│                                                                │
+│  ESPERA A VER:                                                 │
+│  🟢 "Live" (verde)                                            │
+└────────────────────────────────────────────────────────────────┘
+
+
+┌────────────────────────────────────────────────────────────────┐
+│  DESPUÉS DEL DEPLOY:                                           │
+│                                                                │
+│  1️⃣ RESETEAR BD (CRÍTICO!)                                    │
+│     https://auditoria-tiendas.onrender.com/admin/reset-db    │
+│     Login: admin / walmart2025                                │
+│                                                                │
+│  2️⃣ PROBAR FORMULARIO                                         │
+│     https://auditoria-tiendas.onrender.com/visitas            │
+│     - Usar CRONÓMETRO (Iniciar/Detener)                      │
+│     - Responder Q9 Cartelería TyC                            │
+│     - Llenar Cliente 1                                        │
+│                                                                │
+│  3️⃣ VERIFICAR DASHBOARD                                       │
+│     https://auditoria-tiendas.onrender.com/dashboard         │
+│     - Buscar columna "⏱ Tiempo Fila"                        │
+│     - Buscar columna "Q9 Cartelería TyC"                     │
+│     - Descargar Excel                                         │
+└────────────────────────────────────────────────────────────────┘
+
+
+════════════════════════════════════════════════════════════════════
+CAMBIOS QUE SE DEPLOYARON:
+════════════════════════════════════════════════════════════════════
+
+✅ Timer → BD, Dashboard, Excel (columna G)
+✅ Q9 Cartelería TyC → BD, Dashboard, Excel (columna T)
+⚠️ Entrevistas → Solo Cliente 1 (parcial)
+
+
+════════════════════════════════════════════════════════════════════
+Lee DEPLOY_EN_PROGRESO.txt para instrucciones detalladas
+════════════════════════════════════════════════════════════════════

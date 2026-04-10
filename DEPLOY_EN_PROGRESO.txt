@@ -1,0 +1,192 @@
+═══════════════════════════════════════════════════════════════════
+✅ PUSH EXITOSO - DEPLOY EN PROGRESO
+═══════════════════════════════════════════════════════════════════
+
+🎯 ESTADO: Los 2 commits llegaron a GitHub
+   d6106cf - feat: Agregar entrevistas al formulario (parcial)
+   bc665b7 - docs: Agregar instrucciones para probar cambios
+
+📡 RENDER: Detectando cambios... (Auto-deploy)
+   URL: https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g
+   Tiempo estimado: 2-3 minutos
+
+
+═══════════════════════════════════════════════════════════════════
+📋 QUÉ ESPERAR EN EL DEPLOY
+═══════════════════════════════════════════════════════════════════
+
+✅ CAMBIOS QUE SE DEPLOYARÁN:
+
+1️⃣ BASE DE DATOS:
+   - Nueva columna: tiempo_fila (TEXT)
+   - Columna renombrada: q9_new → q9_carteleria
+   - Columna renombrada: q9_new_otro_text → q9_carteleria_otro_text
+
+2️⃣ FORMULARIO (visitas.html):
+   - Q9 ahora usa name="q9_carteleria"
+   - Timer usa name="tiempo_fila" (ya existía)
+   - Entrevista Cliente 1: name="entrevista_1_motivo"
+   - Entrevista Cliente 1: name="entrevista_1_positivos"
+   - Entrevista Cliente 1: name="entrevista_1_mejoras"
+   ⚠️ Clientes 2+ aún NO tienen name (falta fix)
+
+3️⃣ DASHBOARD (dashboard.html):
+   - Nueva columna: "⏱ Tiempo Fila" (color rosa)
+   - Columna actualizada: "Q9 Cartelería TyC" (antes "Bienvenida")
+   - Muestra q9_carteleria en lugar de q9_new
+
+4️⃣ EXCEL (main.py):
+   - Columna G: "Tiempo Fila"
+   - Columna T: "Q9: Cartelería TyC" (antes "Te sentiste bienvenido")
+   - Hoja 2: "Entrevistas Visitas" (solo headers, sin datos aún)
+
+
+═══════════════════════════════════════════════════════════════════
+⏱ MIENTRAS ESPERAS EL DEPLOY (2-3 min)
+═══════════════════════════════════════════════════════════════════
+
+1. Ve a Render Dashboard (ya se abrió)
+   https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g
+   
+   Espera a ver:
+   🔵 "Deploying..." → 🟢 "Live"
+   
+   En los logs debe decir:
+   ✅ "==> Build successful 🎉"
+   ✅ "==> Your service is live 🎉"
+
+2. Verifica en GitHub (ya se abrió)
+   https://github.com/savilah3/auditoria-tiendas/commits/master
+   
+   Debe mostrar:
+   ✅ bc665b7 docs: Agregar instrucciones...
+   ✅ d6106cf feat: Agregar entrevistas...
+   ✅ d87fc53 feat: Cambiar Q9 a Carteleria...
+
+
+═══════════════════════════════════════════════════════════════════
+🚀 DESPUÉS DEL DEPLOY (3 PASOS)
+═══════════════════════════════════════════════════════════════════
+
+PASO 1: RESETEAR BASE DE DATOS (CRÍTICO!)
+──────────────────────────────────────────
+  ⚠️ IMPORTANTE: La BD actual NO tiene las nuevas columnas.
+     Tenés que resetearla para que cree la tabla nueva.
+  
+  URL: https://auditoria-tiendas.onrender.com/admin/reset-db
+  Login: admin / walmart2025
+  Click: "Resetear Base de Datos"
+  
+  Debe decir:
+  ✅ "✓ Tabla visitas creada con 24 columnas"
+  ✅ "✓ Tabla entrevistas_visitas creada"
+
+
+PASO 2: PROBAR FORMULARIO
+─────────────────────────
+  URL: https://auditoria-tiendas.onrender.com/visitas
+  
+  📝 PASO 1 - Atención:
+     ✅ Selecciona usuario y local
+     ✅ Llena Q3-Q7
+     ✅ Si Q7=Sí → Mueve slider Q8 CSAT
+     ✅ Q9 Cartelería TyC: Responde Sí/No
+     ✅ Siguiente →
+  
+  ⏱ PASO 2 - Zona de Pago:
+     ✅ IMPORTANTE: Click "Iniciar" en cronómetro
+     ✅ Espera 30 segundos
+     ✅ Click "Detener" → Debe mostrar 00:30
+     ✅ Q9 Cartelería (otra vez, duplicado)
+     ✅ Llena Q10-Q15
+     ✅ Siguiente →
+  
+  💬 PASO 3 - Entrevistas:
+     ✅ Llena Cliente 1 (3 campos)
+     ⚠️ NO uses "Agregar otro cliente"
+     ✅ Comentarios finales
+     ✅ Finalizar y Enviar
+  
+  Debe decir:
+  ✅ "✓ Visita registrada exitosamente"
+
+
+PASO 3: VERIFICAR DASHBOARD Y EXCEL
+───────────────────────────────────
+  URL: https://auditoria-tiendas.onrender.com/dashboard
+  Login: admin / walmart2025
+  
+  Verifica:
+  ✅ Contador: "Visitas = 1"
+  ✅ Busca columna "⏱ Tiempo Fila" (rosa) → 00:30
+  ✅ Busca columna "Q9 Cartelería TyC" (morado) → ✓ o ✗
+  
+  Descarga Excel:
+  ✅ Click "📥 Exportar Excel"
+  ✅ Abre el archivo
+  ✅ Verifica HOJA 1:
+     • Columna G "Tiempo Fila" = 00:30
+     • Columna T "Q9: Cartelería TyC" = si/no
+  ⚠️ HOJA 2 solo tiene headers (entrevistas no se capturan aún)
+
+
+═══════════════════════════════════════════════════════════════════
+✅ ÉXITO SI:
+═══════════════════════════════════════════════════════════════════
+
+✓ Timer se guarda en BD y aparece en dashboard columna rosa
+✓ Timer se exporta a Excel columna G
+✓ Q9 Cartelería se guarda en BD y aparece en dashboard columna morada
+✓ Q9 Cartelería se exporta a Excel columna T
+✓ Excel tiene 26 columnas (antes 25, agregamos tiempo_fila)
+✓ Dashboard muestra nuevos headers
+
+
+═══════════════════════════════════════════════════════════════════
+⚠️ CONOCIDOS PENDIENTES
+═══════════════════════════════════════════════════════════════════
+
+1. Entrevistas solo funciona Cliente 1
+   → Clientes 2+ necesitan fix en addCustomer()
+
+2. Q9 Cartelería aparece 2 veces (Paso 1 y Paso 2)
+   → Eliminar una de las dos
+
+3. Entrevistas no se exportan a Excel Hoja 2
+   → Falta endpoint que capture entrevista_*
+
+
+═══════════════════════════════════════════════════════════════════
+🔗 ENLACES RÁPIDOS
+═══════════════════════════════════════════════════════════════════
+
+• Render Deploy: https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g
+• GitHub Commits: https://github.com/savilah3/auditoria-tiendas/commits/master
+• Reset BD: https://auditoria-tiendas.onrender.com/admin/reset-db
+• Formulario: https://auditoria-tiendas.onrender.com/visitas
+• Dashboard: https://auditoria-tiendas.onrender.com/dashboard
+
+
+═══════════════════════════════════════════════════════════════════
+📧 PROBLEMAS COMUNES
+═══════════════════════════════════════════════════════════════════
+
+❌ "Timer no aparece en dashboard"
+   → ¿Clickeaste "Iniciar" y "Detener"?
+   → ¿Reseteaste la BD ANTES de llenar el formulario?
+
+❌ "Q9 sigue diciendo 'Te sentiste bienvenido'"
+   → CTRL+F5 para forzar recarga (vaciar caché)
+   → Verifica que el deploy terminó (debe decir "Live")
+
+❌ "Excel no tiene columna Tiempo Fila"
+   → Resetea BD y llena formulario de nuevo
+   → Descarga Excel de nuevo
+
+❌ "Deploy falló en Render"
+   → Revisa logs en Render Dashboard
+   → Puede ser error de sintaxis en Python
+   → Avísame para debuggear
+
+
+═══════════════════════════════════════════════════════════════════
