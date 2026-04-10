@@ -522,9 +522,9 @@ def insertar_entrevistas_visita(visita_id: int, entrevistas: List[Dict[str, str]
             conn.execute(sql, {
                 "visita_id": visita_id,
                 "numero_cliente": i,
-                "motivo_visita": e.get("motivo", ""),
-                "aspectos_positivos": e.get("positivos", ""),
-                "oportunidades_mejora": e.get("oportunidades", ""),
+                "motivo_visita": e.get("motivo_visita", ""),
+                "aspectos_positivos": e.get("aspectos_positivos", ""),
+                "oportunidades_mejora": e.get("oportunidades_mejora", ""),
             })
         conn.commit()
 
