@@ -1,0 +1,168 @@
+╔════════════════════════════════════════════════════════════════╗
+║                                                                ║
+║   ✅ PROBLEMA REAL ENCONTRADO Y CORREGIDO                      ║
+║                                                                ║
+╚════════════════════════════════════════════════════════════════╝
+
+🐛 EL PROBLEMA NO ERA LA BD EXTERNA
+   → Era el esquema en database.py que tenía código viejo
+
+⏰ Hora: 16:20
+🎯 Commit: 8e9ab0f
+✅ Push exitoso
+
+
+┌────────────────────────────────────────────────────────────────┐
+│  🔍 BUGS ENCONTRADOS EN database.py:                           │
+│                                                                │
+│  1️⃣ CREATE_TABLE_VISITAS (línea 108):                         │
+│     ❌ Tenía: q9_new TEXT, q9_new_otro_text TEXT              │
+│     ❌ Faltaba: tiempo_fila TEXT                              │
+│     ✅ Ahora: q9_carteleria + tiempo_fila                     │
+│                                                                │
+│  2️⃣ Migraciones automáticas (línea 260):                      │
+│     ❌ Intentaba crear columnas q9_new                        │
+│     ✅ Ahora: crea q9_carteleria con try/except               │
+└────────────────────────────────────────────────────────────────┘
+
+
+┌────────────────────────────────────────────────────────────────┐
+│  ❓ POR QUÉ ESTO CAUSABA ERROR DE DEPLOY:                      │
+│                                                                │
+│  1. Render arranca la app                                     │
+│  2. database.py::crear_tablas() se ejecuta automáticamente    │
+│  3. Crea tabla visitas con esquema VIEJO (q9_new)            │
+│  4. main.py intenta insertar q9_carteleria → ✗ Columna no existe │
+│  5. Deploy falla                                              │
+│                                                                │
+│  AHORA:                                                        │
+│  1. Render arranca la app                                     │
+│  2. database.py::crear_tablas() crea tabla NUEVA             │
+│     (con q9_carteleria + tiempo_fila)                         │
+│  3. main.py inserta q9_carteleria → ✓ Funciona               │
+│  4. Deploy exitoso                                            │
+└────────────────────────────────────────────────────────────────┘
+
+
+┌────────────────────────────────────────────────────────────────┐
+│  📊 ESTADO ACTUAL:                                             │
+│                                                                │
+│  🔵 Render detectó commit 8e9ab0f                             │
+│  🔵 Build en progreso... (2-3 min)                            │
+│                                                                │
+│  VE A:                                                         │
+│  https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g   │
+│                                                                │
+│  ESPERA A VER:                                                 │
+│  🟢 "Live" (verde) + "Deploy succeeded"                       │
+└────────────────────────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════
+✅ SI EL DEPLOY FUNCIONA:
+═══════════════════════════════════════════════════════════════════
+
+⚠️ NO NECESITAS RESETEAR BD MANUALMENTE
+   → database.py::crear_tablas() lo hace automáticamente
+   → Al arrancar, crea tablas si no existen (con esquema correcto)
+
+PERO si querés limpiar datos viejos:
+   → https://auditoria-tiendas.onrender.com/admin/reset-db
+   → admin / walmart2025
+
+
+═══════════════════════════════════════════════════════════════════
+🧪 PROBAR FORMULARIO:
+═══════════════════════════════════════════════════════════════════
+
+https://auditoria-tiendas.onrender.com/visitas
+
+✅ PASO 1 - Atención:
+   - Q3-Q7 (guardia, pasillos, colaborador)
+   - Q8 CSAT (slider)
+   - Q9 Cartelería TyC ← NUEVA PREGUNTA
+
+✅ PASO 2 - Zona de Pago:
+   - CRONÓMETRO: Iniciar → Esperar → Detener
+   - Q9 Cartelería (duplicado, arreglar después)
+   - Q10-Q15 (zona pago)
+
+✅ PASO 3 - Entrevistas:
+   - Cliente 1 (motivo, positivos, mejoras)
+   - ⚠️ NO agregar más clientes
+   - Comentarios finales
+
+
+═══════════════════════════════════════════════════════════════════
+📊 VERIFICAR DASHBOARD:
+═══════════════════════════════════════════════════════════════════
+
+https://auditoria-tiendas.onrender.com/dashboard
+Login: admin / walmart2025
+
+✅ Contador: "Visitas = 1"
+✅ Columna "⏱ Tiempo Fila" (rosa) → tu tiempo
+✅ Columna "Q9 Cartelería TyC" (morado) → ✓ o ✗
+
+
+═══════════════════════════════════════════════════════════════════
+📄 VERIFICAR EXCEL:
+═══════════════════════════════════════════════════════════════════
+
+Click "📥 Exportar Excel"
+
+✅ HOJA 1: "Visitas con Sentido"
+   - Columna G: "Tiempo Fila" = 00:30
+   - Columna T: "Q9: Cartelería TyC" = si/no
+   - 26 columnas total (antes 25)
+
+⚠️ HOJA 2: "Entrevistas Visitas"
+   - Solo headers (entrevistas no se exportan aún)
+
+
+═══════════════════════════════════════════════════════════════════
+🔗 ENLACES RÁPIDOS:
+═══════════════════════════════════════════════════════════════════
+
+• Render Deploy: https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g (ABIERTO)
+• GitHub Commit: https://github.com/savilah3/auditoria-tiendas/commit/8e9ab0f
+• Formulario: https://auditoria-tiendas.onrender.com/visitas
+• Dashboard: https://auditoria-tiendas.onrender.com/dashboard
+
+
+═══════════════════════════════════════════════════════════════════
+📋 RESUMEN DE CAMBIOS DEPLOYADOS:
+═══════════════════════════════════════════════════════════════════
+
+✅ Timer/Cronómetro → BD + Dashboard + Excel (columna G)
+✅ Q9 Cartelería TyC → BD + Dashboard + Excel (columna T)
+✅ Pregunta Q9 con texto correcto
+✅ Formulario HTML con name correcto
+✅ database.py con esquema correcto
+⚠️ Entrevistas → Solo Cliente 1 (sin exportar a Excel)
+
+
+═══════════════════════════════════════════════════════════════════
+⚠️ SI EL DEPLOY FALLA OTRA VEZ:
+═══════════════════════════════════════════════════════════════════
+
+Copia el error EXACTO de los logs de Render y pégamelo.
+Busca líneas que digan:
+  - "Error:"
+  - "Traceback"
+  - "Failed"
+  - "Exception"
+
+
+═══════════════════════════════════════════════════════════════════
+🎯 PRÓXIMO PASO:
+═══════════════════════════════════════════════════════════════════
+
+👀 Monitorear Render Dashboard (ya abierto)
+   Esperar ~2-3 minutos
+   
+   ✅ Si dice "Live" (verde) → Probar formulario
+   ❌ Si falla → Copiar error y avisarme
+
+
+═══════════════════════════════════════════════════════════════════
