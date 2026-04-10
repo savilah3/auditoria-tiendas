@@ -169,6 +169,12 @@ def recibir_visita(
     q17: Annotated[str, Form()] = "",
 ):
     """Recibe el formulario Visitas con Sentido v2."""
+    print("="*60)
+    print("[INICIO] Recibiendo formulario visitas")
+    print(f"[DATA] usuario={usuario}, local={local}")
+    print(f"[DATA] q3={q3}, q7={q7}, q9_new={q9_new}")
+    print("="*60)
+    
     try:
         # Si seleccionó "otro" en usuario o local, usar el texto libre
         usuario_final = q1_otro_text.strip() if usuario == "otro" and q1_otro_text.strip() else usuario
