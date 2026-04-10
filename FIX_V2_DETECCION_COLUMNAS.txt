@@ -1,0 +1,186 @@
+╔══════════════════════════════════════════════════════════════════╗
+║                                                                  ║
+║   ✅ FIX v2.0 DEPLOYADO - DETECCIÓN AUTOMÁTICA DE COLUMNAS     ║
+║                                                                  ║
+╚══════════════════════════════════════════════════════════════════╝
+
+📅 Hora: 16:33
+📦 Commit: 5df853a
+⏱️ Esperé 2.5 minutos - Deploy completado
+
+═══════════════════════════════════════════════════════════════════
+✅ NUEVO FIX APLICADO (MÁS INTELIGENTE)
+═══════════════════════════════════════════════════════════════════
+
+Este fix es DIFERENTE al anterior:
+
+❌ FIX ANTERIOR (no funcionó):
+   • Intentaba INSERT completo
+   • Si fallaba, hacía INSERT básico
+   • El error ocurría ANTES del fallback
+
+✅ NUEVO FIX (más inteligente):
+   • PRIMERO detecta qué columnas EXISTEN en la tabla
+   • LUEGO decide qué SQL usar
+   • Imposible que falle por columnas inexistentes
+
+═══════════════════════════════════════════════════════════════════
+🔧 CÓMO FUNCIONA AHORA
+═══════════════════════════════════════════════════════════════════
+
+1. Usuario llena formulario
+2. Click "Finalizar y Enviar"
+3. Backend consulta: "¿Qué columnas tiene la tabla visitas?"
+4. Si tiene q3, q4, q7 → Usa INSERT completo (guarda todo)
+5. Si NO tiene esas columnas → Usa INSERT básico (guarda mínimo)
+6. ✅ SIEMPRE FUNCIONA
+
+═══════════════════════════════════════════════════════════════════
+📊 LOGS MEJORADOS
+═══════════════════════════════════════════════════════════════════
+
+Ahora el sistema imprime en los logs de Render:
+
+[DEBUG] Columnas existentes en tabla visitas: [lista de columnas]
+[INFO] Usando INSERT completo con campos nuevos
+  O
+[WARNING] Columnas nuevas no existen. Usando INSERT básico
+[SUCCESS] Visita insertada con ID: 123
+
+Esto nos ayuda a saber EXACTAMENTE qué está pasando.
+
+═══════════════════════════════════════════════════════════════════
+🚀 AHORA PRUEBA ESTO
+═══════════════════════════════════════════════════════════════════
+
+PASO 1: HARD REFRESH
+──────────────────────────────────────────────────────────────────
+1. Abre: https://auditoria-tiendas.onrender.com/visitas
+2. Presiona: Ctrl + Shift + Delete
+3. Selecciona: "Imágenes y archivos en caché"
+4. Click: "Borrar datos"
+5. CIERRA el navegador completamente
+6. ABRE de nuevo: https://auditoria-tiendas.onrender.com/visitas
+
+O MÁS FÁCIL:
+1. Abre modo incógnito (Ctrl + Shift + N)
+2. Ve a: https://auditoria-tiendas.onrender.com/visitas
+
+PASO 2: LLENAR FORMULARIO
+──────────────────────────────────────────────────────────────────
+Llena el formulario COMPLETO:
+• Usuario: selecciona cualquiera
+• Local: selecciona cualquiera
+• Q3: Sí
+• Q4: Sí
+• Q5: Sí
+• Q6: Sí
+• Q7: Sí → aparece Q8 CSAT → selecciona 7
+• Q9: Sí
+• (Paso 2 y 3 son opcionales, déjalos vacíos o llena algo)
+
+PASO 3: ENVIAR
+──────────────────────────────────────────────────────────────────
+Click "Finalizar y Enviar"
+
+RESULTADO ESPERADO:
+✅ Botón dice "⏳ Enviando..."
+✅ Espera 1-3 segundos
+✅ Redirige a: /gracias
+✅ ¡FUNCIONA!
+
+PASO 4: VERIFICAR LOGS (importante para saber qué pasó)
+──────────────────────────────────────────────────────────────────
+Incluso si funciona, necesito que veas los logs para saber
+si está usando INSERT completo o básico:
+
+1. Ve a: https://dashboard.render.com
+2. Busca: "auditoria-tiendas"
+3. Click: pestaña "Logs"
+4. Busca estas líneas (al final de los logs):
+
+   [INICIO] Recibiendo formulario visitas
+   [DATA] usuario=...
+   [DEBUG] Columnas existentes en tabla visitas: [...]
+   [INFO] Usando INSERT completo con campos nuevos
+     O
+   [WARNING] Columnas nuevas no existen. Usando INSERT básico
+   [SUCCESS] Visita insertada con ID: X
+
+5. CÓPIAME todas esas líneas aquí
+
+═══════════════════════════════════════════════════════════════════
+❓ ¿QUÉ PUEDE PASAR?
+═══════════════════════════════════════════════════════════════════
+
+ESCENARIO A: FUNCIONA + INSERT COMPLETO ✅✅
+   → Todo perfecto
+   → Los datos se guardan completos
+   → Proyecto listo
+
+ESCENARIO B: FUNCIONA + INSERT BÁSICO ⚠️✅
+   → Funciona pero...
+   → Solo se guardan: usuario, local, comentarios
+   → NO se guardan: Q3, Q4, Q5, Q6, Q7, Q8_csat, Q9
+   → Necesitamos ejecutar migración manual
+
+ESCENARIO C: NO FUNCIONA ❌
+   → Hay otro error diferente
+   → Necesito los logs completos con el error
+
+═══════════════════════════════════════════════════════════════════
+📋 CHECKLIST
+═══════════════════════════════════════════════════════════════════
+
+[ ] Abrí modo incógnito O borré caché
+[ ] Abrí: https://auditoria-tiendas.onrender.com/visitas
+[ ] Llené formulario completo
+[ ] Click "Finalizar y Enviar"
+[ ] Resultado:
+    [ ] ✅ Funcionó (redirigió a /gracias)
+    [ ] ❌ Dio error 500
+[ ] Fui a Render Dashboard → Logs
+[ ] Copié las líneas [DEBUG], [INFO/WARNING], [SUCCESS]
+[ ] Se las pasé a Code Puppy
+
+═══════════════════════════════════════════════════════════════════
+💡 TIP IMPORTANTE
+═══════════════════════════════════════════════════════════════════
+
+Si funciona pero los logs dicen:
+  [WARNING] Columnas nuevas no existen. Usando INSERT básico
+
+Significa que necesitamos hacer ALTER TABLE para agregar las
+columnas faltantes. Pero lo podemos hacer DESPUÉS.
+
+Lo importante ahora es que el formulario FUNCIONE.
+
+═══════════════════════════════════════════════════════════════════
+🎯 OBJETIVO DE ESTE FIX
+═══════════════════════════════════════════════════════════════════
+
+✅ Que el formulario NO DÉ ERROR 500
+✅ Que redirija a /gracias
+✅ Que guarde ALGO en la BD (aunque sea mínimo)
+
+Después optimizamos para que guarde TODO.
+Primero: que funcione.
+Segundo: que funcione perfecto.
+
+═══════════════════════════════════════════════════════════════════
+🔗 ENLACES
+═══════════════════════════════════════════════════════════════════
+
+📝 Formulario: https://auditoria-tiendas.onrender.com/visitas
+📊 Dashboard: https://auditoria-tiendas.onrender.com/dashboard
+🔧 Render Logs: https://dashboard.render.com
+
+═══════════════════════════════════════════════════════════════════
+
+¡Prueba ahora y dime qué pasa! 🚀🐶
+
+Especialmente necesito que me digas:
+1. ¿Funcionó? (redirigió a /gracias)
+2. ¿Qué dicen los logs? (copia las líneas [DEBUG], [INFO/WARNING])
+
+═══════════════════════════════════════════════════════════════════

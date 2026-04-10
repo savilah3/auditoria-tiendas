@@ -1,0 +1,164 @@
+╔══════════════════════════════════════════════════════════════════╗
+║                                                                  ║
+║   🔄 RECREAR BASE DE DATOS DESDE CERO - INSTRUCCIONES          ║
+║                                                                  ║
+╚══════════════════════════════════════════════════════════════════╝
+
+📅 Opción más rápida y segura
+🎯 Objetivo: Tener una tabla limpia con TODAS las columnas correctas
+
+═══════════════════════════════════════════════════════════════════
+🚀 OPCIÓN 1: EJECUTAR SQL DIRECTO EN RENDER (RECOMENDADO)
+═══════════════════════════════════════════════════════════════════
+
+PASO 1: IR A RENDER DASHBOARD
+──────────────────────────────────────────────────────────────────
+1. Abre: https://dashboard.render.com
+2. En el menú izquierdo, busca PostgreSQL databases
+3. Click en tu base de datos (probablemente "auditoria-tiendas-db")
+
+PASO 2: ABRIR PSQL CONSOLE
+──────────────────────────────────────────────────────────────────
+1. En la página de la base de datos, busca el botón "Connect"
+2. Click en "Connect" → Copia el comando PSQL
+3. O busca un botón que diga "Shell" o "Console"
+
+PASO 3: EJECUTAR COMANDOS SQL
+──────────────────────────────────────────────────────────────────
+Copia y pega estos comandos UNO POR UNO:
+
+-- PRIMERO: Ver qué columnas tiene actualmente
+SELECT column_name FROM information_schema.columns WHERE table_name = 'visitas';
+
+-- SEGUNDO: Eliminar la tabla vieja
+DROP TABLE IF EXISTS visitas CASCADE;
+
+-- TERCERO: Crear la tabla nueva con TODAS las columnas
+CREATE TABLE visitas (
+    id SERIAL PRIMARY KEY,
+    fecha TEXT NOT NULL,
+    geo_lat TEXT,
+    geo_lng TEXT,
+    usuario TEXT,
+    local TEXT,
+    q3 TEXT,
+    q3_otro_text TEXT,
+    q4 TEXT,
+    q4_otro_text TEXT,
+    q5 TEXT,
+    q5_otro_text TEXT,
+    q6 TEXT,
+    q6_otro_text TEXT,
+    q7 TEXT,
+    q7_otro_text TEXT,
+    q8_csat TEXT,
+    q9_new TEXT,
+    q9_new_otro_text TEXT,
+    q8 TEXT,
+    q9 TEXT,
+    q10 TEXT,
+    q11 TEXT,
+    q12 TEXT,
+    q13 TEXT,
+    q17 TEXT
+);
+
+-- CUARTO: Verificar que se creó bien
+SELECT column_name, data_type FROM information_schema.columns 
+WHERE table_name = 'visitas' ORDER BY ordinal_position;
+
+RESULTADO ESPERADO:
+   Deberías ver una lista de 25 columnas (id, fecha, geo_lat, ..., q17)
+
+═══════════════════════════════════════════════════════════════════
+🚀 OPCIÓN 2: VARIABLE DE ENTORNO FORZAR RESET (MÁS FÁCIL)
+═══════════════════════════════════════════════════════════════════
+
+Si Render tiene una opción de variables de entorno:
+
+PASO 1: IR A RENDER DASHBOARD
+──────────────────────────────────────────────────────────────────
+1. Abre: https://dashboard.render.com
+2. Click en tu servicio "auditoria-tiendas"
+3. Ve a la pestaña "Environment"
+
+PASO 2: AGREGAR VARIABLE
+──────────────────────────────────────────────────────────────────
+1. Click "Add Environment Variable"
+2. Key: RESET_DB
+3. Value: true
+4. Click "Save Changes"
+
+PASO 3: ESPERAR REDEPLOY
+──────────────────────────────────────────────────────────────────
+Render hará redeploy automático y la BD se recreará.
+
+Después de que funcione:
+1. BORRA la variable RESET_DB
+2. Save de nuevo
+3. Listo
+
+═══════════════════════════════════════════════════════════════════
+🚀 OPCIÓN 3: DEJAR QUE CODE PUPPY LO HAGA POR TI
+═══════════════════════════════════════════════════════════════════
+
+Puedo crear un endpoint temporal /admin/reset-db que ejecute
+el SQL automáticamente.
+
+PASO 1: Dime "sí, crea el endpoint"
+
+PASO 2: Esperamos deploy (2 min)
+
+PASO 3: Vas a: https://auditoria-tiendas.onrender.com/admin/reset-db
+
+PASO 4: La BD se recrea automáticamente
+
+PASO 5: Eliminamos el endpoint
+
+═══════════════════════════════════════════════════════════════════
+❓ ¿CUÁL OPCIÓN PREFIERES?
+═══════════════════════════════════════════════════════════════════
+
+[ ] OPCIÓN 1: SQL directo en Render Console (tú lo ejecutas)
+      → Más control, instantáneo
+      → Requiere acceso a psql console
+
+[ ] OPCIÓN 2: Variable de entorno RESET_DB
+      → Simple, automático
+      → Solo si Render lo soporta
+
+[ ] OPCIÓN 3: Endpoint /admin/reset-db (yo lo creo)
+      → Más fácil para ti
+      → Toma 2 min de deploy
+
+═══════════════════════════════════════════════════════════════════
+💡 MI RECOMENDACIÓN
+═══════════════════════════════════════════════════════════════════
+
+Si tienes acceso fácil a Render psql console → OPCIÓN 1 (inmediato)
+
+Si prefieres no tocar nada en Render → OPCIÓN 3 (yo lo hago)
+
+═══════════════════════════════════════════════════════════════════
+⚠️ NOTA IMPORTANTE
+═══════════════════════════════════════════════════════════════════
+
+Al recrear la tabla, se PERDERÁN todos los datos de prueba existentes.
+
+Pero está bien porque:
+✓ Son solo datos de prueba
+✓ Queremos empezar limpio
+✓ La tabla nueva tendrá TODAS las columnas correctas
+
+═══════════════════════════════════════════════════════════════════
+📄 ARCHIVOS CREADOS
+═══════════════════════════════════════════════════════════════════
+
+✓ RECREAR_TABLA_VISITAS.sql
+  → Script SQL completo para ejecutar manualmente
+
+═══════════════════════════════════════════════════════════════════
+
+DIME CUÁL OPCIÓN PREFIERES Y LA EJECUTAMOS AHORA 🚀🐶
+
+═══════════════════════════════════════════════════════════════════

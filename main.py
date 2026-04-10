@@ -277,7 +277,81 @@ def limpiar_punto_compra_endpoint(
     return RedirectResponse(url="/dashboard?tab=punto-compra", status_code=303)
 
 
-@app.get("/dashboard/export")
+@app.get("/admin/reset-db")
+def reset_database(
+    username: Annotated[str, Depends(verificar_credenciales)]
+):
+    """Endpoint para recrear la tabla visitas desde cero."""
+    try:
+        from database import get_conn
+        
+        with get_conn() as conn:
+            # 1. Eliminar tabla vieja
+            print("[RESET] Eliminando tabla visitas...")
+            conn.execute("DROP TABLE IF EXISTS visitas CASCADE")
+            conn.commit()
+            
+            # 2. Crear tabla nueva con TODAS las columnas
+            print("[RESET] Creando tabla visitas con todas las columnas...")
+            sql = """
+            CREATE TABLE visitas (
+                id SERIAL PRIMARY KEY,
+                fecha TEXT NOT NULL,
+                geo_lat TEXT,
+                geo_lng TEXT,
+                usuario TEXT,
+                local TEXT,
+                q3 TEXT,
+                q3_otro_text TEXT,
+                q4 TEXT,
+                q4_otro_text TEXT,
+                q5 TEXT,
+                q5_otro_text TEXT,
+                q6 TEXT,
+                q6_otro_text TEXT,
+                q7 TEXT,
+                q7_otro_text TEXT,
+                q8_csat TEXT,
+                q9_new TEXT,
+                q9_new_otro_text TEXT,
+                q8 TEXT,
+                q9 TEXT,
+                q10 TEXT,
+                q11 TEXT,
+                q12 TEXT,
+                q13 TEXT,
+                q17 TEXT
+            )
+            """
+            conn.execute(sql)
+            conn.commit()
+            
+            # 3. Verificar columnas creadas
+            print("[RESET] Verificando columnas creadas...")
+            result = conn.execute("""
+                SELECT column_name FROM information_schema.columns
+                WHERE table_name = 'visitas'
+                ORDER BY ordinal_position
+            """).fetchall()
+            
+            columnas = [r['column_name'] for r in result]
+            print(f"[RESET] Columnas creadas: {columnas}")
+            
+            return {
+                "success": True,
+                "message": "Tabla visitas recreada exitosamente",
+                "columnas_creadas": columnas,
+                "total_columnas": len(columnas)
+            }
+            
+    except Exception as e:
+        print(f"[ERROR] Error al recrear tabla: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+
+
+@app.get("/dashboard")
 def exportar_excel(
     _: Annotated[str, Depends(verificar_credenciales)],
 ):
