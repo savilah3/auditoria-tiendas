@@ -1,0 +1,174 @@
+═══════════════════════════════════════════════════════════════════════
+🎯 INSTRUCCIONES RÁPIDAS - 5 PASOS
+═══════════════════════════════════════════════════════════════════════
+
+✅ CAMBIOS LISTOS (commit local d6106cf):
+   - Timer → BD, Dashboard, Excel
+   - Q9 Cartelería TyC → BD, Dashboard, Excel
+   - Entrevistas Cliente 1 (sin agregar más clientes)
+
+
+PASO 1️⃣ - HACER PUSH (1 min)
+═══════════════════════════════════════════════════════════════════════
+
+Desde VS Code, GitHub Desktop, o Git Bash:
+  cd "C:\Users\savila3\Documents\puppy_workspace\auditoria_tiendas"
+  git push origin master
+
+Si pide credenciales:
+  Username: savilah3
+  Password: [tu token de GitHub]
+
+
+PASO 2️⃣ - ESPERAR DEPLOY (2 min)
+═══════════════════════════════════════════════════════════════════════
+
+Ve a: https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g
+(Ya se abrió automáticamente)
+
+Espera a que diga:
+  ✅ "Live" (verde) en la parte superior
+  ✅ "Deploy succeeded" en el log
+
+
+PASO 3️⃣ - RESETEAR BASE DE DATOS (10 seg)
+═══════════════════════════════════════════════════════════════════════
+
+Ve a: https://auditoria-tiendas.onrender.com/admin/reset-db
+(Ya se abrió automáticamente)
+
+Login:
+  👤 Usuario: admin
+  🔒 Password: walmart2025
+
+Click en:
+  🔄 "Resetear Base de Datos"
+
+Debe decir:
+  ✅ "✓ Tabla visitas creada con 24 columnas"
+
+
+PASO 4️⃣ - PROBAR FORMULARIO (3 min)
+═══════════════════════════════════════════════════════════════════════
+
+Ve a: https://auditoria-tiendas.onrender.com/visitas
+(Ya se abrió automáticamente)
+
+PASO 1 - Atención:
+  ✅ Selecciona usuario (o "Otro" y escribe tu nombre)
+  ✅ Selecciona local (o "Otro" y escribe "Test")
+  ✅ Llena Q3-Q7 (guardia, pasillos, colaborador)
+  ✅ Si Q7=Sí → Mueve slider Q8 CSAT a 6 o 7
+  ✅ Q9 Cartelería: Responde Sí/No/Otro
+  ✅ Click "Siguiente →"
+
+PASO 2 - Zona de Pago:
+  ✅ IMPORTANTE: Click "Iniciar" en cronómetro ⏱
+  ✅ Espera 30 segundos (o lo que quieras)
+  ✅ Click "Detener" → Debe decir: 00:30 (o tu tiempo)
+  ✅ Q9 Cartelería (pregunta duplicada, arreglar después)
+  ✅ Llena Q10-Q15 (cajero, PMC, BCI, mail, despedida)
+  ✅ Click "Siguiente →"
+
+PASO 3 - Entrevistas:
+  ✅ Llena "Cliente 1":
+     • ¿Por qué vino?: "Compras semanales"
+     • Positivos: "Atención rápida"
+     • Mejoras: "Más cajas abiertas"
+  ⚠️ NO uses "Agregar otro cliente" (falta fix JavaScript)
+  ✅ Comentarios finales: "Prueba de sistema"
+  ✅ Click "Finalizar y Enviar"
+
+Debe decir:
+  ✅ "✓ Visita registrada exitosamente"
+
+
+PASO 5️⃣ - VERIFICAR DASHBOARD Y EXCEL (1 min)
+═══════════════════════════════════════════════════════════════════════
+
+Ve a: https://auditoria-tiendas.onrender.chboard
+(Ya se abrió automáticamente)
+
+Login:
+  👤 Usuario: admin
+  🔒 Password: walmart2025
+
+Verifica:
+  ✅ Contador: "Visitas = 1"
+  ✅ Busca columna "⏱ Tiempo Fila" (rosa) → 00:30 (o tu tiempo)
+  ✅ Busca columna "Q9 Cartelería TyC" (morado) → ✓ o ✗
+  ✅ Todas las demás columnas llenas
+
+Descarga Excel:
+  ✅ Click "📥 Exportar Excel"
+  ✅ Abre el archivo
+  ✅ Verifica HOJA 1:
+     • Columna G "Tiempo Fila" = 00:30
+     • Columna T "Q9: Cartelería TyC" = si/no
+  ⚠️ HOJA 2 solo tiene headers (entrevistas falta endpoint)
+
+
+═══════════════════════════════════════════════════════════════════════
+✅ ÉXITO SI:
+═══════════════════════════════════════════════════════════════════════
+
+✓ Timer se guarda en BD
+✓ Timer aparece en dashboard
+✓ Timer se exporta a Excel columna G
+✓ Q9 Cartelería se guarda en BD
+✓ Q9 Cartelería aparece en dashboard
+✓ Q9 Cartelería se exporta a Excel columna T
+✓ Excel tiene 26 columnas (antes eran 25)
+
+
+═══════════════════════════════════════════════════════════════════════
+⚠️ PENDIENTES (OPCIONAL):
+═══════════════════════════════════════════════════════════════════════
+
+1. Entrevistas dinámicas (clientes 2+)
+   → Editar visitas.html función addCustomer()
+   → Agregar name="entrevista_${customerCount}_..."
+
+2. Capturar entrevistas en endpoint
+   → Editar main.py recibir_visita()
+   → Leer form_data y buscar entrevista_*
+
+3. Exportar entrevistas a Excel Hoja 2
+   → Editar main.py exportar_excel()
+   → Llenar hoja 2 con entrevistas
+
+Tiempo estimado: 15-20 minutos
+¿Quieres que lo haga ahora o lo dejamos para después?
+
+
+═══════════════════════════════════════════════════════════════════════
+🔗 ENLACES (YA SE ABRIERON):
+═══════════════════════════════════════════════════════════════════════
+
+• Render Dashboard: https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g
+• Reset BD: https://auditoria-tiendas.onrender.com/admin/reset-db
+• Formulario: https://auditoria-tiendas.onrender.com/visitas
+• Dashboard: https://auditoria-tiendas.onrender.com/dashboard
+
+
+═══════════════════════════════════════════════════════════════════════
+📧 PROBLEMAS?
+═══════════════════════════════════════════════════════════════════════
+
+• No puedo hacer push:
+  → Configura Git credentials o usa GitHub Desktop
+
+• Reset BD da error:
+  → Espera 30 segundos y refresca la página
+
+• Formulario no muestra cambios:
+  → CTRL+F5 para forzar recarga (vaciar caché)
+
+• Timer no aparece en dashboard:
+  → Verifica que clickeaste "Iniciar" y "Detener"
+
+• Excel no tiene nuevas columnas:
+  → Asegúrate de resetear BD antes de llenar formulario
+
+
+═══════════════════════════════════════════════════════════════════════
