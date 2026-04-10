@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS entrevistas_atencion (
 );
 """
 
-# Tabla para "Visitas con Sentido" (nuevo formulario)
+# Tabla para "Visitas con Sentido" (nuevo formulario v2)
 CREATE_TABLE_VISITAS = """
 CREATE TABLE IF NOT EXISTS visitas (
     id SERIAL PRIMARY KEY,
@@ -98,26 +98,22 @@ CREATE TABLE IF NOT EXISTS visitas (
     geo_lng TEXT,
     usuario TEXT,
     local TEXT,
-    -- Paso 1: Guardia
-    q4a TEXT, q4a_other TEXT,
-    q4b TEXT, q4b_other TEXT,
-    -- Paso 1: Pasillos
-    q5a TEXT, q5a_other TEXT,
-    q5b TEXT, q5b_other TEXT,
-    -- Paso 1: Colaborador resolutivo
-    q6 TEXT, q6_other TEXT,
-    q8_resolutivo TEXT,
-    comentarios_sala TEXT,
+    -- Paso 1: Atención
+    q3 TEXT, q3_otro_text TEXT,
+    q4 TEXT, q4_otro_text TEXT,
+    q5 TEXT, q5_otro_text TEXT,
+    q6 TEXT, q6_otro_text TEXT,
+    q7 TEXT, q7_otro_text TEXT,
+    q8_csat TEXT,
+    q9_new TEXT, q9_new_otro_text TEXT,
     -- Paso 2: Zona de pago
-    tiempo_fila TEXT,
-    q8_cajero_tipo TEXT,
+    q8 TEXT,
     q9 TEXT,
     q10 TEXT,
     q11 TEXT,
     q12 TEXT,
     q13 TEXT,
-    comentarios_pago TEXT,
-    -- Paso 3: Comentarios finales
+    -- Paso 3: Comentarios
     q17 TEXT
 );
 """
@@ -235,6 +231,38 @@ def init_db() -> None:
         """).fetchone()
         if col_pan:
             conn.execute("ALTER TABLE punto_compra DROP COLUMN s4_pan_caja")
+
+        # Migración visitas v2: agregar nuevos campos del formulario actualizado
+        # Agregar q3, q3_otro_text
+        if not conn.execute("""
+            SELECT column_name FROM information_schema.columns
+            WHERE table_name = 'visitas' AND column_name = 'q3'
+        """).fetchone():
+            conn.execute("ALTER TABLE visitas ADD COLUMN q3 TEXT")
+            conn.execute("ALTER TABLE visitas ADD COLUMN q3_otro_text TEXT")
+        
+        # Agregar q7, q7_otro_text
+        if not conn.execute("""
+            SELECT column_name FROM information_schema.columns
+            WHERE table_name = 'visitas' AND column_name = 'q7'
+        """).fetchone():
+            conn.execute("ALTER TABLE visitas ADD COLUMN q7 TEXT")
+            conn.execute("ALTER TABLE visitas ADD COLUMN q7_otro_text TEXT")
+        
+        # Agregar q8_csat
+        if not conn.execute("""
+            SELECT column_name FROM information_schema.columns
+            WHERE table_name = 'visitas' AND column_name = 'q8_csat'
+        """).fetchone():
+            conn.execute("ALTER TABLE visitas ADD COLUMN q8_csat TEXT")
+        
+        # Agregar q9_new, q9_new_otro_text
+        if not conn.execute("""
+            SELECT column_name FROM information_schema.columns
+            WHERE table_name = 'visitas' AND column_name = 'q9_new'
+        """).fetchone():
+            conn.execute("ALTER TABLE visitas ADD COLUMN q9_new TEXT")
+            conn.execute("ALTER TABLE visitas ADD COLUMN q9_new_otro_text TEXT")
 
         conn.commit()
 
@@ -397,18 +425,16 @@ def insertar_visita(data: dict) -> int:
     sql = """
     INSERT INTO visitas (
         fecha, geo_lat, geo_lng, usuario, local,
-        q4a, q4a_other, q4b, q4b_other,
-        q5a, q5a_other, q5b, q5b_other,
-        q6, q6_other, q8_resolutivo, comentarios_sala,
-        tiempo_fila, q8_cajero_tipo, q9, q10, q11, q12, q13,
-        comentarios_pago, q17
+        q3, q3_otro_text, q4, q4_otro_text,
+        q5, q5_otro_text, q6, q6_otro_text,
+        q7, q7_otro_text, q8_csat, q9_new, q9_new_otro_text,
+        q8, q9, q10, q11, q12, q13, q17
     ) VALUES (
         %(fecha)s, %(geo_lat)s, %(geo_lng)s, %(usuario)s, %(local)s,
-        %(q4a)s, %(q4a_other)s, %(q4b)s, %(q4b_other)s,
-        %(q5a)s, %(q5a_other)s, %(q5b)s, %(q5b_other)s,
-        %(q6)s, %(q6_other)s, %(q8_resolutivo)s, %(comentarios_sala)s,
-        %(tiempo_fila)s, %(q8_cajero_tipo)s, %(q9)s, %(q10)s, %(q11)s, %(q12)s, %(q13)s,
-        %(comentarios_pago)s, %(q17)s
+        %(q3)s, %(q3_otro_text)s, %(q4)s, %(q4_otro_text)s,
+        %(q5)s, %(q5_otro_text)s, %(q6)s, %(q6_otro_text)s,
+        %(q7)s, %(q7_otro_text)s, %(q8_csat)s, %(q9_new)s, %(q9_new_otro_text)s,
+        %(q8)s, %(q9)s, %(q10)s, %(q11)s, %(q12)s, %(q13)s, %(q17)s
     )
     RETURNING id
     """

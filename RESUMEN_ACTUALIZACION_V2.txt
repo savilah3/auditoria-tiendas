@@ -1,0 +1,181 @@
+===========================================
+RESUMEN DE ACTUALIZACION - VISITAS CON SENTIDO v2
+===========================================
+
+FECHA: 2026-04-09
+CAMBIOS APLICADOS: Nuevo formulario de Visitas con Sentido con nuevos campos
+
+===========================================
+1. ARCHIVOS MODIFICADOS
+===========================================
+
+✅ templates/visitas.html
+   - Reemplazado con nuevo HTML del formulario actualizado
+   - Agregada función enviarFormulario() con loading "Enviando..."
+   - Agregada geolocalización automática
+   - Campos renombrados:
+     * q1 → usuario
+     * q2_local → local
+   - Action del form → /submit-visita
+
+✅ database.py
+   - Actualizada tabla CREATE_TABLE_VISITAS con nuevos campos:
+     * q3, q3_otro_text (Guardia saludó)
+     * q4, q4_otro_text (Guardia preguntó)
+     * q5, q5_otro_text (Pasillos saludo)
+     * q6, q6_otro_text (Pasillos preguntaron)
+     * q7, q7_otro_text (Encontró colaborador)
+     * q8_csat (Satisfacción 1-7)
+     * q9_new, q9_new_otro_text (Te sentiste bienvenido)
+   
+   - Actualizada función insertar_visita() con nuevos parámetros
+   
+   - Agregada migración automática en init_db() para agregar campos nuevos
+     sin perder datos existentes
+
+✅ main.py
+   - Actualizado endpoint /submit-visita con nuevos Form parameters
+   - Actualizada función exportar_excel() con las nuevas columnas
+   - Removido manejo de entrevistas_json (no incluído en nuevo formulario)
+
+📄 NUEVOS ARCHIVOS CREADOS
+   - adaptar_html.py (script utilizado para adaptar el HTML)
+   - MIGRACION_NUEVOS_CAMPOS.sql (referencia de migración manual)
+
+===========================================
+2. MAPEO DE CAMPOS NUEVO vs ANTIGUO
+===========================================
+
+ANTIGUO                    NUEVO
+----------------------------------------
+q4a, q4a_other       →    q3, q3_otro_text
+q4b, q4b_other       →    q4, q4_otro_text
+q5a, q5a_other       →    q5, q5_otro_text
+q5b, q5b_other       →    q6, q6_otro_text
+q6, q6_other         →    q7, q7_otro_text
+q8_resolutivo        →    q8_csat (escala 1-7)
+[NUEVO]              →    q9_new, q9_new_otro_text
+q8_cajero_tipo       →    q8
+q9-q13               →    q9-q13 (sin cambios)
+tiempo_fila          →    [REMOVIDO]
+comentarios_sala     →    [REMOVIDO]
+comentarios_pago     →    [REMOVIDO]
+entrevistas_json     →    [REMOVIDO]
+
+===========================================
+3. PASOS PARA DEPLOY A RENDER
+===========================================
+
+A. PREPARACIÓN LOCAL
+--------------------
+1. Verificar que todos los cambios estén guardados:
+   ✓ templates/visitas.html
+   ✓ database.py
+   ✓ main.py
+
+2. Probar localmente (OPCIONAL pero recomendado):
+   cd "C:\Users\savila3\Documents\puppy_workspace\auditoria_tiendas"
+   python -m venv venv_test
+   venv_test\Scripts\activate
+   pip install -r requirements.txt
+   python main.py
+   # Abrir http://localhost:8000/visitas
+
+B. COMMIT A GIT
+---------------
+cd "C:\Users\savila3\Documents\puppy_workspace\auditoria_tiendas"
+git add templates/visitas.html database.py main.py
+git commit -m "Actualizar formulario Visitas con Sentido v2 - nuevos campos de atencion"
+git push origin main
+
+C. DEPLOY EN RENDER
+--------------------
+1. Ir a https://dashboard.render.com
+2. Buscar tu servicio de "auditoria_tiendas"
+3. El deploy automático se activará al detectar el push a main
+   
+   O hacer deploy manual:
+   - Ir a "Manual Deploy" → "Deploy latest commit"
+
+4. Verificar logs de deploy:
+   - Debe mostrar: "[TZ Migration] {'estado': 'ya_aplicada', ...}"
+   - Si es primera vez con nuevos campos: "Aplicando migraciones..."
+
+5. Una vez deployado, verificar:
+   - Ir a https://[tu-app].onrender.com/visitas
+   - Llenar formulario de prueba
+   - Verificar en /dashboard que los datos se guardaron correctamente
+
+D. VERIFICAR BASE DE DATOS
+---------------------------
+1. Ir al dashboard de Render → Tu servicio → "Shell"
+2. Ejecutar:
+   python -c "from database import get_conn; c = get_conn(); r = c.execute('SELECT * FROM visitas LIMIT 1').fetchone(); print(r.keys() if r else 'No hay datos')"
+   
+3. Debería mostrar las nuevas columnas:
+   q3, q3_otro_text, q7, q7_otro_text, q8_csat, q9_new, q9_new_otro_text
+
+===========================================
+4. FUNCIONALIDAD DE "ENVIANDO DATOS"
+===========================================
+
+✅ IMPLEMENTADO EN visitas.html:
+
+JavaScript función enviarFormulario():
+- Previene submit normal del formulario
+- Muestra texto "⏳ Enviando... Por favor espera"
+- Desactiva botón submit durante envío
+- Timeout de 30 segundos
+- Manejo de errores con alerts informativos
+- Redirige a /gracias al completar exitosamente
+
+✅ Mensajes de error:
+- "La conexión tardó demasiado..." → Timeout de 30s
+- "Error al enviar: [detalle]" → Otros errores
+
+===========================================
+5. TESTING POST-DEPLOY
+===========================================
+
+CHECKLIST:
+[ ] Formulario carga correctamente
+[ ] Geolocalización captura ubicación
+[ ] Dropdown de usuario funciona
+[ ] Dropdown de local funciona
+[ ] Todos los campos se muestran
+[ ] Botón "Finalizar y Enviar" muestra loading
+[ ] Redirección a /gracias funciona
+[ ] Dashboard muestra nuevos campos en export Excel
+[ ] Dashboard muestra datos correctamente
+
+===========================================
+6. ROLLBACK (SI ES NECESARIO)
+===========================================
+
+Si algo falla, hacer rollback a commit anterior:
+
+git log --oneline  # Ver commits anteriores
+git revert [commit-hash]
+git push origin main
+
+O en Render:
+- Ir a "Manual Deploy" → "Rollback to [commit anterior]"
+
+===========================================
+7. SOPORTE
+===========================================
+
+Archivos de referencia:
+- MIGRACION_NUEVOS_CAMPOS.sql: Migración manual de BD
+- adaptar_html.py: Script usado para adaptar HTML
+
+Logs en Render:
+- Ir a "Logs" para ver errores de runtime
+- Buscar mensajes de migración de BD
+
+Contacto:
+- Sebastian Avila (propietario del proyecto)
+
+===========================================
+FIN DEL RESUMEN
+===========================================

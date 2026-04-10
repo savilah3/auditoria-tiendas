@@ -138,64 +138,55 @@ def recibir_visita(
     geo_lat: Annotated[str, Form()] = "",
     geo_lng: Annotated[str, Form()] = "",
     usuario: Annotated[str, Form()] = "",
+    q1_otro_text: Annotated[str, Form()] = "",  # Usuario otro
     local: Annotated[str, Form()] = "",
-    local_otro: Annotated[str, Form()] = "",
-    # Paso 1: Guardia
-    q4a: Annotated[str, Form()] = "",
-    q4a_other: Annotated[str, Form()] = "",
-    q4b: Annotated[str, Form()] = "",
-    q4b_other: Annotated[str, Form()] = "",
-    # Paso 1: Pasillos
-    q5a: Annotated[str, Form()] = "",
-    q5a_other: Annotated[str, Form()] = "",
-    q5b: Annotated[str, Form()] = "",
-    q5b_other: Annotated[str, Form()] = "",
-    # Paso 1: Colaborador
+    q2_otro_text: Annotated[str, Form()] = "",  # Local otro
+    # Paso 1: Atención
+    q3: Annotated[str, Form()] = "",
+    q3_otro_text: Annotated[str, Form()] = "",
+    q4: Annotated[str, Form()] = "",
+    q4_otro_text: Annotated[str, Form()] = "",
+    q5: Annotated[str, Form()] = "",
+    q5_otro_text: Annotated[str, Form()] = "",
     q6: Annotated[str, Form()] = "",
-    q6_other: Annotated[str, Form()] = "",
-    q8_resolutivo: Annotated[str, Form()] = "",
-    comentarios_sala: Annotated[str, Form()] = "",
+    q6_otro_text: Annotated[str, Form()] = "",
+    q7: Annotated[str, Form()] = "",
+    q7_otro_text: Annotated[str, Form()] = "",
+    q8_csat: Annotated[str, Form()] = "",
+    q9_new: Annotated[str, Form()] = "",
+    q9_otro_text: Annotated[str, Form()] = "",  # Para q9_new
     # Paso 2: Zona de pago
-    tiempo_fila: Annotated[str, Form()] = "",
-    q8_cajero_tipo: Annotated[str, Form()] = "",
+    q8: Annotated[str, Form()] = "",  # Tipo cajero
     q9: Annotated[str, Form()] = "",
     q10: Annotated[str, Form()] = "",
     q11: Annotated[str, Form()] = "",
     q12: Annotated[str, Form()] = "",
     q13: Annotated[str, Form()] = "",
-    comentarios_pago: Annotated[str, Form()] = "",
     # Paso 3: Comentarios finales
     q17: Annotated[str, Form()] = "",
-    entrevistas_json: Annotated[str, Form()] = "[]",
 ):
-    """Recibe el formulario Visitas con Sentido."""
-    # Si seleccionó "otro", usar el texto libre como local
-    local_final = local_otro.strip() if local == "otro" and local_otro.strip() else local
+    """Recibe el formulario Visitas con Sentido v2."""
+    # Si seleccionó "otro" en usuario o local, usar el texto libre
+    usuario_final = q1_otro_text.strip() if usuario == "otro" and q1_otro_text.strip() else usuario
+    local_final = q2_otro_text.strip() if local == "otro" and q2_otro_text.strip() else local
+    
     visita_id = insertar_visita({
         "geo_lat": geo_lat,
         "geo_lng": geo_lng,
-        "usuario": usuario,
+        "usuario": usuario_final,
         "local": local_final,
-        "q4a": q4a, "q4a_other": q4a_other,
-        "q4b": q4b, "q4b_other": q4b_other,
-        "q5a": q5a, "q5a_other": q5a_other,
-        "q5b": q5b, "q5b_other": q5b_other,
-        "q6": q6, "q6_other": q6_other,
-        "q8_resolutivo": q8_resolutivo,
-        "comentarios_sala": comentarios_sala,
-        "tiempo_fila": tiempo_fila,
-        "q8_cajero_tipo": q8_cajero_tipo,
+        "q3": q3, "q3_otro_text": q3_otro_text,
+        "q4": q4, "q4_otro_text": q4_otro_text,
+        "q5": q5, "q5_otro_text": q5_otro_text,
+        "q6": q6, "q6_otro_text": q6_otro_text,
+        "q7": q7, "q7_otro_text": q7_otro_text,
+        "q8_csat": q8_csat,
+        "q9_new": q9_new, "q9_new_otro_text": q9_otro_text,
+        "q8": q8,
         "q9": q9, "q10": q10, "q11": q11,
         "q12": q12, "q13": q13,
-        "comentarios_pago": comentarios_pago,
         "q17": q17,
     })
-    try:
-        entrevistas = json.loads(entrevistas_json)
-        if isinstance(entrevistas, list):
-            insertar_entrevistas_visita(visita_id, entrevistas)
-    except json.JSONDecodeError:
-        pass
     return RedirectResponse(url="/gracias", status_code=303)
 
 
@@ -280,25 +271,34 @@ def exportar_excel(
     ws1.title = "Visitas con Sentido"
     headers1 = [
         "ID", "Fecha", "Usuario", "Local", "Geo Lat", "Geo Lng",
-        "G. Saludó", "G. Preguntó",
-        "P. Saludó", "P. Ofreció Ayuda",
-        "Colaborador", "Resolutivo (1-5)", "Comentarios Sala",
-        "Tiempo Fila", "Cajero Tipo",
-        "Q9", "Q10 PMC", "Q11 Líder BCI", "Q12 Boleta Mail", "Q13 Despedida",
-        "Comentarios Pago", "Comentarios Adicionales",
+        "Q3: Guardia saludó", "Q3 Otro",
+        "Q4: Guardia preguntó", "Q4 Otro",
+        "Q5: Pasillos saludo", "Q5 Otro",
+        "Q6: Pasillos preguntaron", "Q6 Otro",
+        "Q7: Encontró colaborador", "Q7 Otro",
+        "Q8: CSAT Resolutividad (1-7)",
+        "Q9: Te sentiste bienvenido", "Q9 Otro",
+        "Q8: Tipo Cajero",
+        "Q9: Cajero saludó", "Q10: PMC", "Q11: Líder BCI", 
+        "Q12: Boleta Mail", "Q13: Despedida",
+        "Q17: Comentarios Finales",
     ]
     ws1.append(headers1)
     for r in obtener_todas_visitas():
         ws1.append([
             r["id"], r["fecha"], r["usuario"], r["local"],
             r.get("geo_lat", ""), r.get("geo_lng", ""),
-            r.get("q4a", ""), r.get("q4b", ""),
-            r.get("q5a", ""), r.get("q5b", ""),
-            r.get("q6", ""), r.get("q8_resolutivo", ""), r.get("comentarios_sala", ""),
-            r.get("tiempo_fila", ""), r.get("q8_cajero_tipo", ""),
+            r.get("q3", ""), r.get("q3_otro_text", ""),
+            r.get("q4", ""), r.get("q4_otro_text", ""),
+            r.get("q5", ""), r.get("q5_otro_text", ""),
+            r.get("q6", ""), r.get("q6_otro_text", ""),
+            r.get("q7", ""), r.get("q7_otro_text", ""),
+            r.get("q8_csat", ""),
+            r.get("q9_new", ""), r.get("q9_new_otro_text", ""),
+            r.get("q8", ""),
             r.get("q9", ""), r.get("q10", ""), r.get("q11", ""),
             r.get("q12", ""), r.get("q13", ""),
-            r.get("comentarios_pago", ""), r.get("q17", ""),
+            r.get("q17", ""),
         ])
 
     # Hoja 2: Entrevistas de Visitas
