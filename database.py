@@ -98,6 +98,7 @@ CREATE TABLE IF NOT EXISTS visitas (
     geo_lng TEXT,
     usuario TEXT,
     local TEXT,
+    tiempo_fila TEXT,
     -- Paso 1: Atención
     q3 TEXT, q3_otro_text TEXT,
     q4 TEXT, q4_otro_text TEXT,
@@ -105,7 +106,7 @@ CREATE TABLE IF NOT EXISTS visitas (
     q6 TEXT, q6_otro_text TEXT,
     q7 TEXT, q7_otro_text TEXT,
     q8_csat TEXT,
-    q9_new TEXT, q9_new_otro_text TEXT,
+    q9_carteleria TEXT, q9_carteleria_otro_text TEXT,
     -- Paso 2: Zona de pago
     q8 TEXT,
     q9 TEXT,
@@ -256,13 +257,18 @@ def init_db() -> None:
         """).fetchone():
             conn.execute("ALTER TABLE visitas ADD COLUMN q8_csat TEXT")
         
-        # Agregar q9_new, q9_new_otro_text
+        # Agregar q9_carteleria, q9_carteleria_otro_text (antes q9_new)
         if not conn.execute("""
             SELECT column_name FROM information_schema.columns
-            WHERE table_name = 'visitas' AND column_name = 'q9_new'
+            WHERE table_name = 'visitas' AND column_name = 'q9_carteleria'
         """).fetchone():
-            conn.execute("ALTER TABLE visitas ADD COLUMN q9_new TEXT")
-            conn.execute("ALTER TABLE visitas ADD COLUMN q9_new_otro_text TEXT")
+            # Intentar agregar con nombre nuevo
+            try:
+                conn.execute("ALTER TABLE visitas ADD COLUMN q9_carteleria TEXT")
+                conn.execute("ALTER TABLE visitas ADD COLUMN q9_carteleria_otro_text TEXT")
+            except:
+                # Si ya existe q9_new, lo dejamos (legacy)
+                pass
 
         conn.commit()
 
