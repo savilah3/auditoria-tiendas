@@ -1,0 +1,130 @@
+╔════════════════════════════════════════════════════════════════╗
+║                                                                ║
+║   🔄 RESETEAR BASES DE DATOS - PASO A PASO                     ║
+║                                                                ║
+╚════════════════════════════════════════════════════════════════╝
+
+ERROR 500 DETECTADO
+═══════════════════════════════════════════════════════════════════
+
+El cambio a async puede haber causado problemas.
+Antes de resetear, veamos el error exacto.
+
+
+OPCIÓN 1: VER ERROR EN LOGS (PRIMERO ESTO)
+═══════════════════════════════════════════════════════════════════
+
+1. Abre Render Logs:
+   https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g/logs
+
+2. Busca líneas que digan:
+   - "ERROR"
+   - "Traceback"
+   - "Exception"
+   - "500"
+
+3. Copia las últimas 20-30 líneas desde el error
+
+4. Pégamelas para ver qué está fallando
+
+→ ESTO ES CRÍTICO: el error puede ser del código, no de la BD
+
+
+OPCIÓN 2: RESETEAR BD (SI INSISTES)
+═══════════════════════════════════════════════════════════════════
+
+IMPORTANTE: Solo hay 1 BD en producción (PostgreSQL en Render)
+
+PASO 1: RESETEAR BD DE PRODUCCIÓN
+   URL: https://auditoria-tiendas.onrender.com/admin/reset-db
+   Login: admin / walmart2025
+   Click: "Resetear Base de Datos"
+   
+   Esto elimina y recrea TODAS las tablas:
+   - visitas
+   - entrevistas_visitas
+   - punto_compra
+   - atencion
+   - respuestas
+   - entrevistas
+   - entrevistas_atencion
+
+PASO 2: VERIFICAR
+   Si después de resetear SIGUE dando error 500:
+   → El problema NO es la BD
+   → El problema ES el código (mi cambio a async)
+
+
+OPCIÓN 3: ROLLBACK DEL CÓDIGO (SI ERROR PERSISTE)
+═══════════════════════════════════════════════════════════════════
+
+Si resetear la BD no funciona, puedo:
+
+1. Hacer rollback al commit anterior (antes del async)
+2. O arreglar el código async correctamente
+3. Pushear y esperar nuevo deploy
+
+
+DIAGNÓSTICO RÁPIDO
+═══════════════════════════════════════════════════════════════════
+
+PREGUNTA: ¿Cuándo empezó el error 500?
+
+A) Después del último deploy (commit 4f5fd0e con async)
+   → CAUSA: Mi cambio a async def
+   → SOLUCIÓN: Arreglar código, no BD
+
+B) Antes, con deploys anteriores
+   → CAUSA: Esquema de BD desactualizado
+   → SOLUCIÓN: Resetear BD
+
+
+CÓMO SABER SI ES PROBLEMA DE CÓDIGO O BD
+═══════════════════════════════════════════════════════════════════
+
+1. Ve a: https://auditoria-tiendas.onrender.com/visitas
+2. ¿La página carga bien? → Código OK
+3. Llena y envía formulario
+4. ¿Error 500 al enviar? → Problema en /submit-visita
+
+Si error 500 AL ENVIAR:
+   → Mira logs para ver si dice algo de:
+     - "column does not exist" → RESETEAR BD
+     - "TypeError" o "async" → ARREGLAR CÓDIGO
+     - Otra cosa → DEPENDE
+
+
+MI RECOMENDACIÓN
+═══════════════════════════════════════════════════════════════════
+
+1️⃣ PRIMERO: Cópiame el error de los logs
+   → Así sé si es BD o código
+
+2️⃣ SI INSISTES en resetear ahora:
+   → Usa el endpoint /admin/reset-db
+   → Si error persiste después de reset → es código
+
+3️⃣ SI ES CÓDIGO:
+   → Revierto mi cambio a async
+   → Push nuevo commit
+   → Esperar deploy
+
+
+ENLACES RÁPIDOS
+═══════════════════════════════════════════════════════════════════
+
+• Render Logs: https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g/logs
+• Reset BD: https://auditoria-tiendas.onrender.com/admin/reset-db
+• Formulario: https://auditoria-tiendas.onrender.com/visitas
+
+
+═══════════════════════════════════════════════════════════════════
+¿QUÉ HACEMOS?
+═══════════════════════════════════════════════════════════════════
+
+A) Me copias el error de los logs → Arreglo específicamente
+B) Reseteas BD y me decís si funciona → Ajusto según resultado
+C) Ambas: Copias error + reseteas → Vemos qué pasa
+
+
+═══════════════════════════════════════════════════════════════════

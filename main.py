@@ -136,70 +136,52 @@ def mostrar_visitas(request: Request):
 
 
 @app.post("/submit-visita")
-async def recibir_visita(
-    request: Request,
+def recibir_visita(
+    geo_lat: Annotated[str, Form()] = "",
+    geo_lng: Annotated[str, Form()] = "",
+    usuario: Annotated[str, Form()] = "",
+    q1_otro_text: Annotated[str, Form()] = "",
+    local: Annotated[str, Form()] = "",
+    q2_otro_text: Annotated[str, Form()] = "",
+    tiempo_fila: Annotated[str, Form()] = "00:00",
+    # Paso 1: Atención
+    q3: Annotated[str, Form()] = "",
+    q3_otro_text: Annotated[str, Form()] = "",
+    q4: Annotated[str, Form()] = "",
+    q4_otro_text: Annotated[str, Form()] = "",
+    q5: Annotated[str, Form()] = "",
+    q5_otro_text: Annotated[str, Form()] = "",
+    q6: Annotated[str, Form()] = "",
+    q6_otro_text: Annotated[str, Form()] = "",
+    q7: Annotated[str, Form()] = "",
+    q7_otro_text: Annotated[str, Form()] = "",
+    q8_csat: Annotated[str, Form()] = "",
+    q9_carteleria: Annotated[str, Form()] = "",
+    q9_carteleria_otro_text: Annotated[str, Form()] = "",
+    # Paso 2: Zona de pago
+    q8: Annotated[str, Form()] = "",
+    q9: Annotated[str, Form()] = "",
+    q10: Annotated[str, Form()] = "",
+    q11: Annotated[str, Form()] = "",
+    q12: Annotated[str, Form()] = "",
+    q13: Annotated[str, Form()] = "",
+    # Paso 3: Entrevistas
+    entrevista_1_motivo: Annotated[str, Form()] = "",
+    entrevista_1_positivos: Annotated[str, Form()] = "",
+    entrevista_1_mejoras: Annotated[str, Form()] = "",
+    # Comentarios finales
+    q17: Annotated[str, Form()] = "",
 ):
     """Recibe el formulario Visitas con Sentido v2."""
     print("="*60)
     print("[INICIO] Recibiendo formulario visitas")
-    
-    # Obtener TODOS los datos del formulario
-    form_data = await request.form()
-    
-    print(f"[DEBUG] TODOS LOS CAMPOS RECIBIDOS ({len(form_data)} total):")
-    for key, value in form_data.items():
-        if len(str(value)) > 100:
-            print(f"  {key} = {str(value)[:100]}... (truncado)")
-        else:
-            print(f"  {key} = {value}")
-    print("="*60)
-    
-    # Extraer campos individuales
-    geo_lat = form_data.get("geo_lat", "")
-    geo_lng = form_data.get("geo_lng", "")
-    usuario = form_data.get("usuario", "")
-    q1_otro_text = form_data.get("q1_otro_text", "")
-    local = form_data.get("local", "")
-    q2_otro_text = form_data.get("q2_otro_text", "")
-    tiempo_fila = form_data.get("tiempo_fila", "00:00")
-    
-    # Paso 1: Atención
-    q3 = form_data.get("q3", "")
-    q3_otro_text = form_data.get("q3_otro_text", "")
-    q4 = form_data.get("q4", "")
-    q4_otro_text = form_data.get("q4_otro_text", "")
-    q5 = form_data.get("q5", "")
-    q5_otro_text = form_data.get("q5_otro_text", "")
-    q6 = form_data.get("q6", "")
-    q6_otro_text = form_data.get("q6_otro_text", "")
-    q7 = form_data.get("q7", "")
-    q7_otro_text = form_data.get("q7_otro_text", "")
-    q8_csat = form_data.get("q8_csat", "")
-    q9_carteleria = form_data.get("q9_carteleria", "")
-    q9_carteleria_otro_text = form_data.get("q9_carteleria_otro_text", "")
-    
-    # Paso 2: Zona de pago
-    q8 = form_data.get("q8", "")
-    q9 = form_data.get("q9", "")
-    q10 = form_data.get("q10", "")
-    q11 = form_data.get("q11", "")
-    q12 = form_data.get("q12", "")
-    q13 = form_data.get("q13", "")
-    
-    # Paso 3: Entrevistas
-    entrevista_1_motivo = form_data.get("entrevista_1_motivo", "")
-    entrevista_1_positivos = form_data.get("entrevista_1_positivos", "")
-    entrevista_1_mejoras = form_data.get("entrevista_1_mejoras", "")
-    
-    # Comentarios finales
-    q17 = form_data.get("q17", "")
-    
     print(f"[DATA] usuario={usuario}, local={local}")
     print(f"[DATA] q3={q3}, q7={q7}, q9_carteleria={q9_carteleria}")
     print(f"[DATA ENTREVISTAS]:")
-    print(f"  entrevista_1_motivo = '{entrevista_1_motivo}' (len={len(entrevista_1_motivo)})")
-    print(f"  entrevista_1_positivos = '{entrevista_1_positivos}' (len={len(entrevista_1_positivos)})")
-    print(f"  entrevista_1_mejoras = '{entrevista_1_mejoras}' (len={len(entrevista_1_mejoras)})")
+    print(f"  entrevista_1_motivo = '{entrevista_1_motivo[:50] if entrevista_1_motivo else 'VACIO'}...' (len={len(entrevista_1_motivo)})")
+    print(f"  entrevista_1_positivos = '{entrevista_1_positivos[:50] if entrevista_1_positivos else 'VACIO'}...' (len={len(entrevista_1_positivos)})")
+    print(f"  entrevista_1_mejoras = '{entrevista_1_mejoras[:50] if entrevista_1_mejoras else 'VACIO'}...' (len={len(entrevista_1_mejoras)})")
+    print(f"[DATA] q17={q17[:50] if q17 else 'VACIO'}...")
     print("="*60)
     
     try:
