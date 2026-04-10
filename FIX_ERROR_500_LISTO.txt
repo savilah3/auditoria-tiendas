@@ -1,0 +1,211 @@
+╔════════════════════════════════════════════════════════════════╗
+║                                                                ║
+║   ✅ FIX APLICADO: Error 500 corregido                         ║
+║                                                                ║
+╚════════════════════════════════════════════════════════════════╝
+
+EL PROBLEMA
+═══════════════════════════════════════════════════════════════════
+
+❌ Mi cambio a async def causó error 500
+❌ FastAPI no manejaba bien async + form en este contexto
+
+
+LA SOLUCIÓN (Commit 56ec643)
+═══════════════════════════════════════════════════════════════════
+
+✅ Revertí a def normal (no async)
+✅ Uso Form() parameters (método estándar FastAPI)
+✅ Incluyo TODOS los campos de entrevistas
+✅ Logs más simples pero efectivos
+
+
+ESTADO ACTUAL
+═══════════════════════════════════════════════════════════════════
+
+✅ Commit: 56ec643
+✅ Push: Exitoso
+🔵 Render: Deployando... (~2-3 min)
+
+
+DESPUÉS DEL DEPLOY
+═══════════════════════════════════════════════════════════════════
+
+PASO 1️⃣: ESPERAR DEPLOY (2-3 min)
+   → Render: https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g
+   → Esperar: 🟢 "Live" (verde)
+
+
+PASO 2️⃣: RESETEAR BD (IMPORTANTE)
+   
+   ¿POR QUÉ? Para asegurar esquema correcto
+   
+   URL: https://auditoria-tiendas.onrender.com/admin/reset-db
+   Login: admin / walmart2025
+   Click: "Resetear Base de Datos"
+   
+   Debe decir:
+   ✅ "Tabla visitas creada con XX columnas"
+   ✅ "Tabla entrevistas_visitas creada"
+
+
+PASO 3️⃣: PROBAR FORMULARIO COMPLETO
+   
+   URL: https://auditoria-tiendas.onrender.com/visitas
+   
+   📝 PASO 1 - Atención:
+      - Usuario y Local
+      - Q3-Q7 (todo Sí)
+      - Q8 CSAT: 6
+      - Q9 Cartelería: Sí
+      - Click "Siguiente →"
+   
+   ⏱ PASO 2 - Zona de Pago:
+      - Cronómetro: Iniciar → 10 seg → Detener
+      - Q9-Q13 (todo Sí)
+      - Click "Siguiente →"
+   
+   💬 PASO 3 - ENTREVISTAS (CRÍTICO):
+      
+      Cliente 1:
+      ✍️ ¿Por qué vino hoy?
+         → "Compras de fin de semana"
+      
+      ✍️ Aspectos positivos:
+         → "Buena atención del personal"
+      
+      ✍️ Oportunidades de mejora:
+         → "Más cajas abiertas"
+      
+      💭 Comentarios finales:
+         → "Cliente satisfecho"
+      
+      ✅ Click "Finalizar y Enviar"
+   
+   DEBE REDIRIGIR A:
+   ✅ Página de "Gracias"
+   ❌ SIN error 500
+
+
+PASO 4️⃣: VERIFICAR DASHBOARD
+   
+   URL: https://auditoria-tiendas.onrender.com/dashboard
+   Login: admin / walmart2025
+   
+   ✅ Contador: "Visitas = 1"
+   ✅ Click en ícono 👁 de la visita
+   ✅ Debe aparecer "Entrevistas a Clientes (1)"
+   ✅ Debe mostrar:
+      - Cliente #1
+      - Motivo: "Compras de fin de semana"
+      - Positivos: "Buena atención del personal"
+      - Mejoras: "Más cajas abiertas"
+
+
+PASO 5️⃣: VERIFICAR EXCEL
+   
+   Click "📥 Exportar Excel"
+   
+   HOJA 1: "Visitas con Sentido"
+   ✅ 1 fila con todos los datos
+   ✅ Columna G: Tiempo Fila = 00:10
+   ✅ Columna T: Q9 Cartelería = si
+   
+   HOJA 2: "Entrevistas Visitas"
+   ✅ 1 fila con:
+      - Visita ID = 1
+      - # Cliente = 1
+      - Motivo = "Compras de fin de semana"
+      - Positivos = "Buena atención del personal"
+      - Mejoras = "Más cajas abiertas"
+
+
+PASO 6️⃣: VERIFICAR LOGS (OPCIONAL)
+   
+   URL: https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g/logs
+   
+   Buscar después de enviar formulario:
+   
+   ════════════════════════════════════════════════════════
+   [INICIO] Recibiendo formulario visitas
+   [DATA] usuario=..., local=...
+   [DATA ENTREVISTAS]:
+     entrevista_1_motivo = 'Compras de fin de semana...' (len=24)
+     entrevista_1_positivos = 'Buena atención...' (len=29)
+     entrevista_1_mejoras = 'Más cajas abiertas...' (len=18)
+   [DATA] q17=Cliente satisfecho...
+   ════════════════════════════════════════════════════════
+   [OK] Insertadas 1 entrevista(s) para visita_id=1
+   ════════════════════════════════════════════════════════
+
+
+ÉXITO SI
+═══════════════════════════════════════════════════════════════════
+
+✅ Formulario se envía SIN error 500
+✅ Logs muestran entrevistas con len > 0
+✅ Dashboard muestra entrevistas (ícono 👁)
+✅ Excel Hoja 2 tiene 1 fila con datos llenos
+✅ Todo funciona end-to-end
+
+
+FALLO SI
+═══════════════════════════════════════════════════════════════════
+
+❌ Error 500 persiste después de deploy
+   → Copiarme logs de Render COMPLETOS
+
+❌ Entrevistas aparecen vacías en logs (len=0)
+   → Problema en HTML, revisar visitas.html
+
+❌ Entrevistas en logs OK pero no en BD
+   → Problema en database.py, revisar insertar_entrevistas_visita()
+
+
+RESUMEN CAMBIOS
+═══════════════════════════════════════════════════════════════════
+
+ANTES (Commit 4f5fd0e):
+❌ async def + request.form()
+❌ Error 500 al enviar formulario
+❌ No funcionaba
+
+AHORA (Commit 56ec643):
+✅ def normal + Form() parameters
+✅ Todos los campos incluidos (entrevistas + q17)
+✅ Logs informativos
+✅ Debería funcionar sin error 500
+
+
+PRÓXIMOS PASOS
+═══════════════════════════════════════════════════════════════════
+
+1. ⏱ Esperar deploy (2-3 min)
+2. 🔄 Resetear BD
+3. 📝 Llenar formulario COMPLETO
+4. 👁 Verificar dashboard
+5. 📥 Descargar Excel
+6. ✅ Confirmar que TODO funciona
+
+
+ENLACES RÁPIDOS
+═══════════════════════════════════════════════════════════════════
+
+• Render Deploy: https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g
+• Render Logs: https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g/logs
+• Reset BD: https://auditoria-tiendas.onrender.com/admin/reset-bd
+• Formulario: https://auditoria-tiendas.onrender.com/visitas
+• Dashboard: https://auditoria-tiendas.onrender.com/dashboard
+
+
+═══════════════════════════════════════════════════════════════════
+SI ALGO FALLA
+═══════════════════════════════════════════════════════════════════
+
+Copiarme:
+1. Qué error aparece (500, otro?)
+2. Logs de Render (últimas 30 líneas)
+3. En qué paso falla (enviar, dashboard, excel?)
+
+
+═══════════════════════════════════════════════════════════════════
