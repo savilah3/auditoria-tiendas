@@ -1,0 +1,174 @@
+╔════════════════════════════════════════════════════════════════╗
+║                                                                ║
+║   🔄 RESETEAR BD PARA ELIMINAR ESQUEMA VIEJO                   ║
+║                                                                ║
+╚════════════════════════════════════════════════════════════════╝
+
+✅ TIENES RAZÓN
+   → La BD tiene columnas viejas (q9_new)
+   → El código espera columnas nuevas (q9_carteleria)
+   → Error 500 por mismatch de esquema
+
+
+┌────────────────────────────────────────────────────────────────┐
+│  🎯 SOLUCIÓN: RESETEAR BD (NO ELIMINARLA)                      │
+│                                                                │
+│  YA SE ABRIÓ:                                                  │
+│  https://auditoria-tiendas.onrender.com/admin/reset-db       │
+│                                                                │
+│  1️⃣ Login:                                                     │
+│     Usuario: admin                                            │
+│     Password: walmart2025                                     │
+│                                                                │
+│  2️⃣ Click:                                                     │
+│     🔄 "Resetear Base de Datos"                               │
+│                                                                │
+│  3️⃣ Debe decir:                                                │
+│     ✅ "✓ Tabla visitas creada"                               │
+│     ✅ "✓ Tabla entrevistas_visitas creada"                   │
+│     ✅ "✓ Tabla punto_compra creada"                          │
+│     ✅ "✓ Tabla atencion creada"                              │
+└────────────────────────────────────────────────────────────────┘
+
+
+┌────────────────────────────────────────────────────────────────┐
+│  ❓ QUÉ HACE EL RESET:                                         │
+│                                                                │
+│  1. DROP todas las tablas (elimina datos viejos)              │
+│  2. CREATE tablas nuevas con esquema correcto:                │
+│     - tiempo_fila TEXT                                        │
+│     - q9_carteleria TEXT                                      │
+│     - q9_carteleria_otro_text TEXT                            │
+│  3. Contador de visitas vuelve a 0                            │
+│                                                                │
+│  ⚠️ IMPORTANTE:                                                │
+│     Se perderán datos viejos (si tenías visitas guardadas)    │
+│     Pero eso es OK porque estamos probando                    │
+└────────────────────────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════
+✅ DESPUÉS DEL RESET:
+═══════════════════════════════════════════════════════════════════
+
+1️⃣ PROBAR FORMULARIO
+   https://auditoria-tiendas.onrender.com/visitas
+   
+   ✅ PASO 1 - Atención:
+      - Selecciona usuario y local
+      - Llena Q3-Q7 (guardia, pasillos, colaborador)
+      - Mueve slider Q8 CSAT a 6 o 7
+      - Q9 Cartelería TyC: Responde Sí/No
+      - Click "Siguiente →"
+   
+   ✅ PASO 2 - Zona de Pago:
+      - CRONÓMETRO:
+        * Click "Iniciar"
+        * Espera 30 segundos (o lo que quieras)
+        * Click "Detener"
+        * Debe mostrar: 00:30 (o tu tiempo)
+      - Q9 Cartelería (duplicado, ignorar)
+      - Llena Q10-Q15 (cajero, PMC, BCI, mail, despedida)
+      - Click "Siguiente →"
+   
+   ✅ PASO 3 - Entrevistas:
+      - Llena Cliente 1:
+        * ¿Por qué vino?: "Compras semanales"
+        * Positivos: "Atención rápida"
+        * Mejoras: "Más cajas abiertas"
+      - ⚠️ NO uses "Agregar otro cliente"
+      - Comentarios finales: "Prueba de sistema"
+      - Click "Finalizar y Enviar"
+   
+   DEBE DECIR:
+   ✅ "✓ Visita registrada exitosamente"
+
+
+2️⃣ VERIFICAR DASHBOARD
+   https://auditoria-tiendas.onrender.com/dashboard
+   Login: admin / walmart2025
+   
+   ✅ Contador: "Visitas = 1"
+   ✅ Buscar columna "⏱ Tiempo Fila" (color rosa)
+      → Debe mostrar: 00:30 (o tu tiempo)
+   ✅ Buscar columna "Q9 Cartelería TyC" (color morado)
+      → Debe mostrar: ✓ (si dijiste Sí) o ✗ (si dijiste No)
+   ✅ Todas las demás columnas llenas
+
+
+3️⃣ VERIFICAR EXCEL
+   Click "📥 Exportar Excel"
+   
+   HOJA 1: "Visitas con Sentido"
+   ✅ Columna A: ID = 1
+   ✅ Columna B: Fecha = hoy
+   ✅ Columna C: Usuario = tu nombre
+   ✅ Columna D: Local = tu local
+   ✅ Columna G: Tiempo Fila = 00:30
+   ✅ Columna T: Q9: Cartelería TyC = si/no
+   ✅ Total 26 columnas (antes eran 25)
+   
+   HOJA 2: "Entrevistas Visitas"
+   ⚠️ Solo headers (entrevistas no se exportan aún)
+   
+   HOJA 3: "Punto de Compra"
+   ✅ Vacía (es otro formulario)
+
+
+═══════════════════════════════════════════════════════════════════
+✅ ÉXITO SI:
+═══════════════════════════════════════════════════════════════════
+
+✓ Formulario se envía sin errores
+✓ Dashboard muestra visita con tiempo y Q9
+✓ Excel tiene columnas nuevas con datos
+✓ NO hay error 500
+
+
+═══════════════════════════════════════════════════════════════════
+❌ SI SIGUE DANDO ERROR 500:
+═══════════════════════════════════════════════════════════════════
+
+1. Abre Chrome DevTools (F12)
+2. Ve a pestaña "Network"
+3. Llena el formulario y envía
+4. Busca la petición que dio error 500
+5. Click derecho → Copy → Copy as cURL
+6. Pégame el cURL completo
+
+O también:
+1. Ve a Render Logs
+2. Busca líneas con "ERROR" o "Traceback"
+3. Pégame el error completo
+
+
+═══════════════════════════════════════════════════════════════════
+🔗 ENLACES RÁPIDOS:
+═══════════════════════════════════════════════════════════════════
+
+• Reset BD: https://auditoria-tiendas.onrender.com/admin/reset-db (ABIERTO)
+• Formulario: https://auditoria-tiendas.onrender.com/visitas
+• Dashboard: https://auditoria-tiendas.onrender.com/dashboard
+• Render Logs: https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g/logs
+
+
+═══════════════════════════════════════════════════════════════════
+⏱ TIEMPO TOTAL ESTIMADO: 3-5 MINUTOS
+═══════════════════════════════════════════════════════════════════
+
+1. Reset BD: 10 segundos
+2. Llenar formulario: 2 minutos
+3. Verificar dashboard: 30 segundos
+4. Descargar Excel: 30 segundos
+
+
+═══════════════════════════════════════════════════════════════════
+🎯 EMPEZÁ POR AQUÍ:
+═══════════════════════════════════════════════════════════════════
+
+👉 https://auditoria-tiendas.onrender.com/admin/reset-db
+   Login: admin / walmart2025
+   Click: "Resetear Base de Datos"
+
+
+═══════════════════════════════════════════════════════════════════

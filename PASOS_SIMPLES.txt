@@ -1,0 +1,106 @@
+╔════════════════════════════════════════════════════════════════╗
+║                                                                ║
+║   🔄 PASO A PASO - RESET BD Y PROBAR                           ║
+║                                                                ║
+╚════════════════════════════════════════════════════════════════╝
+
+PASO 1️⃣: RESETEAR BD (10 seg)
+═══════════════════════════════════════════════════════════════════
+
+URL: https://auditoria-tiendas.onrender.com/admin/reset-db (ABIERTO)
+
+1. Ingresa:
+   Usuario: admin
+   Password: walmart2025
+
+2. Click: "Resetear Base de Datos"
+
+3. Debe decir:
+   ✅ "✓ Tabla visitas creada con X columnas"
+
+
+PASO 2️⃣: PROBAR FORMULARIO (2 min)
+═══════════════════════════════════════════════════════════════════
+
+URL: https://auditoria-tiendas.onrender.com/visitas
+
+📝 PASO 1 - Atención:
+   • Usuario: Elige uno o "Otro" y escribe tu nombre
+   • Local: Elige uno
+   • Q3-Q7: Llena todas (Sí/No)
+   • Q8 CSAT: Mueve slider a 6 o 7
+   • Q9 Cartelería TyC: Sí
+   • Click "Siguiente →"
+
+⏱ PASO 2 - Zona de Pago:
+   • CRONÓMETRO:
+     - Click "Iniciar"
+     - Espera 30 segundos
+     - Click "Detener" → Debe mostrar 00:30
+   • Llena Q10-Q15
+   • Click "Siguiente →"
+
+💬 PASO 3 - Entrevistas:
+   • Cliente 1: Llena los 3 campos
+   • NO agregues más clientes
+   • Comentarios: "Test"
+   • Click "Finalizar y Enviar"
+
+DEBE DECIR:
+✅ "✓ Visita registrada exitosamente"
+
+
+PASO 3️⃣: VERIFICAR DASHBOARD (30 seg)
+═══════════════════════════════════════════════════════════════════
+
+URL: https://auditoria-tiendas.onrender.com/dashboard
+
+Login: admin / walmart2025
+
+BUSCA:
+✅ Contador: "Visitas = 1"
+✅ Columna "⏱ Tiempo Fila" (rosa) = 00:30
+✅ Columna "Q9 Cartelería TyC" (morado) = ✓
+
+
+PASO 4️⃣: DESCARGAR EXCEL (30 seg)
+═══════════════════════════════════════════════════════════════════
+
+Click "📥 Exportar Excel"
+
+VERIFICA HOJA 1:
+✅ Columna G: "Tiempo Fila" = 00:30
+✅ Columna T: "Q9: Cartelería TyC" = si
+✅ Total 26 columnas
+
+
+═══════════════════════════════════════════════════════════════════
+✅ TODO LISTO SI:
+═══════════════════════════════════════════════════════════════════
+
+✓ Formulario se envía sin error 500
+✓ Dashboard muestra la visita
+✓ Timer y Q9 aparecen en dashboard y Excel
+✓ Excel tiene 26 columnas (antes 25)
+
+
+═══════════════════════════════════════════════════════════════════
+❌ SI DA ERROR 500 AL ENVIAR FORMULARIO:
+═══════════════════════════════════════════════════════════════════
+
+Copia el error de Render Logs y pégamelo:
+https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g/logs
+
+
+═══════════════════════════════════════════════════════════════════
+🎯 EMPEZÁ AHORA:
+═══════════════════════════════════════════════════════════════════
+
+👉 https://auditoria-tiendas.onrender.com/admin/reset-db
+   (Ya se abrió)
+
+   Login: admin / walmart2025
+   Click: "Resetear Base de Datos"
+
+
+═══════════════════════════════════════════════════════════════════
