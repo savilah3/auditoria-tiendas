@@ -1,0 +1,145 @@
+═══════════════════════════════════════════════════════════════════
+🔧 ERROR CORREGIDO - NUEVO DEPLOY EN PROGRESO
+═══════════════════════════════════════════════════════════════════
+
+⏰ Hora: 16:12
+🎯 Commit: afa3b8c
+✅ Push exitoso → Render deployando
+
+
+┌────────────────────────────────────────────────────────────────┐
+│  🐛 PROBLEMA ENCONTRADO:                                       │
+│                                                                │
+│  main.py línea 175 usaba variable q9_new que NO EXISTE        │
+│  print(f"[DATA] q3={q3}, q7={q7}, q9_new={q9_new}")          │
+│                                                                │
+│  Esto causaba NameError al importar main.py                   │
+│  → Build fallaba en Render                                    │
+└────────────────────────────────────────────────────────────────┘
+
+
+┌────────────────────────────────────────────────────────────────┐
+│  ✅ FIX APLICADO:                                              │
+│                                                                │
+│  1️⃣ main.py línea 175:                                        │
+│     q9_new → q9_carteleria (variable correcta)                │
+│                                                                │
+│  2️⃣ visitas.html radios Q9:                                   │
+│     name="q9_new" → name="q9_carteleria" (opciones No/Otro)   │
+│                                                                │
+│  3️⃣ visitas.html JavaScript:                                  │
+│     getElementById('q9_otro_text') →                          │
+│     getElementById('q9_carteleria_otro_text')                 │
+└────────────────────────────────────────────────────────────────┘
+
+
+┌────────────────────────────────────────────────────────────────┐
+│  📊 ESTADO ACTUAL:                                             │
+│                                                                │
+│  🔵 Render detectó commit afa3b8c                             │
+│  🔵 Build en progreso... (2-3 min)                            │
+│                                                                │
+│  VE A:                                                         │
+│  https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g   │
+│                                                                │
+│  ESPERA A VER:                                                 │
+│  🟢 "Live" (verde) + "Deploy succeeded"                       │
+└────────────────────────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════
+✅ SI EL DEPLOY FUNCIONA:
+═══════════════════════════════════════════════════════════════════
+
+1️⃣ RESETEAR BD (CRÍTICO!)
+   https://auditoria-tiendas.onrender.com/admin/reset-db
+   Login: admin / walmart2025
+   
+   → Esto creará la tabla con columnas correctas:
+     - tiempo_fila TEXT
+     - q9_carteleria TEXT
+     - q9_carteleria_otro_text TEXT
+
+
+2️⃣ PROBAR FORMULARIO
+   https://auditoria-tiendas.onrender.com/visitas
+   
+   ✅ Llenar PASO 1:
+      - Q3-Q7 (atención)
+      - Q8 CSAT (slider)
+      - Q9 Cartelería TyC ← NUEVO TEXTO
+   
+   ✅ Llenar PASO 2:
+      - USAR CRONÓMETRO (Iniciar → Esperar → Detener)
+      - Q9 Cartelería (otra vez, duplicado - arreglar después)
+      - Q10-Q15 (zona pago)
+   
+   ✅ Llenar PASO 3:
+      - Cliente 1 (motivo, positivos, mejoras)
+      - ⚠️ NO agregar más clientes (falta fix)
+      - Comentarios finales
+
+
+3️⃣ VERIFICAR DASHBOARD
+   https://auditoria-tiendas.onrender.com/dashboard
+   Login: admin / walmart2025
+   
+   ✅ Contador: "Visitas = 1"
+   ✅ Columna "⏱ Tiempo Fila" (rosa) → tu tiempo
+   ✅ Columna "Q9 Cartelería TyC" (morado) → ✓ o ✗
+   ✅ Todas las demás columnas llenas
+
+
+4️⃣ VERIFICAR EXCEL
+   ✅ Click "📥 Exportar Excel"
+   ✅ HOJA 1: Columna G "Tiempo Fila" = 00:30
+   ✅ HOJA 1: Columna T "Q9: Cartelería TyC" = si/no
+   ⚠️ HOJA 2: Solo headers (entrevistas falta endpoint)
+
+
+═══════════════════════════════════════════════════════════════════
+⚠️ SI EL DEPLOY FALLA OTRA VEZ:
+═══════════════════════════════════════════════════════════════════
+
+Revisa los logs en Render y busca:
+  - ImportError (paquete faltante)
+  - SyntaxError (error de Python)
+  - ModuleNotFoundError (import faltante)
+
+Avísame el error exacto y lo arreglo.
+
+
+═══════════════════════════════════════════════════════════════════
+📋 CAMBIOS QUE SE DEPLOYARON
+═══════════════════════════════════════════════════════════════════
+
+✅ Timer → BD, Dashboard, Excel (columna G)
+✅ Q9 Cartelería TyC → BD, Dashboard, Excel (columna T)
+✅ Pregunta Q9 con texto correcto
+✅ Formulario HTML con name correcto
+⚠️ Entrevistas → Solo Cliente 1 (parcial)
+
+
+═══════════════════════════════════════════════════════════════════
+🔗 ENLACES RÁPIDOS
+═══════════════════════════════════════════════════════════════════
+
+• Render Deploy: https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g (ABIERTO)
+• GitHub Commits: https://github.com/savilah3/auditoria-tiendas/commits/master
+• Reset BD: https://auditoria-tiendas.onrender.com/admin/reset-db
+• Formulario: https://auditoria-tiendas.onrender.com/visitas
+• Dashboard: https://auditoria-tiendas.onrender.com/dashboard
+
+
+═══════════════════════════════════════════════════════════════════
+🎯 PRÓXIMO PASO:
+═══════════════════════════════════════════════════════════════════
+
+👀 Monitorear Render Dashboard
+   Esperar ~2-3 minutos
+   
+   ✅ Si dice "Live" (verde) → Seguir pasos 1-4 arriba
+   ❌ Si falla → Copiar error y avisarme
+
+
+═══════════════════════════════════════════════════════════════════

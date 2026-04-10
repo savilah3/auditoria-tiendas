@@ -1,0 +1,41 @@
+╔════════════════════════════════════════════════════════════════╗
+║                                                                ║
+║   🔧 ERROR ENCONTRADO Y CORREGIDO                              ║
+║                                                                ║
+╚════════════════════════════════════════════════════════════════╝
+
+🐛 PROBLEMA:
+   main.py línea 175 usaba variable "q9_new" que NO EXISTE
+   → NameError → Build fallaba en Render
+
+✅ SOLUCIÓN:
+   Cambiado a "q9_carteleria" (nombre correcto)
+   + Arreglados radios HTML que también tenían q9_new
+
+🚀 ESTADO:
+   ✅ Fix pusheado (commit afa3b8c)
+   🔵 Render deployando ahora (2-3 min)
+   
+   VE A: https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g
+   ESPERA: 🟢 "Live" (verde)
+
+
+╔════════════════════════════════════════════════════════════════╗
+║  DESPUÉS DEL DEPLOY (3 pasos):                                 ║
+╚════════════════════════════════════════════════════════════════╝
+
+1️⃣ RESETEAR BD
+   → https://auditoria-tiendas.onrender.com/admin/reset-db
+   → admin / walmart2025
+
+2️⃣ PROBAR FORMULARIO
+   → https://auditoria-tiendas.onrender.com/visitas
+   → Usar cronómetro + Q9 Cartelería
+
+3️⃣ VERIFICAR
+   → https://auditoria-tiendas.onrender.com/dashboard
+   → Ver columnas Timer y Q9
+
+
+Lee ERROR_CORREGIDO.txt para detalles completos
+═══════════════════════════════════════════════════════════════════
