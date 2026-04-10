@@ -350,6 +350,67 @@ def reset_database(
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
 
 
+@app.get("/admin/debug-bd")
+def debug_bd(username: Annotated[str, Depends(verificar_credenciales)]):
+    """Endpoint temporal para ver qué se guardó en BD (DEBUG)."""
+    from database import get_conn
+    
+    html = "<html><head><meta charset='utf-8'><title>Debug BD</title><style>"
+    html += "body { font-family: monospace; padding: 20px; background: #f5f5f5; }"
+    html += "table { border-collapse: collapse; background: white; width: 100%; }"
+    html += "th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 12px; }"
+    html += "th { background: #0053e2; color: white; position: sticky; top: 0; }"
+    html += ".vacio { color: red; font-weight: bold; } .lleno { color: green; }"
+    html += "</style></head><body>"
+    html += "<h1>🔍 Debug BD - Última Visita</h1>"
+    
+    with get_conn() as conn:
+        # Columnas
+        columnas = conn.execute("""
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name = 'visitas'
+            ORDER BY ordinal_position
+        """).fetchall()
+        
+        html += f"<h2>✅ Columnas en tabla visitas ({len(columnas)} total)</h2>"
+        html += "<ol style='columns: 3;'>" 
+        for col in columnas:
+            html += f"<li>{col['column_name']}</li>"
+        html += "</ol>"
+        
+        # Última visita
+        visita = conn.execute("""
+            SELECT * FROM visitas ORDER BY id DESC LIMIT 1
+        """).fetchone()
+        
+        if visita:
+            html += f"<h2>📊 Última Visita (ID {visita['id']})</h2>"
+            html += "<table>"
+            html += "<tr><th>Campo</th><th>Valor</th><th>Estado</th></tr>"
+            
+            for col in columnas:
+                campo = col['column_name']
+                valor = visita.get(campo, '')
+                if valor:
+                    estado = '<span class="lleno">✅ Lleno</span>'
+                    valor_mostrar = str(valor)[:100]  # Truncar si es muy largo
+                else:
+                    estado = '<span class="vacio">❌ Vacío</span>'
+                    valor_mostrar = '(vacío)'
+                html += f"<tr><td><strong>{campo}</strong></td><td>{valor_mostrar}</td><td>{estado}</td></tr>"
+            
+            html += "</table>"
+        else:
+            html += "<p style='color:red; font-size: 20px;'>⚠️ NO HAY VISITAS EN LA BD</p>"
+            html += "<p>Resetea la BD y llena el formulario primero.</p>"
+    
+    html += "<br><br><a href='/dashboard' style='color: #0053e2; font-size: 18px;'>← Volver al Dashboard</a>"
+    html += "</body></html>"
+    
+    return HTMLResponse(content=html)
+
+
 @app.get("/exportar-excel")
 def exportar_excel(
     _: Annotated[str, Depends(verificar_credenciales)],
