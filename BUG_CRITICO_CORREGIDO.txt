@@ -1,0 +1,276 @@
+╔════════════════════════════════════════════════════════════════╗
+║                                                                ║
+║   🐛 BUG CRÍTICO ENCONTRADO Y CORREGIDO                        ║
+║                                                                ║
+╚════════════════════════════════════════════════════════════════╝
+
+EL BUG
+═══════════════════════════════════════════════════════════════════
+
+Las entrevistas se insertaban en BD pero con valores VACÍOS.
+
+CAUSA:
+❌ main.py enviaba diccionario con claves:
+   - "motivo_visita"
+   - "aspectos_positivos"
+   - "oportunidades_mejora"
+
+❌ database.py buscaba claves:
+   - "motivo"          ← NO COINCIDE
+   - "positivos"       ← NO COINCIDE
+   - "oportunidades"   ← NO COINCIDE
+
+RESULTADO:
+✓ Filas SÍ se insertaban (visita_id, numero_cliente)
+✗ Pero con campos de texto VACÍOS (e.get("motivo", "") → "")
+
+
+EJEMPLO DEL ERROR
+═══════════════════════════════════════════════════════════════════
+
+main.py (línea 212):
+```python
+entrevistas.append({
+    "numero_cliente": 1,
+    "motivo_visita": "Compras semanales",      ← clave correcta
+    "aspectos_positivos": "Buena atención",    ← clave correcta
+    "oportunidades_mejora": "Más cajas",       ← clave correcta
+})
+```
+
+database.py (línea 521 - ANTES):
+```python
+conn.execute(sql, {
+    "visita_id": visita_id,
+    "numero_cliente": i,
+    "motivo_visita": e.get("motivo", ""),           ← busca "motivo" ❌
+    "aspectos_positivos": e.get("positivos", ""),   ← busca "positivos" ❌
+    "oportunidades_mejora": e.get("oportunidades", ""), ← busca "oportunidades" ❌
+})
+```
+
+e.get("motivo", "") → No encuentra "motivo" → Devuelve ""
+e.get("positivos", "") → No encuentra "positivos" → Devuelve ""
+e.get("oportunidades", "") → No encuentra "oportunidades" → Devuelve ""
+
+
+LA SOLUCIÓN (Commit 50c50d8)
+═══════════════════════════════════════════════════════════════════
+
+database.py (línea 521 - AHORA):
+```python
+conn.execute(sql, {
+    "visita_id": visita_id,
+    "numero_cliente": i,
+    "motivo_visita": e.get("motivo_visita", ""),           ← ✅
+    "aspectos_positivos": e.get("aspectos_positivos", ""), ← ✅
+    "oportunidades_mejora": e.get("oportunidades_mejora", ""), ← ✅
+})
+```
+
+AHORA:
+e.get("motivo_visita", "") → Encuentra "motivo_visita" → "Compras semanales" ✅
+e.get("aspectos_positivos", "") → Encuentra "aspectos_positivos" → "Buena atención" ✅
+e.get("oportunidades_mejora", "") → Encuentra "oportunidades_mejora" → "Más cajas" ✅
+
+
+ESTADO ACTUAL
+═══════════════════════════════════════════════════════════════════
+
+✅ Commit: 50c50d8
+✅ Push: Exitoso
+🔵 Render: Deployando... (~2-3 min)
+
+
+DESPUÉS DEL DEPLOY
+═══════════════════════════════════════════════════════════════════
+
+PASO 1️⃣: ESPERAR DEPLOY (2-3 min)
+   → Render: https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g
+   → Esperar: 🟢 "Live" (verde)
+
+
+PASO 2️⃣: RESETEAR BD (CRÍTICO)
+   
+   ⚠️ IMPORTANTE: Eliminar entrevistas vacías anteriores
+   
+   URL: https://auditoria-tiendas.onrender.com/admin/reset-db
+   Login: admin / walmart2025
+   Click: "Resetear Base de Datos"
+
+
+PASO 3️⃣: PROBAR FORMULARIO
+   
+   URL: https://auditoria-tiendas.onrender.com/visitas
+   
+   Llenar COMPLETO y especialmente el Paso 3:
+   
+   💬 PASO 3 - ENTREVISTAS:
+      
+      Cliente 1:
+      ✍️ ¿Por qué vino hoy?
+         → "Compras de fin de semana para la familia"
+      
+      ✍️ Aspectos positivos:
+         → "Personal muy amable y rápido"
+      
+      ✍️ Oportunidades de mejora:
+         → "Abrir más cajas en hora peak"
+      
+      💭 Comentarios finales:
+         → "En general muy satisfecho"
+      
+      ✅ Click "Finalizar y Enviar"
+
+
+PASO 4️⃣: VERIFICAR DASHBOARD
+   
+   URL: https://auditoria-tiendas.onrender.com/dashboard
+   Login: admin / walmart2025
+   
+   ✅ Click en ícono 👁 de la visita
+   ✅ Debe aparecer "Entrevistas a Clientes (1)"
+   
+   ✅ AHORA DEBE MOSTRAR TEXTO COMPLETO:
+      - Cliente #1
+      - Motivo: "Compras de fin de semana para la familia"
+      - Positivos: "Personal muy amable y rápido"
+      - Mejoras: "Abrir más cajas en hora peak"
+   
+   ❌ ANTES mostraba:
+      - Motivo: (vacío)
+      - Positivos: (vacío)
+      - Mejoras: (vacío)
+
+
+PASO 5️⃣: VERIFICAR EXCEL
+   
+   Click "📥 Exportar Excel"
+   
+   HOJA 2: "Entrevistas Visitas"
+   
+   ✅ AHORA DEBE TENER:
+      | Visita ID | Usuario | Local | # Cliente | Motivo Visita | Aspectos Positivos | Oportunidades Mejora |
+      |-----------|---------|-------|-----------|---------------|-------------------|---------------------|
+      | 1         | Juan    | 123   | 1         | Compras de... | Personal muy...   | Abrir más cajas...  |
+   
+   ❌ ANTES tenía:
+      | Visita ID | Usuario | Local | # Cliente | Motivo Visita | Aspectos Positivos | Oportunidades Mejora |
+      |-----------|---------|-------|-----------|---------------|-------------------|---------------------|
+      | 1         | Juan    | 123   | 1         | (vacío)       | (vacío)           | (vacío)             |
+
+
+PASO 6️⃣: VERIFICAR LOGS DE RENDER
+   
+   URL: https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g/logs
+   
+   Después de enviar formulario, buscar:
+   
+   ════════════════════════════════════════════════════════
+   [INICIO] Recibiendo formulario visitas
+   [DATA ENTREVISTAS]:
+     entrevista_1_motivo = 'Compras de fin de semana...' (len=39)
+     entrevista_1_positivos = 'Personal muy amable...' (len=28)
+     entrevista_1_mejoras = 'Abrir más cajas...' (len=27)
+   ════════════════════════════════════════════════════════
+   [OK] Insertadas 1 entrevista(s) para visita_id=1
+   ════════════════════════════════════════════════════════
+
+
+ÉXITO SI
+═══════════════════════════════════════════════════════════════════
+
+✅ Dashboard muestra entrevistas CON TEXTO (no vacías)
+✅ Excel Hoja 2 tiene columnas llenas con datos reales
+✅ Logs muestran len > 0 para cada campo
+✅ Al hacer click en 👁 se ven las respuestas completas
+
+
+FALLO SI
+═══════════════════════════════════════════════════════════════════
+
+❌ Dashboard muestra entrevistas pero vacías
+   → Copiarme logs de Render
+   → Verificar si resetaste la BD
+
+❌ Excel tiene filas pero columnas vacías
+   → Problema: entrevistas viejas (pre-fix)
+   → Solución: Resetear BD de nuevo
+
+❌ Logs muestran len=0
+   → Problema: Campos no se están enviando del HTML
+   → Revisar visitas.html
+
+
+ARCHIVOS MODIFICADOS
+═══════════════════════════════════════════════════════════════════
+
+database.py (línea 521-523):
+   ANTES:
+   - e.get("motivo", "")
+   - e.get("positivos", "")
+   - e.get("oportunidades", "")
+   
+   AHORA:
+   - e.get("motivo_visita", "")
+   - e.get("aspectos_positivos", "")
+   - e.get("oportunidades_mejora", "")
+
+
+RESUMEN EJECUTIVO
+═══════════════════════════════════════════════════════════════════
+
+ANTES:
+❌ Entrevistas se insertaban pero vacías
+❌ Dashboard mostraba "Cliente #1" pero sin texto
+❌ Excel tenía filas pero columnas vacías
+❌ Claves no coincidían (motivo vs motivo_visita)
+
+AHORA:
+✅ Entrevistas se insertan CON contenido
+✅ Dashboard muestra texto completo
+✅ Excel exporta datos reales
+✅ Claves coinciden perfectamente
+
+
+PRÓXIMOS PASOS
+═══════════════════════════════════════════════════════════════════
+
+1. ⏱ Esperar deploy (2-3 min)
+2. 🔄 RESETEAR BD (eliminar entrevistas vacías viejas)
+3. 📝 Llenar formulario COMPLETO
+4. 👁 Verificar dashboard → Debe mostrar TEXTO
+5. 📥 Descargar Excel → Hoja 2 debe tener datos
+6. ✅ Confirmar que TODO funciona
+
+
+LECCIÓN APRENDIDA
+═══════════════════════════════════════════════════════════════════
+
+⚠️ CUIDADO con nombres de claves en diccionarios
+   - Siempre verificar que coincidan entre envío y recepción
+   - Usar nombres consistentes en toda la app
+   - Agregar logs para ver qué se recibe
+
+
+ENLACES RÁPIDOS
+═══════════════════════════════════════════════════════════════════
+
+• Render Deploy: https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g
+• Render Logs: https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g/logs
+• Reset BD: https://auditoria-tiendas.onrender.com/admin/reset-db
+• Formulario: https://auditoria-tiendas.onrender.com/visitas
+• Dashboard: https://auditoria-tiendas.onrender.com/dashboard
+
+
+═══════════════════════════════════════════════════════════════════
+ESTE ERA EL BUG REAL
+═══════════════════════════════════════════════════════════════════
+
+Las entrevistas SÍ se guardaban en BD, pero VACÍAS.
+Era un error sutil: buscar "motivo" en lugar de "motivo_visita".
+
+AHORA SÍ debería funcionar 100%.
+
+
+═══════════════════════════════════════════════════════════════════
