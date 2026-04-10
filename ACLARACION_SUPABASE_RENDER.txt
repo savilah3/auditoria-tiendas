@@ -1,0 +1,240 @@
+╔═══════════════════════════════════════════════════════════════════════╗
+║                                                                       ║
+║   🔍 ACLARACIÓN: Ya tienes Supabase + Render                         ║
+║                                                                       ║
+╚═══════════════════════════════════════════════════════════════════════╝
+
+📧 EMAIL DE RENDER:
+   "PostgreSQL database auditoria-db will be suspended on 2026-04-08"
+
+🤔 PERO DIJISTE:
+   "Ya tengo Supabase y Render"
+
+═══════════════════════════════════════════════════════════════════════
+
+🔍 POSIBLES ESCENARIOS:
+
+═══════════════════════════════════════════════════════════════════════
+
+ESCENARIO 1: Ya migraste a Supabase (MÁS PROBABLE) ✅
+───────────────────────────────────────────────────────────────────────
+
+Situación:
+  ✅ Tu app en Render ya usa Supabase (DATABASE_URL apunta a Supabase)
+  ❌ El PostgreSQL de Render está VACÍO/SIN USAR
+  📧 Render te avisa de una BD vieja que no usas
+
+¿Qué significa?
+  ✅ NO hay problema - Ya estás usando Supabase
+  ✅ El email es sobre una BD que NO usas
+  ✅ Ignórala - se suspenderá pero no afecta nada
+  
+¿Qué hacer?
+  1. Confirmar que usas Supabase (ver abajo cómo)
+  2. Si es así → IGNORAR email, ya estás bien
+  3. Eliminar BD vieja de Render (opcional)
+
+═══════════════════════════════════════════════════════════════════════
+
+ESCENARIO 2: Tienes DOS bases de datos (PROBABLE) ⚠️
+───────────────────────────────────────────────────────────────────────
+
+Situación:
+  🔵 PostgreSQL en Render (datos viejos)
+  🟢 PostgreSQL en Supabase (datos nuevos)
+  ⚠️ NO sabes cuál usa tu app actualmente
+
+¿Qué significa?
+  ⚠️ Tienes datos duplicados/separados
+  ⚠️ Si la app usa Render → perderás datos mañana
+  ✅ Si la app usa Supabase → estás bien
+
+¿Qué hacer?
+  1. Verificar cuál BD usa tu app (ver abajo)
+  2. Si usa Render → Cambiar a Supabase URGENTE
+  3. Si usa Supabase → Ya estás bien, ignorar email
+
+═══════════════════════════════════════════════════════════════════════
+
+ESCENARIO 3: Solo tienes Render (MENOS PROBABLE) ❌
+───────────────────────────────────────────────────────────────────────
+
+Situación:
+  🔵 PostgreSQL en Render (BD actual)
+  ❓ Creaste cuenta Supabase pero no la configuraste
+
+¿Qué significa?
+  ❌ Tu app usa PostgreSQL de Render
+  ⚠️ Se suspenderá MAÑANA
+  🚨 URGENTE: Migrar ahora
+
+¿Qué hacer?
+  1. Confirmar que usas Render (ver abajo)
+  2. Migrar a Supabase URGENTE (20 min)
+  3. O pagar Render ($7/mes solo BD)
+
+═══════════════════════════════════════════════════════════════════════
+
+✅ CÓMO VERIFICAR QUÉ BASE DE DATOS USAS:
+
+═══════════════════════════════════════════════════════════════════════
+
+MÉTODO 1: Revisar Render Dashboard
+───────────────────────────────────────────────────────────────────────
+
+1. Ve a https://dashboard.render.com
+2. Tu web service "auditoria-tiendas" → Environment
+3. Busca variable "DATABASE_URL"
+4. Verifica el valor:
+
+   SI dice "postgres://algo...@aws-0-us-west-1.pooler.supabase.com..."
+      ✅ YA USAS SUPABASE → Ignora email, estás bien
+
+   SI dice "postgres://algo...@dpg-xxx.render.com..."
+      ❌ USAS RENDER → URGENTE: Cambiar a Supabase
+
+   SI está vacío o no existe:
+      ⚠️ Probablemente usa SQLite local (raro en Render)
+
+═══════════════════════════════════════════════════════════════════════
+
+MÉTODO 2: Ver logs de tu app
+───────────────────────────────────────────────────────────────────────
+
+1. Render Dashboard → Tu app → Logs
+2. Busca líneas como:
+   "Connected to database: postgres://..."
+   
+3. Verifica el host:
+   - supabase.com → ✅ Usas Supabase
+   - render.com → ❌ Usas Render
+
+═══════════════════════════════════════════════════════════════════════
+
+MÉTODO 3: Abrir tu app y crear dato de prueba
+───────────────────────────────────────────────────────────────────────
+
+1. Abre tu app: https://[tu-app].onrender.com
+2. Llena un checklist de prueba
+3. Ve a Supabase dashboard → Table Editor
+4. Busca ese registro
+
+   SI aparece → ✅ Usas Supabase
+   SI NO aparece → ❌ NO usas Supabase
+
+═══════════════════════════════════════════════════════════════════════
+
+📋 RESPUESTAS SEGÚN TU ESCENARIO:
+
+═══════════════════════════════════════════════════════════════════════
+
+SI YA USAS SUPABASE (Escenario 1):
+───────────────────────────────────────────────────────────────────────
+
+✅ NO HACER NADA
+✅ El email de Render es sobre BD vieja sin usar
+✅ Dejar que se suspenda (no afecta)
+✅ Opcional: Eliminar BD de Render para limpiar
+
+Pasos opcionales (limpiar):
+  1. Render Dashboard → Databases → auditoria-db
+  2. "Delete Database"
+  3. Confirmar
+  4. ✅ Listo, ya no te molestarán
+
+═══════════════════════════════════════════════════════════════════════
+
+SI TIENES DOS BDs (Escenario 2):
+───────────────────────────────────────────────────────────────────────
+
+OPCIÓN A: Cambiar app a Supabase (RECOMENDADO)
+  
+  1. Render → Tu app → Environment
+  2. DATABASE_URL → Cambiar a URL de Supabase
+  3. "Save Changes"
+  4. Manual Deploy
+  5. ✅ Ahora usa Supabase
+  6. Dejar que Render BD se suspenda
+
+OPCIÓN B: Migrar datos Render → Supabase
+
+  1. Exportar de Render (pg_dump)
+  2. Importar a Supabase (psql)
+  3. Cambiar DATABASE_URL
+  4. Verificar funciona
+  5. ✅ Todos los datos en Supabase
+
+═══════════════════════════════════════════════════════════════════════
+
+SI SOLO USAS RENDER (Escenario 3):
+───────────────────────────────────────────────────────────────────────
+
+🚨 URGENTE: Migrar a Supabase AHORA
+
+Pasos rápidos (20 minutos):
+
+  PASO 1: Exportar datos de Render
+    - Dashboard Render → auditoria-db → Shell
+    - pg_dump $DATABASE_URL > backup.sql
+    - Descargar backup.sql
+
+  PASO 2: Configurar Supabase
+    - https://supabase.com → Tu proyecto
+    - Settings → Database → Connection string
+    - Copiar URL
+
+  PASO 3: Importar datos a Supabase
+    - Supabase → SQL Editor
+    - Pegar contenido de backup.sql
+    - Run
+
+  PASO 4: Actualizar Render
+    - Render → Environment → DATABASE_URL
+    - Pegar URL de Supabase
+    - Save + Deploy
+
+  PASO 5: Verificar
+    - Abrir app
+    - Probar checklist
+    - ✅ Funciona con Supabase
+
+═══════════════════════════════════════════════════════════════════════
+
+🎯 RESUMEN SIMPLE:
+
+═══════════════════════════════════════════════════════════════════════
+
+"Ya tengo Supabase + Render" significa PROBABLEMENTE:
+
+  ✅ App: Render (hosting gratis con sleep)
+  ✅ BD: Supabase (PostgreSQL gratis)
+  
+  📧 Email Render: BD vieja que NO usas
+  
+  ✅ Acción: VERIFICAR que DATABASE_URL apunte a Supabase
+  ✅ Si es así: IGNORAR email (ya estás bien)
+  ❌ Si no: CAMBIAR a Supabase urgente
+
+═══════════════════════════════════════════════════════════════════════
+
+❓ PREGUNTA PARA TI:
+
+═══════════════════════════════════════════════════════════════════════
+
+¿Puedes revisar tu Render Dashboard y decirme?
+
+1. Ve a: https://dashboard.render.com
+2. Tu app → Environment
+3. Busca: DATABASE_URL
+4. ¿Qué dice? (copia solo el inicio, ej: "postgres://...@XXXXX.supabase.com")
+
+O simplemente dime:
+
+A) Veo "supabase.com" en DATABASE_URL → Ya estás bien
+B) Veo "render.com" en DATABASE_URL → Necesitas migrar URGENTE
+C) No veo DATABASE_URL → No sé qué tengo
+D) No entiendo, hazlo tú por mí (necesito acceso)
+
+═══════════════════════════════════════════════════════════════════════
+
+🐶 ¿Qué opción describes tu situación? (A, B, C o D)

@@ -1,0 +1,353 @@
+╔═══════════════════════════════════════════════════════════════════════╗
+║                                                                       ║
+║   ✅ Opciones REALES para Acceso Externo (Datos NO Sensibles)       ║
+║                                                                       ║
+╚═══════════════════════════════════════════════════════════════════════╝
+
+🎯 TU NECESIDAD:
+   - Usuarios FUERA de red Walmart
+   - Datos NO sensibles
+   - Checklist siempre disponible
+
+✅ OPCIONES VIABLES (ordenadas por costo):
+
+═══════════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ 🆓 OPCIÓN 1: Render (gratis con sleep) - LO QUE YA TIENES ⭐       │
+└─────────────────────────────────────────────────────────────────────┘
+
+Costo: $0/mes
+Sleep: 15 minutos de inactividad
+
+Ventajas:
+  ✅ YA lo tienes configurado
+  ✅ Gratis 750 horas/mes
+  ✅ URL permanente
+  ✅ Deploy automático con Git
+  ✅ SSL gratis (HTTPS)
+  ✅ Fácil de usar
+
+Desventajas:
+  ❌ Se duerme tras 15 min sin uso
+  ❌ Primera carga lenta (30-60 seg)
+  ❌ SQLite se borra en deploy
+
+SOLUCIÓN AL SLEEP:
+  → Usa un "pinger" gratis que haga request cada 10 min
+  → UptimeRobot (gratis): https://uptimerobot.com
+  → Cron-Job.org (gratis): https://cron-job.org
+
+Ideal para:
+  ✅ Datos no sensibles (tu caso)
+  ✅ Uso esporádico
+  ✅ Sin presupuesto
+  ✅ Ya lo tienes funcionando
+
+ACTION: Activar "pinger" para evitar sleep
+
+═══════════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ 🆓 OPCIÓN 2: PythonAnywhere (gratis permanente) ⭐                  │
+└─────────────────────────────────────────────────────────────────────┘
+
+Costo: $0/mes
+Sleep: NO se duerme
+
+Ventajas:
+  ✅ 100% gratis (sin tarjeta de crédito)
+  ✅ NO se duerme NUNCA
+  ✅ Específico para Python
+  ✅ SQLite funciona bien
+  ✅ 512MB espacio
+  ✅ Fácil configuración
+
+Desventajas:
+  ⚠️ Tráfico limitado (100,000 hits/día)
+  ⚠️ CPU limitada (100 seg/día)
+  ⚠️ Solo HTTP (HTTPS requiere pago)
+  ⚠️ Dominio: username.pythonanywhere.com
+
+URL ejemplo:
+  http://savila.pythonanywhere.com
+
+Ideal para:
+  ✅ Apps sencillas
+  ✅ Tráfico bajo/medio
+  ✅ Quieres gratis sin sleep
+  ✅ No te importa HTTP en vez de HTTPS
+
+ACTION: Crear cuenta y deploy en 10 minutos
+
+═══════════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ 💵 OPCIÓN 3: Fly.io (~$3/mes) - MÁS BARATO CON CALIDAD ⭐          │
+└─────────────────────────────────────────────────────────────────────┘
+
+Costo: ~$3-5/mes
+Sleep: NO
+
+Ventajas:
+  ✅ MÁS BARATO con calidad
+  ✅ NO se duerme
+  ✅ Deploy global (rápido)
+  ✅ SSL gratis
+  ✅ Volumen persistente (SQLite funciona)
+  ✅ 256MB RAM gratis + lo que pagues
+
+Desventajas:
+  ⚠️ Configuración más técnica
+  ⚠️ Requiere CLI
+  ⚠️ Requiere tarjeta de crédito
+
+Costo real:
+  - App básica: $1.94/mes
+  - Volumen 1GB: $0.15/mes
+  - Total: ~$3/mes
+
+Ideal para:
+  ✅ Presupuesto bajo ($3/mes)
+  ✅ Necesitas 24/7
+  ✅ SQLite persistente
+  ✅ Eres técnico
+
+ACTION: Configurar con CLI en 20 minutos
+
+═══════════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ 💵 OPCIÓN 4: Railway (~$5/mes) - MÁS FÁCIL DE PAGO ⭐              │
+└─────────────────────────────────────────────────────────────────────┘
+
+Costo: ~$5-10/mes
+Sleep: NO
+
+Ventajas:
+  ✅ NO se duerme
+  ✅ Interfaz muy fácil
+  ✅ PostgreSQL gratis incluido
+  ✅ Deploy desde GitHub (1 click)
+  ✅ SSL gratis
+  ✅ Métricas en tiempo real
+
+Desventajas:
+  ⚠️ Más caro que Fly.io
+  ⚠️ SQLite no funciona (usar PostgreSQL)
+
+Costo real:
+  - App básica: ~$5/mes
+  - Con PostgreSQL: ~$5-8/mes
+
+Ideal para:
+  ✅ Presupuesto ~$5/mes
+  ✅ Quieres facilidad
+  ✅ No te importa PostgreSQL
+  ✅ Necesitas 24/7
+
+ACTION: Deploy desde GitHub en 5 minutos
+
+═══════════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ 💵 OPCIÓN 5: Render Paid ($14/mes) - UPGRADE LO QUE TIENES         │
+└─────────────────────────────────────────────────────────────────────┘
+
+Costo: $14/mes
+Sleep: NO
+
+Ventajas:
+  ✅ Solo upgrade tu plan actual
+  ✅ Cero configuración nueva
+  ✅ NO se duerme
+  ✅ Más RAM/CPU
+  ✅ Ya lo conoces
+
+Desventajas:
+  ❌ Más caro que Railway/Fly.io
+  ❌ SQLite se sigue borrando
+
+Ideal para:
+  ✅ No quieres migrar nada
+  ✅ Tienes $14/mes
+  ✅ Simplicidad máxima
+
+ACTION: 1 click en Render dashboard
+
+═══════════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ 🆓 OPCIÓN 6: Render Gratis + UptimeRobot (HACK) ⭐ RECOMENDADO     │
+└─────────────────────────────────────────────────────────────────────┘
+
+Costo: $0/mes
+Sleep: Evitado con "pinger"
+
+Cómo funciona:
+  1. Usas tu Render gratis actual
+  2. Configuras UptimeRobot (gratis)
+  3. UptimeRobot hace ping cada 5 min
+  4. Render NUNCA se duerme
+
+Ventajas:
+  ✅ 100% GRATIS
+  ✅ Ya lo tienes configurado
+  ✅ Evita el sleep
+  ✅ Cero código nuevo
+  ✅ Setup: 2 minutos
+
+Desventajas:
+  ⚠️ Primera carga sigue siendo lenta (si falla ping)
+  ⚠️ Consume tus 750 hrs/mes (pero suficiente)
+
+SETUP:
+  1. Ve a https://uptimerobot.com
+  2. Crea cuenta gratis
+  3. "Add New Monitor"
+  4. URL: tu-app.onrender.com
+  5. Interval: 5 minutos
+  6. ✅ Listo
+
+Ideal para:
+  ✅ Quieres GRATIS
+  ✅ No te importa setup rápido
+  ✅ Tu caso (datos no sensibles)
+
+ACTION: Configurar UptimeRobot en 2 minutos
+
+═══════════════════════════════════════════════════════════════════════
+
+📊 COMPARACIÓN COMPLETA:
+
+═══════════════════════════════════════════════════════════════════════
+
+┌──────────────────┬─────────┬──────────┬──────────┬──────────┐
+│                  │ Render  │ Railway  │ Fly.io   │ Python   │
+│                  │ +Pinger │          │          │ Anywhere │
+├──────────────────┼─────────┼──────────┼──────────┼──────────┤
+│ Costo/mes        │ $0      │ $5       │ $3       │ $0       │
+│ Sleep            │ ✅ No*  │ ✅ No    │ ✅ No    │ ✅ No    │
+│ Setup            │ ⭐⭐⭐⭐⭐│ ⭐⭐⭐⭐  │ ⭐⭐⭐   │ ⭐⭐⭐⭐ │
+│ HTTPS            │ ✅ Sí   │ ✅ Sí    │ ✅ Sí    │ ❌ No    │
+│ SQLite           │ ⚠️ Borra│ ⚠️ No    │ ✅ Sí    │ ✅ Sí    │
+│ Performance      │ ⭐⭐⭐   │ ⭐⭐⭐⭐  │ ⭐⭐⭐⭐⭐│ ⭐⭐     │
+│ Límites          │ 750 hrs │ ✅ No    │ ✅ No    │ ⚠️ CPU   │
+│ Ya lo tienes     │ ✅ Sí   │ ❌ No    │ ❌ No    │ ❌ No    │
+└──────────────────┴─────────┴──────────┴──────────┴──────────┘
+
+* Con UptimeRobot
+
+═══════════════════════════════════════════════════════════════════════
+
+🎯 MI RECOMENDACIÓN PARA TI:
+
+═══════════════════════════════════════════════════════════════════════
+
+Basado en:
+  ✅ Datos NO sensibles
+  ✅ Necesitas acceso externo
+  ✅ Ya tienes Render funcionando
+  ✅ Probablemente sin presupuesto
+
+RECOMENDACIÓN:
+
+🥇 OPCIÓN A: Render + UptimeRobot (GRATIS) ⭐⭐⭐⭐⭐
+   → 100% gratis
+   → Evita sleep
+   → Ya lo tienes
+   → Setup: 2 minutos
+   → Perfecto para tu caso
+
+🥈 OPCIÓN B: PythonAnywhere (GRATIS)
+   → 100% gratis
+   → Sin sleep natural
+   → Requiere nuevo deploy
+   → Setup: 10 minutos
+   → Alternativa sólida
+
+🥉 OPCIÓN C: Fly.io ($3/mes)
+   → Si tienes $3/mes
+   → SQLite persistente
+   → Mejor performance
+   → Setup: 20 minutos
+
+═══════════════════════════════════════════════════════════════════════
+
+⚡ ACCIÓN INMEDIATA - Render + UptimeRobot:
+
+═══════════════════════════════════════════════════════════════════════
+
+PASO 1: Ve a https://uptimerobot.com
+
+PASO 2: Crea cuenta (gratis, sin tarjeta)
+
+PASO 3: "Add New Monitor"
+   - Monitor Type: HTTP(s)
+   - Friendly Name: Auditoría Tiendas
+   - URL: [tu-url-de-render.onrender.com]
+   - Monitoring Interval: 5 minutes
+
+PASO 4: "Create Monitor"
+
+PASO 5: ✅ ¡Listo! Tu app ya NO se dormirá
+
+Tiempo total: 2 minutos
+
+═══════════════════════════════════════════════════════════════════════
+
+🛠️ ALTERNATIVAMENTE - Deploy PythonAnywhere:
+
+═══════════════════════════════════════════════════════════════════════
+
+PASO 1: https://www.pythonanywhere.com/registration/register/beginner/
+
+PASO 2: Crear cuenta gratuita
+
+PASO 3: Bash console:
+   git clone [tu-repo]
+   cd auditoria_tiendas
+   pip install -r requirements.txt
+
+PASO 4: Web app setup:
+   - Source code: /home/username/auditoria_tiendas
+   - WSGI: uvicorn main:app
+   - Python version: 3.10
+
+PASO 5: Reload app
+
+PASO 6: ✅ Funciona en username.pythonanywhere.com
+
+Tiempo total: 10 minutos
+
+═══════════════════════════════════════════════════════════════════════
+
+💡 BONUS: Si tienes presupuesto ($3-5/mes):
+
+═══════════════════════════════════════════════════════════════════════
+
+Fly.io es MEJOR opción:
+  ✅ SQLite persistente (no se borra)
+  ✅ Más barato ($3/mes)
+  ✅ Mejor performance
+  ✅ Global edge network
+
+Railway es MÁS FÁCIL:
+  ✅ Deploy en 1 click
+  ✅ PostgreSQL incluido
+  ✅ Interfaz bonita
+  ⚠️ $5/mes
+
+═══════════════════════════════════════════════════════════════════════
+
+🚀 ¿CUÁL ELIGES?
+
+═══════════════════════════════════════════════════════════════════════
+
+A) Render + UptimeRobot (gratis, 2 min) ← RECOMENDADO
+B) PythonAnywhere (gratis, 10 min)
+C) Fly.io ($3/mes, 20 min)
+D) Railway ($5/mes, 5 min)
+E) Upgrade Render ($14/mes, 1 min)
+
+Dime cuál prefieres y te ayudo a configurarlo AHORA. 🐶

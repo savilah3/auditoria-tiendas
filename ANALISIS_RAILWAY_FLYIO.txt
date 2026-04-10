@@ -1,0 +1,289 @@
+╔═══════════════════════════════════════════════════════════════════════╗
+║                                                                       ║
+║   Railway vs Fly.io vs Render - Análisis para Auditoría Tiendas     ║
+║                                                                       ║
+╚═══════════════════════════════════════════════════════════════════════╝
+
+🎯 TU PREGUNTA: ¿Railway/Fly.io resuelven tu problema?
+
+RESPUESTA CORTA:
+  ⚠️ NO realmente. Son similares a Render con MISMOS problemas.
+
+═══════════════════════════════════════════════════════════════════════
+
+🔍 ANÁLISIS DETALLADO:
+
+═══════════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ 1️⃣ RENDER (Lo que tienes ahora)                                    │
+└─────────────────────────────────────────────────────────────────────┘
+
+Ventajas:
+  ✅ Plan gratis (750 hrs/mes)
+  ✅ Ya lo tienes configurado
+  ✅ Deploy automático con Git
+  ✅ Fácil de usar
+
+Desventajas:
+  ❌ Se duerme tras 15 min inactividad
+  ❌ Primera carga lenta (30-60 seg)
+  ❌ SQLite se borra en cada deploy
+  ❌ $14/mes para quitar el "sleep"
+
+Costo:
+  Gratis (con limitaciones) o $14/mes
+
+═══════════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ 2️⃣ RAILWAY.APP                                                      │
+└─────────────────────────────────────────────────────────────────────┘
+
+Ventajas:
+  ✅ NO se duerme (siempre activo)
+  ✅ Deploy rápido
+  ✅ Interfaz bonita
+  ✅ PostgreSQL gratis incluido
+  ✅ Más barato que Render
+
+Desventajas:
+  ❌ Ya NO tiene plan gratis
+  ❌ Mínimo $5/mes (pay as you go)
+  ❌ SQLite se borra igual (necesitas PostgreSQL)
+  ❌ Después de $5 crédito → pagas
+
+Costo:
+  $5/mes mínimo (aproximadamente)
+  
+Ideal para:
+  - Apps que necesitan estar 24/7
+  - Presupuesto ~$5/mes
+  - PostgreSQL en vez de SQLite
+
+═══════════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ 3️⃣ FLY.IO                                                           │
+└─────────────────────────────────────────────────────────────────────┘
+
+Ventajas:
+  ✅ Plan gratis MUY limitado
+  ✅ NO se duerme
+  ✅ Deploy global (edge computing)
+  ✅ Más técnico/poderoso
+
+Desventajas:
+  ❌ Configuración más compleja
+  ❌ Plan gratis muy limitado (256MB RAM)
+  ❌ SQLite se borra (necesitas volumen $)
+  ❌ Requiere tarjeta de crédito
+
+Costo:
+  ~$3-5/mes (con volumen persistente)
+  
+Ideal para:
+  - Desarrolladores avanzados
+  - Apps distribuidas globalmente
+  - Necesitas control técnico
+
+═══════════════════════════════════════════════════════════════════════
+
+📊 COMPARACIÓN LADO A LADO:
+
+═══════════════════════════════════════════════════════════════════════
+
+┌──────────────┬───────────┬───────────┬───────────┬───────────┐
+│              │ Red Local │ Render    │ Railway   │ Fly.io    │
+├──────────────┼───────────┼───────────┼───────────┼───────────┤
+│ Gratis       │ ✅ Sí     │ ⚠️ 750hrs │ ❌ No     │ ⚠️ Límite │
+│ Sleep        │ ✅ Nunca  │ ❌ 15 min │ ✅ No     │ ✅ No     │
+│ Costo/mes    │ $0        │ $0-14     │ $5+       │ $3-5      │
+│ SQLite       │ ✅ OK     │ ⚠️ Borra  │ ⚠️ Borra  │ ⚠️ Borra  │
+│ PC prendida  │ ✅ Sí     │ ❌ No     │ ❌ No     │ ❌ No     │
+│ Setup        │ ✅ Listo  │ ✅ Fácil  │ 🔶 Medio  │ 🔴 Difícil│
+│ Acceso ext.  │ ❌ No     │ ✅ Sí     │ ✅ Sí     │ ✅ Sí     │
+│ Walmart VPN  │ ✅ Gratis │ N/A       │ N/A       │ N/A       │
+└──────────────┴───────────┴───────────┴───────────┴───────────┘
+
+═══════════════════════════════════════════════════════════════════════
+
+⚠️ PROBLEMA COMÚN EN TODAS: SQLite se borra
+
+═══════════════════════════════════════════════════════════════════════
+
+En plataformas cloud (Render/Railway/Fly.io):
+  ❌ El disco es "efímero" (temporal)
+  ❌ Cada deploy BORRA tu base de datos SQLite
+  ❌ Necesitas migrar a PostgreSQL/MySQL
+
+SOLUCIONES:
+
+A) Migrar a PostgreSQL:
+   - Railway: PostgreSQL gratis incluido
+   - Fly.io: PostgreSQL $5/mes
+   - Render: PostgreSQL gratis (básico)
+
+B) Usar volumen persistente:
+   - Fly.io: +$0.15/GB/mes
+   - Railway: Incluido en plan
+   - Render: No disponible en plan gratis
+
+C) Usar red local + SQLite:
+   - Tu solución actual
+   - Gratis, datos permanentes
+   - Solo requiere VPN Walmart
+
+═══════════════════════════════════════════════════════════════════════
+
+💰 ANÁLISIS DE COSTOS REALES:
+
+═══════════════════════════════════════════════════════════════════════
+
+RENDER:
+  Gratis: 750 hrs/mes + sleep 15 min
+  Pago:   $14/mes (sin sleep + más recursos)
+
+RAILWAY:
+  Gratis: $5 crédito inicial (dura ~1 mes)
+  Pago:   $5-20/mes (depende uso)
+  
+FLY.IO:
+  Gratis: 256MB RAM (muy limitado)
+  Pago:   $3-10/mes (con volumen persistente)
+
+RED LOCAL:
+  Gratis: $0/mes forever
+  Costo:  Solo electricidad de tu PC
+
+SERVIDOR IT WALMART:
+  Gratis: $0/mes (paga Walmart)
+  Costo:  Solo tiempo de aprobación
+
+═══════════════════════════════════════════════════════════════════════
+
+🎯 MI RECOMENDACIÓN PARA TI:
+
+═══════════════════════════════════════════════════════════════════════
+
+NO migres a Railway/Fly.io por estas razones:
+
+❌ 1. Cuestan dinero ($3-5/mes mínimo)
+❌ 2. SQLite se borra → necesitas PostgreSQL
+❌ 3. Más complejo de configurar
+❌ 4. NO resuelven tu problema real
+❌ 5. Render ya lo tienes funcionando
+
+═══════════════════════════════════════════════════════════════════════
+
+✅ TU MEJOR ESTRATEGIA:
+
+═══════════════════════════════════════════════════════════════════════
+
+CORTO PLAZO (esta semana):
+  ✅ Usa RED LOCAL para tu equipo
+     http://10.24.231.250:8002
+     - Gratis
+     - SQLite funciona perfecto
+     - Datos permanentes
+     - Rápido
+
+MEDIANO PLAZO (si necesitas acceso externo):
+  ✅ Solicita SERVIDOR IT WALMART
+     - Gratis para ti
+     - Profesional
+     - Permanente
+     - Soporte oficial
+  
+  MIENTRAS TANTO:
+  ✅ Usa RENDER (lo que ya tienes)
+     - Ya configurado
+     - Gratis 750 hrs/mes
+     - Acepta el sleep de 15 min
+
+LARGO PLAZO (cuando tengas presupuesto):
+  ✅ Migra a RAILWAY o FLY.IO
+     - Solo si tienes $5-10/mes
+     - Solo si necesitas 24/7
+     - Migra SQLite → PostgreSQL
+
+═══════════════════════════════════════════════════════════════════════
+
+🔧 CÓMO MIGRAR (si decides hacerlo):
+
+═══════════════════════════════════════════════════════════════════════
+
+RAILWAY:
+  1. Crea cuenta: https://railway.app
+  2. "New Project" → "Deploy from GitHub"
+  3. Conecta tu repo
+  4. Agrega PostgreSQL (gratis)
+  5. Modifica código para usar PostgreSQL
+  6. Deploy automático
+  7. Paga $5/mes
+
+FLY.IO:
+  1. Instala Fly CLI: https://fly.io/docs/hands-on/install-flyctl/
+  2. fly auth signup
+  3. fly launch (en carpeta del proyecto)
+  4. Configura PostgreSQL
+  5. Modifica código
+  6. fly deploy
+  7. Paga ~$3/mes
+
+═══════════════════════════════════════════════════════════════════════
+
+⚠️ ADVERTENCIA: Migración NO es trivial
+
+═══════════════════════════════════════════════════════════════════════
+
+Cambios necesarios:
+
+1. Base de datos: SQLite → PostgreSQL
+   - Reescribir create_db.py
+   - Migrar datos existentes
+   - Cambiar conexiones
+
+2. Archivos estáticos:
+   - Configurar almacenamiento cloud
+   - O usar Cloudinary/S3
+
+3. Variables de entorno:
+   - DATABASE_URL
+   - SECRET_KEY
+   - Etc.
+
+Tiempo estimado: 2-4 horas
+
+═══════════════════════════════════════════════════════════════════════
+
+📝 RESUMEN DE 30 SEGUNDOS:
+
+═══════════════════════════════════════════════════════════════════════
+
+Railway/Fly.io:
+  ❌ NO son gratis ($3-5/mes)
+  ❌ NO resuelven el problema de SQLite
+  ❌ Más complejos que Render
+  ❌ Requieren migrar a PostgreSQL
+
+TU MEJOR OPCIÓN:
+  ✅ Red local (gratis, funciona ya)
+  ✅ Solicita servidor IT (gratis, oficial)
+  ⏳ Usa Render mientras tanto (ya lo tienes)
+
+═══════════════════════════════════════════════════════════════════════
+
+🤔 ¿CUÁNDO SÍ usar Railway/Fly.io?
+
+═══════════════════════════════════════════════════════════════════════
+
+✅ Tienes presupuesto ($5-10/mes)
+✅ Necesitas 24/7 sin sleep
+✅ No puedes usar servidor IT
+✅ Tu equipo NO está en Walmart
+✅ Necesitas PostgreSQL de todas formas
+
+═══════════════════════════════════════════════════════════════════════
+
+¿Necesitas ayuda para decidir? 🐶

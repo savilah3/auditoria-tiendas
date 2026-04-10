@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificación Deploy - Visitas con Sentido v2</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #0053e2 0%, #003d99 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 { font-size: 28px; margin-bottom: 10px; }
+        .header p { opacity: 0.9; font-size: 14px; }
+        .status-bar {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .status-item {
+            display: inline-block;
+            margin-right: 20px;
+            font-size: 14px;
+        }
+        .status-item strong { color: #0053e2; }
+        .content { padding: 30px; }
+        .section {
+            margin-bottom: 30px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .section-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            font-weight: 600;
+            color: #495057;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .section-header:hover { background: #e9ecef; }
+        .section-header .badge {
+            background: #0053e2;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .section-header .badge.completed {
+            background: #2a8703;
+        }
+        .section-content {
+            padding: 20px;
+            display: none;
+        }
+        .section.active .section-content { display: block; }
+        .section.active .section-header { background: #e7f3ff; }
+        .checklist-item {
+            padding: 12px 15px;
+            margin: 8px 0;
+            background: #f8f9fa;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        .checklist-item:hover { background: #e9ecef; }
+        .checklist-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            cursor: pointer;
+            accent-color: #0053e2;
+        }
+        .checklist-item.checked {
+            background: #d4edda;
+            border-left: 4px solid #2a8703;
+        }
+        .checklist-item label {
+            cursor: pointer;
+            flex: 1;
+            font-size: 14px;
+            color: #495057;
+        }
+        .link-button {
+            display: inline-block;
+            background: #0053e2;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            margin: 10px 10px 10px 0;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        .link-button:hover { background: #003d99; }
+        .link-button.secondary {
+            background: #6c757d;
+        }
+        .link-button.secondary:hover { background: #5a6268; }
+        .alert {
+            padding: 15px 20px;
+            border-radius: 6px;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        .alert-info {
+            background: #e7f3ff;
+            border-left: 4px solid #0053e2;
+            color: #004085;
+        }
+        .alert-success {
+            background: #d4edda;
+            border-left: 4px solid #2a8703;
+            color: #155724;
+        }
+        .alert-warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc220;
+            color: #856404;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e9ecef;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0053e2 0%, #00a8ff 100%);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            text-align: center;
+            border-top: 2px solid #e9ecef;
+            font-size: 14px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Verificación de Deploy - Visitas con Sentido v2</h1>
+            <p>Sigue este checklist para verificar que todo funciona correctamente</p>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-item">
+                <strong>Commit:</strong> 282d4f0
+            </div>
+            <div class="status-item">
+                <strong>Fecha:</strong> 2026-04-09
+            </div>
+            <div class="status-item">
+                <strong>URL:</strong> <a href="https://auditoria-tiendas.onrender.com" target="_blank">auditoria-tiendas.onrender.com</a>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar" style="width: 0%">0%</div>
+            </div>
+
+            <!-- Sección 1: Deploy en Render -->
+            <div class="section active">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <span>📦 Paso 1: Verificar Deploy en Render</span>
+                    <span class="badge" data-section="section1">0/5</span>
+                </div>
+                <div class="section-content">
+                    <div class="alert alert-info">
+                        🔗 Abre <a href="https://dashboard.render.com" target="_blank">Render Dashboard</a> y busca el servicio "auditoria-tiendas"
+                    </div>
+
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check1_1" onchange="updateProgress()">
+                        <label for="check1_1">El servicio aparece en el dashboard</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check1_2" onchange="updateProgress()">
+                        <label for="check1_2">Status muestra "Live" con punto verde 🟢</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check1_3" onchange="updateProgress()">
+                        <label for="check1_3">En "Events" se ve "Deploying commit 282d4f0..." completado</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check1_4" onchange="updateProgress()">
+                        <label for="check1_4">En "Logs" se ve "Application startup complete"</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check1_5" onchange="updateProgress()">
+                        <label for="check1_5">No hay errores en los logs</label>
+                    </div>
+
+                    <a href="https://dashboard.render.com" target="_blank" class="link-button">Abrir Render Dashboard</a>
+                </div>
+            </div>
+
+            <!-- Sección 2: Formulario -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <span>📝 Paso 2: Verificar Formulario Nuevo</span>
+                    <span class="badge" data-section="section2">0/8</span>
+                </div>
+                <div class="section-content">
+                    <div class="alert alert-info">
+                        🔗 Abre la página del formulario
+                    </div>
+
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check2_1" onchange="updateProgress()">
+                        <label for="check2_1">La página carga correctamente (sin errores 404 o 500)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check2_2" onchange="updateProgress()">
+                        <label for="check2_2">Aparece "📍 Ubicación capturada" o "no disponible"</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check2_3" onchange="updateProgress()">
+                        <label for="check2_3">Dropdown de "Usuario" funciona correctamente</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check2_4" onchange="updateProgress()">
+                        <label for="check2_4">Dropdown de "Local" funciona correctamente</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check2_5" onchange="updateProgress()">
+                        <label for="check2_5">Se ven las preguntas Q3-Q9 (Atención)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check2_6" onchange="updateProgress()">
+                        <label for="check2_6">Se ve la pregunta Q8 CSAT (escala 1-7) cuando seleccionas "Sí" en Q7</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check2_7" onchange="updateProgress()">
+                        <label for="check2_7">Se ven las preguntas de Zona de Pago (Q8-Q13)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check2_8" onchange="updateProgress()">
+                        <label for="check2_8">Botón "Finalizar y Enviar" visible al final</label>
+                    </div>
+
+                    <a href="https://auditoria-tiendas.onrender.com/visitas" target="_blank" class="link-button">Abrir Formulario</a>
+                </div>
+            </div>
+
+            <!-- Sección 3: Probar Envío -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <span>✉️ Paso 3: Probar Envío del Formulario</span>
+                    <span class="badge" data-section="section3">0/4</span>
+                </div>
+                <div class="section-content">
+                    <div class="alert alert-info">
+                        ⚠️ Llena el formulario completo con datos de prueba
+                    </div>
+
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check3_1" onchange="updateProgress()">
+                        <label for="check3_1">Al hacer click en "Finalizar y Enviar", el botón cambia a "⏳ Enviando..."</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check3_2" onchange="updateProgress()">
+                        <label for="check3_2">El botón se desactiva (no puedes hacer doble-click)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check3_3" onchange="updateProgress()">
+                        <label for="check3_3">Redirige a la página de "Gracias" después de enviar</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check3_4" onchange="updateProgress()">
+                        <label for="check3_4">No hubo errores durante el envío</label>
+                    </div>
+
+                    <a href="https://auditoria-tiendas.onrender.com/visitas" target="_blank" class="link-button">Ir a Formulario</a>
+                </div>
+            </div>
+
+            <!-- Sección 4: Dashboard -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <span>📊 Paso 4: Verificar Dashboard</span>
+                    <span class="badge" data-section="section4">0/5</span>
+                </div>
+                <div class="section-content">
+                    <div class="alert alert-info">
+                        🔐 Credenciales: <strong>admin</strong> / <strong>walmart2025</strong>
+                    </div>
+
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check4_1" onchange="updateProgress()">
+                        <label for="check4_1">El login funciona correctamente</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check4_2" onchange="updateProgress()">
+                        <label for="check4_2">Veo el tab "Visitas con Sentido"</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check4_3" onchange="updateProgress()">
+                        <label for="check4_3">Aparece mi visita de prueba en la tabla</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check4_4" onchange="updateProgress()">
+                        <label for="check4_4">Los datos se ven correctamente (usuario, local, fecha)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check4_5" onchange="updateProgress()">
+                        <label for="check4_5">Hay datos en las columnas nuevas (Q3, Q7, Q8 CSAT, Q9)</label>
+                    </div>
+
+                    <a href="https://auditoria-tiendas.onrender.com/dashboard" target="_blank" class="link-button">Abrir Dashboard</a>
+                </div>
+            </div>
+
+            <!-- Sección 5: Excel -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <span>📊 Paso 5: Verificar Exportación Excel</span>
+                    <span class="badge" data-section="section5">0/3</span>
+                </div>
+                <div class="section-content">
+                    <div class="alert alert-info">
+                        💾 Desde el dashboard, descarga el Excel y verifica las columnas
+                    </div>
+
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check5_1" onchange="updateProgress()">
+                        <label for="check5_1">El botón "Exportar a Excel" funciona y descarga el archivo</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check5_2" onchange="updateProgress()">
+                        <label for="check5_2">El archivo se abre correctamente en Excel/LibreOffice</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check5_3" onchange="updateProgress()">
+                        <label for="check5_3">Contiene las nuevas columnas: Q3-Q9 con sus campos "Otro"</label>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <strong>Columnas nuevas esperadas:</strong><br>
+                        Q3: Guardia saludó, Q3 Otro, Q4: Guardia preguntó, Q4 Otro, Q5: Pasillos saludo, Q5 Otro, 
+                        Q6: Pasillos preguntaron, Q6 Otro, Q7: Encontró colaborador, Q7 Otro, Q8: CSAT (1-7), 
+                        Q9: Te sentiste bienvenido, Q9 Otro
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección 6: Geolocalización -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <span>📍 Paso 6: Verificar Geolocalización</span>
+                    <span class="badge" data-section="section6">0/2</span>
+                </div>
+                <div class="section-content">
+                    <div class="alert alert-info">
+                        🌍 La geolocalización captura tu ubicación automáticamente
+                    </div>
+
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check6_1" onchange="updateProgress()">
+                        <label for="check6_1">En el formulario aparece "📍 Ubicación capturada" (o "no disponible" si bloqueaste)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check6_2" onchange="updateProgress()">
+                        <label for="check6_2">En el dashboard/Excel, mi visita tiene coordenadas en Geo Lat/Geo Lng</label>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <strong>Nota:</strong> Si aparece "no disponible", es porque el navegador bloqueó la ubicación. 
+                        Esto es normal y no afecta el funcionamiento del formulario.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resumen Final -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <span>🎉 Resumen Final</span>
+                    <span class="badge completed" id="finalBadge">Pendiente</span>
+                </div>
+                <div class="section-content">
+                    <div id="finalMessage" class="alert alert-info">
+                        Completa todos los pasos anteriores para ver el resultado final
+                    </div>
+
+                    <h3 style="margin-top: 20px; color: #495057;">Enlaces Útiles:</h3>
+                    <a href="https://auditoria-tiendas.onrender.com/visitas" target="_blank" class="link-button">📝 Formulario</a>
+                    <a href="https://auditoria-tiendas.onrender.com/dashboard" target="_blank" class="link-button">📊 Dashboard</a>
+                    <a href="https://dashboard.render.com" target="_blank" class="link-button secondary">🔧 Render</a>
+                    <a href="https://github.com/savilah3/auditoria-tiendas" target="_blank" class="link-button secondary">💻 GitHub</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            Deploy: 2026-04-09 | Commit: 282d4f0 | Code Puppy 🐶
+        </div>
+    </div>
+
+    <script>
+        function toggleSection(header) {
+            const section = header.parentElement;
+            section.classList.toggle('active');
+        }
+
+        function updateProgress() {
+            const allCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+            const checkedBoxes = document.querySelectorAll('input[type="checkbox"]:checked');
+            const percentage = Math.round((checkedBoxes.length / allCheckboxes.length) * 100);
+            
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = percentage + '%';
+            progressBar.textContent = percentage + '%';
+
+            // Update section badges
+            updateSectionBadges();
+
+            // Update checklist item styles
+            allCheckboxes.forEach(checkbox => {
+                const item = checkbox.closest('.checklist-item');
+                if (checkbox.checked) {
+                    item.classList.add('checked');
+                } else {
+                    item.classList.remove('checked');
+                }
+            });
+
+            // Update final message
+            updateFinalMessage(percentage);
+        }
+
+        function updateSectionBadges() {
+            const sections = ['section1', 'section2', 'section3', 'section4', 'section5', 'section6'];
+            sections.forEach((sectionId, index) => {
+                const sectionNum = index + 1;
+                const checkboxes = Array.from(document.querySelectorAll(`input[id^="check${sectionNum}_"]`));
+                const checked = checkboxes.filter(cb => cb.checked).length;
+                const total = checkboxes.length;
+                
+                const badge = document.querySelector(`[data-section="${sectionId}"]`);
+                badge.textContent = `${checked}/${total}`;
+                
+                if (checked === total) {
+                    badge.classList.add('completed');
+                } else {
+                    badge.classList.remove('completed');
+                }
+            });
+        }
+
+        function updateFinalMessage(percentage) {
+            const finalMessage = document.getElementById('finalMessage');
+            const finalBadge = document.getElementById('finalBadge');
+            
+            if (percentage === 100) {
+                finalMessage.className = 'alert alert-success';
+                finalMessage.innerHTML = `
+                    <h2 style="margin-bottom: 10px;">🎉 ¡DEPLOY EXITOSO!</h2>
+                    <p>✅ Has completado todas las verificaciones. El nuevo formulario de Visitas con Sentido v2 está funcionando correctamente en producción.</p>
+                    <p style="margin-top: 15px;"><strong>Funcionalidades verificadas:</strong></p>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>✓ Deploy en Render completado</li>
+                        <li>✓ Formulario nuevo con campos actualizados</li>
+                        <li>✓ Función "Enviando datos" activa</li>
+                        <li>✓ Geolocalización funcionando</li>
+                        <li>✓ Dashboard mostrando datos correctos</li>
+                        <li>✓ Excel con nuevas columnas</li>
+                    </ul>
+                    <p style="margin-top: 15px; font-weight: bold;">El proyecto está listo para uso en producción! 🚀</p>
+                `;
+                finalBadge.textContent = '✓ Completado';
+            } else if (percentage >= 75) {
+                finalMessage.className = 'alert alert-success';
+                finalMessage.innerHTML = `
+                    <strong>Casi listo!</strong> Has completado ${percentage}% de las verificaciones. 
+                    Completa los pasos restantes para confirmar que todo funciona correctamente.
+                `;
+                finalBadge.textContent = `${percentage}%`;
+            } else if (percentage >= 25) {
+                finalMessage.className = 'alert alert-warning';
+                finalMessage.innerHTML = `
+                    <strong>Buen progreso!</strong> Llevas ${percentage}% completado. 
+                    Continúa verificando los pasos restantes.
+                `;
+                finalBadge.textContent = `${percentage}%`;
+            } else {
+                finalMessage.className = 'alert alert-info';
+                finalMessage.innerHTML = `
+                    Completa todos los pasos anteriores para verificar que el deploy fue exitoso.
+                `;
+                finalBadge.textContent = 'Pendiente';
+            }
+        }
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            updateProgress();
+        });
+    </script>
+</body>
+</html>

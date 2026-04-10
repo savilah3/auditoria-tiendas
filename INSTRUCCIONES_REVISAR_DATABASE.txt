@@ -1,0 +1,210 @@
+╔═══════════════════════════════════════════════════════════════════════╗
+║                                                                       ║
+║   📋 INSTRUCCIONES PASO A PASO - Revisar DATABASE_URL en Render     ║
+║                                                                       ║
+╚═══════════════════════════════════════════════════════════════════════╝
+
+🎯 OBJETIVO: Ver si tu app usa Supabase o Render PostgreSQL
+
+⏱️ TIEMPO: 2 minutos
+
+═══════════════════════════════════════════════════════════════════════
+
+📱 PASO 1: Abrir Render Dashboard
+═══════════════════════════════════════════════════════════════════════
+
+1. Abre tu navegador
+2. Ve a: https://dashboard.render.com
+3. Login con tu cuenta (GitHub/email)
+4. ✅ Deberías ver tu dashboard
+
+═══════════════════════════════════════════════════════════════════════
+
+🔍 PASO 2: Encontrar tu Web Service
+═══════════════════════════════════════════════════════════════════════
+
+En el dashboard verás algo como:
+
+┌─────────────────────────────────────────────────────────┐
+│  Web Services                                           │
+├─────────────────────────────────────────────────────────┤
+│  📦 auditoria-tiendas                                   │
+│     https://auditoria-tiendas.onrender.com             │
+│     Last deployed: X minutes ago                        │
+└─────────────────────────────────────────────────────────┘
+
+1. CLICK en "auditoria-tiendas" (o como se llame tu app)
+
+═══════════════════════════════════════════════════════════════════════
+
+⚙️ PASO 3: Ir a Environment Variables
+═══════════════════════════════════════════════════════════════════════
+
+En la página de tu web service verás tabs arriba:
+
+┌──────────────────────────────────────────────────────┐
+│  Events | Logs | Shell | Environment | Settings     │
+└──────────────────────────────────────────────────────┘
+
+1. CLICK en "Environment"
+
+═══════════════════════════════════════════════════════════════════════
+
+🔎 PASO 4: Buscar DATABASE_URL
+═══════════════════════════════════════════════════════════════════════
+
+Verás una lista de variables de entorno:
+
+┌─────────────────────────────────────────────────────────────┐
+│  Environment Variables                    [+ Add Variable]  │
+├─────────────────────────────────────────────────────────────┤
+│  Key                    Value                               │
+├─────────────────────────────────────────────────────────────┤
+│  PYTHON_VERSION         3.12.0                              │
+│  DASHBOARD_USER         admin                               │
+│  DASHBOARD_PASS         walmart2025                         │
+│  DATABASE_URL           postgres://user:pass@XXXXX...       │
+│                         👆 ESTA ES LA QUE NOS INTERESA      │
+└─────────────────────────────────────────────────────────────┘
+
+1. Busca la línea que dice "DATABASE_URL"
+2. El valor estará oculto o visible parcialmente
+
+═══════════════════════════════════════════════════════════════════════
+
+👁️ PASO 5: Ver el valor completo (IMPORTANTE)
+═══════════════════════════════════════════════════════════════════════
+
+El valor puede estar oculto con "•••••••••"
+
+1. CLICK en el ícono del "ojo" 👁️ al lado del valor
+   O
+2. CLICK en "Edit" o "Reveal" para mostrar el valor
+
+Ahora deberías ver algo como:
+
+postgres://usuario:password@XXXXXXXXX.supabase.com:5432/postgres
+
+                               👆👆👆👆👆👆👆👆
+                          ESTA PARTE ES LA CLAVE
+
+═══════════════════════════════════════════════════════════════════════
+
+📋 PASO 6: Copiar SOLO el host (la parte importante)
+═══════════════════════════════════════════════════════════════════════
+
+NO copies la contraseña completa, solo necesito el HOST:
+
+Ejemplo de DATABASE_URL:
+postgres://myuser:mypass@aws-0-us-west-1.pooler.supabase.com:5432/postgres
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          COPIA SOLO ESTA PARTE
+
+Variantes posibles:
+
+OPCIÓN A (Supabase):
+  @aws-0-us-west-1.pooler.supabase.com
+  @db.XXXXXXXXX.supabase.co
+  
+OPCIÓN B (Render):
+  @dpg-XXXXXXXXX.oregon-postgres.render.com
+  @dpg-XXXXXXXXX-a.oregon-postgres.render.com
+
+═══════════════════════════════════════════════════════════════════════
+
+💬 PASO 7: Respóndeme con el resultado
+═══════════════════════════════════════════════════════════════════════
+
+Copia y pega UNO de estos mensajes:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+OPCIÓN A - Si ves "supabase" en el host:
+
+Veo: @XXXXXX.supabase.com
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+OPCIÓN B - Si ves "render" en el host:
+
+Veo: @dpg-XXXXXX.render.com
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+OPCIÓN C - Si NO encuentras DATABASE_URL:
+
+No veo la variable DATABASE_URL
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+OPCIÓN D - Si no puedes acceder:
+
+No puedo entrar a Render / No encuentro la app
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+═══════════════════════════════════════════════════════════════════════
+
+🔐 SEGURIDAD: NO compartas la contraseña completa
+═══════════════════════════════════════════════════════════════════════
+
+❌ NO envíes: postgres://user:PASSWORD123@host.com/db
+
+✅ SÍ envía: @host.supabase.com
+✅ SÍ envía: @dpg-xxx.render.com
+
+Solo necesito saber el HOST para identificar si es Supabase o Render.
+
+═══════════════════════════════════════════════════════════════════════
+
+📸 ALTERNATIVA: Screenshot (si prefieres)
+═══════════════════════════════════════════════════════════════════════
+
+Si te es más fácil:
+
+1. Toma screenshot de la página Environment
+2. ANTES de tomar screenshot:
+   - Oculta la CONTRASEÑA (tapa con un cuadrito)
+   - Deja visible solo el HOST (parte @XXXXX.supabase.com)
+3. Guarda imagen
+4. Dime "Tengo screenshot" y te digo cómo compartirlo
+
+═══════════════════════════════════════════════════════════════════════
+
+🚨 SI NO PUEDES ACCEDER A RENDER:
+═══════════════════════════════════════════════════════════════════════
+
+Alternativa: Dame tu URL de la app y la pruebo yo:
+
+1. ¿Cuál es tu URL de Render?
+   Ejemplo: https://auditoria-tiendas.onrender.com
+
+2. Puedo crear un checklist de prueba y ver qué pasa
+
+═══════════════════════════════════════════════════════════════════════
+
+❓ PREGUNTAS FRECUENTES:
+═══════════════════════════════════════════════════════════════════════
+
+P: ¿Para qué necesitas el DATABASE_URL?
+R: Para saber si ya usas Supabase (gratis) o Render (se suspende mañana)
+
+P: ¿Es seguro compartir el host?
+R: Sí, el host (@supabase.com) es información pública, no es secreto
+
+P: ¿Qué haces con esta info?
+R: Te digo si necesitas migrar URGENTE o si ya estás bien
+
+P: ¿Cuánto tarda esto?
+R: 2 minutos si sigues los pasos
+
+═══════════════════════════════════════════════════════════════════════
+
+🐶 ESTOY ESPERANDO TU RESPUESTA:
+
+Opción A: @XXXXX.supabase.com
+Opción B: @dpg-XXXXX.render.com
+Opción C: No veo DATABASE_URL
+Opción D: No puedo acceder
+Opción E: Prefiero screenshot
+Opción F: Dame mi URL y pruébala tú

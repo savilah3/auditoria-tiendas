@@ -1,0 +1,232 @@
+╔═══════════════════════════════════════════════════════════════════════╗
+║                                                                       ║
+║   ✅ SOLUCIÓN FINAL: Evitar Sleep de Render (GRATIS)                ║
+║                                                                       ║
+╚═══════════════════════════════════════════════════════════════════════╝
+
+🎯 TU SITUACIÓN CONFIRMADA:
+
+✅ App: https://auditoria-tiendas.onrender.com
+✅ Base datos: Supabase PostgreSQL (gratis)
+✅ Costo actual: $0/mes
+✅ Email Render: BD vieja que NO usas (ignorar)
+✅ Todo funciona: SÍ
+
+═══════════════════════════════════════════════════════════════════════
+
+⚠️ ÚNICO PROBLEMA: App se duerme tras 15 min sin uso
+
+═══════════════════════════════════════════════════════════════════════
+
+🆓 SOLUCIÓN GRATIS: UptimeRobot (5 minutos setup)
+
+═══════════════════════════════════════════════════════════════════════
+
+¿Qué es?
+  → Servicio que hace "ping" a tu app cada 5 minutos
+  → Mantiene tu app despierta 24/7
+  → 100% gratis (sin tarjeta de crédito)
+
+Cómo funciona:
+  → UptimeRobot visita tu URL cada 5 min
+  → Render nunca se duerme
+  → Usuarios SIEMPRE tienen app rápida
+
+═══════════════════════════════════════════════════════════════════════
+
+📋 PASO A PASO (5 minutos):
+
+═══════════════════════════════════════════════════════════════════════
+
+PASO 1: Crear cuenta UptimeRobot
+────────────────────────────────────────────────────────────────────────
+
+1. Ve a: https://uptimerobot.com
+2. Click "Free Sign Up"
+3. Ingresa:
+   - Email: [tu email]
+   - Contraseña: [elige una]
+4. Click "Sign Up"
+5. Verifica tu email (revisa inbox)
+6. Click en link de confirmación
+
+═══════════════════════════════════════════════════════════════════════
+
+PASO 2: Crear Monitor
+────────────────────────────────────────────────────────────────────────
+
+1. En dashboard UptimeRobot, click "+ Add New Monitor"
+
+2. Configuración:
+
+   Monitor Type: HTTP(s)
+   
+   Friendly Name: Auditoría Tiendas
+   
+   URL (or IP): https://auditoria-tiendas.onrender.com
+   
+   Monitoring Interval: 5 minutes
+                        👆 Esto es lo importante
+   
+   Monitor Timeout: 30 seconds
+   
+   Alert Contacts: [tu email] (opcional)
+
+3. Click "Create Monitor"
+
+═══════════════════════════════════════════════════════════════════════
+
+PASO 3: Verificar que funciona
+────────────────────────────────────────────────────────────────────────
+
+1. Espera 5 minutos
+2. Verás en dashboard:
+   
+   ┌────────────────────────────────────────────────┐
+   │ ✅ Auditoría Tiendas                          │
+   │    https://auditoria-tiendas.onrender.com     │
+   │    Status: Up (200)                           │
+   │    Response Time: 1.2s                        │
+   │    Last Check: 2 minutes ago                  │
+   └────────────────────────────────────────────────┘
+
+3. ✅ Listo! Tu app NUNCA se dormirá
+
+═══════════════════════════════════════════════════════════════════════
+
+✅ BENEFICIOS:
+
+═══════════════════════════════════════════════════════════════════════
+
+✅ Gratis forever (plan Free permite hasta 50 monitores)
+✅ App siempre rápida (no más cold start)
+✅ Notificaciones si algo falla (opcional)
+✅ Estadísticas de uptime (99.9%)
+✅ Sin tarjeta de crédito requerida
+
+═══════════════════════════════════════════════════════════════════════
+
+📊 RESULTADO FINAL:
+
+═══════════════════════════════════════════════════════════════════════
+
+Antes:
+  ❌ App se duerme tras 15 min
+  ⏱️ Primera carga: 30-60 seg
+
+Después (con UptimeRobot):
+  ✅ App siempre despierta
+  ✅ Carga instantánea: 1-2 seg
+  ✅ Usuarios felices
+
+Costo:
+  $0/mes (todo gratis)
+
+═══════════════════════════════════════════════════════════════════════
+
+⚙️ CONFIGURACIÓN AVANZADA (opcional):
+
+═══════════════════════════════════════════════════════════════════════
+
+Si quieres recibir alertas cuando falle:
+
+1. UptimeRobot → Alert Contacts
+2. Agregar tu email o WhatsApp
+3. Recibirás notificación si:
+   - App no responde
+   - Error 500
+   - Timeout
+
+═══════════════════════════════════════════════════════════════════════
+
+🎯 RESUMEN EJECUTIVO:
+
+═══════════════════════════════════════════════════════════════════════
+
+TU SETUP FINAL (TODO GRATIS):
+
+┌──────────────────────────────────────────────────────────────┐
+│                                                              │
+│  🌐 App: Render (gratis)                                    │
+│      https://auditoria-tiendas.onrender.com                 │
+│                                                              │
+│  💾 Base Datos: Supabase PostgreSQL (gratis)                │
+│      Tablas: visitas, puntocompra, entrevistas              │
+│                                                              │
+│  🔔 Uptime: UptimeRobot (gratis)                            │
+│      Ping cada 5 min → Sin sleep                            │
+│                                                              │
+│  💰 COSTO TOTAL: $0/mes                                     │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+
+Características:
+  ✅ Acceso desde cualquier lugar (internet)
+  ✅ Sin sleep (siempre rápido)
+  ✅ Base datos persistente (no se borra)
+  ✅ HTTPS seguro
+  ✅ Formularios: visitas, punto-compra
+  ✅ Dashboard admin
+  ✅ Gratis forever
+
+═══════════════════════════════════════════════════════════════════════
+
+📧 EMAIL DE RENDER:
+
+═══════════════════════════════════════════════════════════════════════
+
+"PostgreSQL auditoria-db se suspenderá mañana"
+
+✅ IGNORAR - Es una BD vieja que NO usas
+✅ Tu app usa Supabase, no esa BD
+✅ Cuando se suspenda: No afecta nada
+✅ Opcional: Eliminar esa BD para limpiar
+
+═══════════════════════════════════════════════════════════════════════
+
+🐶 PRÓXIMOS PASOS:
+
+═══════════════════════════════════════════════════════════════════════
+
+1. ✅ Configurar UptimeRobot (5 min)
+   https://uptimerobot.com
+
+2. ✅ [Opcional] Eliminar BD vieja de Render
+   Dashboard Render → Databases → Delete
+
+3. ✅ [Opcional] Eliminar registro TEST-CODEPUPPY
+   Dashboard → Buscar local "TEST-CODEPUPPY" → Eliminar
+
+4. ✅ Disfrutar tu app funcionando perfectamente
+
+═══════════════════════════════════════════════════════════════════════
+
+❓ PREGUNTAS FRECUENTES:
+
+═══════════════════════════════════════════════════════════════════════
+
+P: ¿UptimeRobot es seguro?
+R: Sí, es un servicio establecido (2010) usado por millones
+
+P: ¿Consume mis 750 horas de Render?
+R: Sí, pero 5 min × 12 veces/hora × 24h = 1,440 min/día = 24 hrs/día
+   30 días × 24 hrs = 720 horas/mes ✅ Cabe perfecto
+
+P: ¿Puedo usar otra herramienta?
+R: Sí: Cron-Job.org, BetterUptime, StatusCake (todas gratis)
+
+P: ¿Afecta performance?
+R: No, solo hace un GET request cada 5 min (mínimo)
+
+P: ¿Qué pasa si se me acaban las 750 hrs?
+R: Poco probable con solo UptimeRobot
+   Pero podrías configurar ping cada 10 min en vez de 5
+
+═══════════════════════════════════════════════════════════════════════
+
+✅ ¡TODO RESUELTO!
+
+Tu pregunta original: "Acceso externo fuera de red Walmart"
+Respuesta: YA LO TIENES (Render) + Ahora sin sleep (UptimeRobot)
+
+Costo: $0/mes

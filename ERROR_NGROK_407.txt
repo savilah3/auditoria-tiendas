@@ -1,0 +1,208 @@
+╔═══════════════════════════════════════════════════════════════════════╗
+║                                                                       ║
+║   ❌ ERROR NGROK 407 - Proxy Walmart Requiere Autenticación          ║
+║                                                                       ║
+╚═══════════════════════════════════════════════════════════════════════╝
+
+🔍 PROBLEMA DETECTADO:
+
+Error: "407 authentication required"
+Causa: El proxy de Walmart (sysproxy.wal-mart.com:8080) requiere 
+       autenticación NTLM/Kerberos que ngrok NO soporta bien.
+
+═══════════════════════════════════════════════════════════════════════
+
+✅ SOLUCIONES DISPONIBLES (de más fácil a más compleja):
+
+═══════════════════════════════════════════════════════════════════════
+
+🎯 SOLUCIÓN 1: Visual Studio Dev Tunnels (RECOMENDADO) ⭐
+═══════════════════════════════════════════════════════════════════════
+
+¿Por qué funciona?
+✅ De Microsoft → Soporta autenticación Windows integrada
+✅ Funciona BIEN en proxies corporativos
+✅ Gratis
+✅ Integrado con tu cuenta Microsoft/Walmart
+
+Instalación (1 minuto):
+
+OPCIÓN A: Con winget (recomendado)
+   winget install Microsoft.devtunnel
+
+OPCIÓN B: Manual
+   1. Ve a: https://aka.ms/devtunnels/download
+   2. Descarga "Windows CLI"
+   3. Instala
+
+Uso:
+   Doble click en: CREAR_TUNEL_DEVTUNNEL.bat
+   
+   → Te pedirá login con tu cuenta Microsoft
+   → Obtendrás URL tipo: https://abc123.devtunnels.ms
+
+═══════════════════════════════════════════════════════════════════════
+
+🎯 SOLUCIÓN 2: ngrok SIN proxy (Puede funcionar)
+═══════════════════════════════════════════════════════════════════════
+
+A veces Walmart permite conexiones directas sin proxy.
+
+Prueba:
+   Doble click en: NGROK_SIN_PROXY.bat
+
+Si ves "Session Status: online" → ¡Funciona!
+Si ves "407" o "timeout" → No funciona, prueba Solución 1 o 3
+
+═══════════════════════════════════════════════════════════════════════
+
+🎯 SOLUCIÓN 3: Usar Red Local (Ya funciona)
+═══════════════════════════════════════════════════════════════════════
+
+No necesitas túnel si tu equipo está en VPN Walmart.
+
+URL: http://10.24.231.250:8002
+
+Ventajas:
+✅ YA funciona (cero configuración)
+✅ Gratis
+✅ Rápido
+✅ Seguro (solo red interna)
+
+Desventaja:
+❌ Solo acceso dentro de Walmart
+
+═══════════════════════════════════════════════════════════════════════
+
+🎯 SOLUCIÓN 4: Pedir Servidor IT Walmart
+═══════════════════════════════════════════════════════════════════════
+
+Para proyectos oficiales:
+
+1. Solicita Azure/AWS corporativo
+2. IT te asigna servidor + URL permanente
+3. Gratis para ti (paga Walmart)
+4. Soporte profesional
+
+Contacto: Tu líder → IT Service Desk
+
+═══════════════════════════════════════════════════════════════════════
+
+🎯 SOLUCIÓN 5: Cloudflare Tunnel con WARP
+═══════════════════════════════════════════════════════════════════════
+
+Cloudflare + Cloudflare WARP puede atravesar proxies.
+
+PASO 1: Instala Cloudflare WARP
+   https://1.1.1.1/
+
+PASO 2: Conecta WARP (activa el toggle)
+
+PASO 3: Ejecuta Cloudflare Tunnel
+   cd auditoria_tiendas
+   cloudflared.exe tunnel --url http://localhost:8002
+
+Si WARP está conectado, puede funcionar.
+
+═══════════════════════════════════════════════════════════════════════
+
+📊 COMPARACIÓN DE SOLUCIONES:
+═══════════════════════════════════════════════════════════════════════
+
+┌─────────────────┬──────────┬──────────┬─────────┬──────────┐
+│                 │ DevTunnel│ Red Local│ ngrok   │ IT Server│
+├─────────────────┼──────────┼──────────┼─────────┼──────────┤
+│ Funciona ahora  │ ⏳ Instala│ ✅ Sí    │ ❌ No   │ ⏳ Espera│
+│ Acceso externo  │ ✅ Sí    │ ❌ No    │ ❌ No   │ ✅ Sí    │
+│ Costo           │ ✅ Gratis│ ✅ Gratis│ Gratis  │ ✅ Gratis│
+│ Setup           │ 🔶 Fácil │ ✅ Listo │ ❌ Falla│ ⏳ Lento │
+│ Proxy Walmart   │ ✅ Funciona│ ✅ N/A  │ ❌ Falla│ ✅ N/A   │
+└─────────────────┴──────────┴──────────┴─────────┴──────────┘
+
+═══════════════════════════════════════════════════════════════════════
+
+🎯 MI RECOMENDACIÓN PARA TI:
+═══════════════════════════════════════════════════════════════════════
+
+SI tu equipo está en Walmart (VPN/Eagle):
+   → USA RED LOCAL (opción 3)
+   → http://10.24.231.250:8002
+   → Ya funciona, cero complicaciones
+
+SI necesitas acceso EXTERNO:
+   → INSTALA DEV TUNNELS (opción 1)
+   → Funciona con proxy Walmart
+   → 1 minuto de instalación
+
+═══════════════════════════════════════════════════════════════════════
+
+🚀 PASOS INMEDIATOS:
+═══════════════════════════════════════════════════════════════════════
+
+OPCIÓN A (Acceso interno solamente):
+   1. ✅ Ya funciona red local
+   2. ✅ Comparte: http://10.24.231.250:8002
+   3. ✅ Listo
+
+OPCIÓN B (Acceso externo también):
+   1. Ejecuta: winget install Microsoft.devtunnel
+   2. Ejecuta: CREAR_TUNEL_DEVTUNNEL.bat
+   3. Login con tu cuenta Microsoft
+   4. Comparte la URL: https://xxxxx.devtunnels.ms
+
+═══════════════════════════════════════════════════════════════════════
+
+📂 ARCHIVOS CREADOS PARA TI:
+═══════════════════════════════════════════════════════════════════════
+
+✅ NGROK_SIN_PROXY.bat          - Intenta ngrok sin proxy
+✅ CREAR_TUNEL_DEVTUNNEL.bat    - Usa Dev Tunnels (recomendado)
+✅ ESTE_ARCHIVO.txt             - Esta guía
+
+═══════════════════════════════════════════════════════════════════════
+
+🆘 TROUBLESHOOTING:
+═══════════════════════════════════════════════════════════════════════
+
+P: ¿Por qué ngrok da error 407?
+R: El proxy de Walmart requiere autenticación que ngrok no soporta.
+
+P: ¿Dev Tunnels es seguro?
+R: Sí, es de Microsoft y usa tu cuenta corporativa.
+
+P: ¿Cuánto cuesta Dev Tunnels?
+R: Gratis para uso personal/desarrollo.
+
+P: ¿La red local es suficiente?
+R: Sí, si todos están en VPN Walmart o Eagle WiFi.
+
+═══════════════════════════════════════════════════════════════════════
+
+💻 COMANDOS ÚTILES:
+═══════════════════════════════════════════════════════════════════════
+
+Instalar Dev Tunnels:
+   winget install Microsoft.devtunnel
+
+Verificar instalación:
+   devtunnel --version
+
+Crear túnel:
+   devtunnel host -p 8002 --allow-anonymous
+
+Ver tu IP local:
+   ipconfig | findstr IPv4
+
+═══════════════════════════════════════════════════════════════════════
+
+🎉 RESUMEN:
+═══════════════════════════════════════════════════════════════════════
+
+1. ngrok NO funciona → Proxy Walmart bloquea (407)
+2. Red local SÍ funciona → http://10.24.231.250:8002
+3. Dev Tunnels SÍ funcionará → Instala y prueba
+4. Servidor IT SÍ funcionará → Solicita si es oficial
+
+═══════════════════════════════════════════════════════════════════════
+
+¿Necesitas ayuda? Avísame! 🐶

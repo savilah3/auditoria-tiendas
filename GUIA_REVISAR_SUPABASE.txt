@@ -1,0 +1,215 @@
+╔═══════════════════════════════════════════════════════════════════════╗
+║                                                                       ║
+║   📋 GUÍA: Revisar Supabase - Paso a Paso (1 minuto)                ║
+║                                                                       ║
+╚═══════════════════════════════════════════════════════════════════════╝
+
+🎯 OBJETIVO: Ver si tu app usa Supabase PostgreSQL
+
+⏱️ TIEMPO: 1-2 minutos
+
+═══════════════════════════════════════════════════════════════════════
+
+📱 PASO 1: Abrir Supabase
+═══════════════════════════════════════════════════════════════════════
+
+1. Abre tu navegador
+2. Ve a: https://supabase.com
+3. Click en "Sign In" (arriba derecha)
+4. Login con GitHub o email (el que usaste para crear cuenta)
+
+═══════════════════════════════════════════════════════════════════════
+
+🏠 PASO 2: Ver tus proyectos
+═══════════════════════════════════════════════════════════════════════
+
+Después de login verás algo como:
+
+┌─────────────────────────────────────────────────────────┐
+│  Supabase                                    [+ New]    │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│  📦 Your Projects                                       │
+│                                                         │
+│  ┌──────────────────────────────────────────┐          │
+│  │ 🗄️  auditoria-db                         │          │
+│  │     Region: East US                      │          │
+│  │     Created: X days ago                  │          │
+│  └──────────────────────────────────────────┘          │
+│                                                         │
+│  o puede estar vacío si no tienes proyectos            │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+
+PREGUNTA: ¿Ves algún proyecto listado?
+
+SI ves un proyecto → Continúa al PASO 3
+NO ves proyectos → Salta al PASO 6
+
+═══════════════════════════════════════════════════════════════════════
+
+🔍 PASO 3: Abrir tu proyecto
+═══════════════════════════════════════════════════════════════════════
+
+1. CLICK en tu proyecto (ej: "auditoria-db" o como lo hayas llamado)
+2. Espera que cargue el dashboard del proyecto
+
+═══════════════════════════════════════════════════════════════════════
+
+📊 PASO 4: Ir a Table Editor
+═══════════════════════════════════════════════════════════════════════
+
+En el menú lateral izquierdo verás:
+
+┌────────────────────────┐
+│ 📊 Dashboard          │
+│ 🔑 Authentication     │
+│ 📁 Database           │
+│    ├ Tables           │  ← CLICK AQUÍ
+│    └ Backups          │
+│ 🎨 Storage            │
+│ ⚙️  Settings          │
+└────────────────────────┘
+
+1. CLICK en "Database" → "Tables" (o directamente "Table Editor")
+
+═══════════════════════════════════════════════════════════════════════
+
+🎯 PASO 5: Buscar la tabla "respuestas"
+═══════════════════════════════════════════════════════════════════════
+
+En Table Editor verás una lista de tablas:
+
+OPCIÓN A - SI VES TABLAS:
+──────────────────────────────────────────────────────────────────────
+
+┌─────────────────────────────────────────────────────────┐
+│  Tables                                    [+ New]      │
+├─────────────────────────────────────────────────────────┤
+│  📋 respuestas                    (150 rows)            │
+│  🛒 punto_compra                  (45 rows)             │
+│  👤 auth.users                    (0 rows)              │
+└─────────────────────────────────────────────────────────┘
+
+✅ SI VES "respuestas" o "punto_compra" → ¡USAS SUPABASE!
+
+1. CLICK en "respuestas"
+2. Verás datos como:
+   - id, fecha, formato, local, usuario, q4_guardia_saludo, etc.
+3. ¿Ves el registro "TEST-CODEPUPPY" que creé hace rato?
+
+RESPUESTA: SÍ VEO TABLAS CON DATOS
+
+──────────────────────────────────────────────────────────────────────
+
+OPCIÓN B - SI NO VES TABLAS (lista vacía):
+──────────────────────────────────────────────────────────────────────
+
+┌─────────────────────────────────────────────────────────┐
+│  Tables                                    [+ New]      │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│      No tables found                                    │
+│      Create your first table                            │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+
+❌ NO USAS SUPABASE (BD está vacía)
+
+RESPUESTA: NO VEO TABLAS
+
+═══════════════════════════════════════════════════════════════════════
+
+❓ PASO 6: Si NO tienes proyectos en Supabase
+═══════════════════════════════════════════════════════════════════════
+
+Si en PASO 2 no viste ningún proyecto:
+
+┌─────────────────────────────────────────────────────────┐
+│  Supabase                                    [+ New]    │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│  You don't have any projects yet                       │
+│  Create your first project                             │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+
+❌ NO USAS SUPABASE (nunca creaste proyecto)
+
+RESPUESTA: NO TENGO PROYECTOS
+
+═══════════════════════════════════════════════════════════════════════
+
+📝 RESUMEN - RESPÓNDEME CON:
+═══════════════════════════════════════════════════════════════════════
+
+ESCENARIO 1: ✅ SÍ VEO TABLAS
+──────────────────────────────────────────────────────────────────────
+Mensaje:
+  "Veo la tabla 'respuestas' con X filas de datos"
+  
+Significa:
+  ✅ YA USAS SUPABASE
+  ✅ El email de Render es sobre BD vieja
+  ✅ NO hacer nada, todo está bien
+  ✅ Dejar que Render suspenda su BD mañana (no afecta)
+
+═══════════════════════════════════════════════════════════════════════
+
+ESCENARIO 2: ❌ NO VEO TABLAS (pero tengo proyecto)
+──────────────────────────────────────────────────────────────────────
+Mensaje:
+  "Tengo proyecto pero no hay tablas"
+  
+Significa:
+  ⚠️ Creaste Supabase pero NO lo configuraste
+  🚨 Tu app usa Render PostgreSQL
+  🚨 SE SUSPENDERÁ MAÑANA
+  ⚡ Necesitas migrar URGENTE (te ayudo, 20 min)
+
+═══════════════════════════════════════════════════════════════════════
+
+ESCENARIO 3: ❌ NO TENGO PROYECTOS
+──────────────────────────────────────────────────────────────────────
+Mensaje:
+  "No tengo ningún proyecto en Supabase"
+  
+Significa:
+  ❌ NO usas Supabase
+  🚨 Tu app usa Render PostgreSQL
+  🚨 SE SUSPENDERÁ MAÑANA
+  ⚡ Necesitas migrar URGENTE (te ayudo, 25 min)
+
+═══════════════════════════════════════════════════════════════════════
+
+🐶 RESPÓNDEME CON UNO DE ESTOS:
+═══════════════════════════════════════════════════════════════════════
+
+A) ✅ Veo tabla "respuestas" con datos (X filas)
+
+B) ⚠️ Tengo proyecto pero sin tablas
+
+C) ❌ No tengo proyectos en Supabase
+
+D) 🤔 Veo otra cosa (descríbeme qué ves)
+
+E) ❌ No puedo acceder / olvidé contraseña
+
+═══════════════════════════════════════════════════════════════════════
+
+📸 ALTERNATIVA: Screenshot
+═══════════════════════════════════════════════════════════════════════
+
+Si prefieres, toma screenshot de:
+
+1. Lista de proyectos (PASO 2)
+   O
+2. Table Editor (PASO 5)
+
+Y dime "Tengo screenshot"
+
+═══════════════════════════════════════════════════════════════════════
+
+⏰ URGENCIA: Si respuesta es B o C → Tenemos ~24 hrs para migrar
+
+═══════════════════════════════════════════════════════════════════════

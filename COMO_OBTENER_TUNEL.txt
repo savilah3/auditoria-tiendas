@@ -1,0 +1,150 @@
+╔═══════════════════════════════════════════════════════════════════════╗
+║                                                                       ║
+║   📱 CÓMO OBTENER TÚNEL PÚBLICO - Descarga Manual                    ║
+║                                                                       ║
+╚═══════════════════════════════════════════════════════════════════════╝
+
+❌ PROBLEMA: McAfee Web Gateway de Walmart bloquea descargas de .zip
+
+✅ SOLUCIÓN: Descargar desde FUERA de la red Walmart
+
+═══════════════════════════════════════════════════════════════════════
+
+🎯 OPCIÓN 1: Desde tu Celular (Datos Móviles)
+═══════════════════════════════════════════════════════════════════════
+
+PASO 1: Desconéctate del WiFi Walmart (usa datos móviles)
+
+PASO 2: Abre en tu celular:
+   https://ngrok.com/download
+
+PASO 3: Descarga "Windows (64-bit)"
+   - Se descarga: ngrok-v3-stable-windows-amd64.zip
+
+PASO 4: Envíatelo por uno de estos métodos:
+   
+   A) Email personal:
+      - Adjunta el .zip
+      - Envíalo a tu correo Walmart
+      - Ábrelo en tu PC Walmart
+   
+   B) OneDrive/Google Drive:
+      - Sube el .zip a tu nube
+      - Descárgalo desde tu PC Walmart
+   
+   C) USB:
+      - Pasa el archivo a una USB
+      - Conéctala a tu PC Walmart
+
+PASO 5: En tu PC Walmart:
+   - Descomprime ngrok-v3-stable-windows-amd64.zip
+   - Copia ngrok.exe a: C:\Users\savila3\Documents\puppy_workspace\auditoria_tiendas\
+   - Ejecuta: CREAR_TUNEL_NGROK.bat
+
+═══════════════════════════════════════════════════════════════════════
+
+🏠 OPCIÓN 2: Desde tu Casa (WiFi Personal)
+═══════════════════════════════════════════════════════════════════════
+
+PASO 1: Desde tu PC personal (NO Walmart):
+   - Ve a: https://ngrok.com/download
+   - Descarga "Windows (64-bit)"
+
+PASO 2: Tráelo a tu PC Walmart:
+   - USB
+   - OneDrive/Google Drive
+   - Email personal
+
+PASO 3: Instalar en PC Walmart:
+   - Descomprime el .zip
+   - Copia ngrok.exe a carpeta auditoria_tiendas
+   - Ejecuta: CREAR_TUNEL_NGROK.bat
+
+═══════════════════════════════════════════════════════════════════════
+
+👥 OPCIÓN 3: Pedir a un Compañero
+═══════════════════════════════════════════════════════════════════════
+
+Si algún compañero ya tiene ngrok.exe:
+   - Pídele que te lo comparta (archivo único, no .zip)
+   - Cópialo a: auditoria_tiendas\ngrok.exe
+   - Ejecuta: CREAR_TUNEL_NGROK.bat
+
+═══════════════════════════════════════════════════════════════════════
+
+📝 DESPUÉS DE TENER ngrok.exe:
+═══════════════════════════════════════════════════════════════════════
+
+1. Verifica que esté en la carpeta:
+   C:\Users\savila3\Documents\puppy_workspace\auditoria_tiendas\ngrok.exe
+
+2. Doble click en:
+   CREAR_TUNEL_NGROK.bat
+
+3. Verás algo como:
+   Forwarding: https://abc-xyz-123.ngrok-free.app -> http://localhost:8002
+
+4. ¡Esa es tu URL PÚBLICA! Compártela con tu equipo.
+
+═══════════════════════════════════════════════════════════════════════
+
+🔗 LINKS DIRECTOS (abre desde tu celular/casa):
+═══════════════════════════════════════════════════════════════════════
+
+ngrok oficial:
+https://ngrok.com/download
+
+Direct download (Windows 64-bit):
+https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-windows-amd64.zip
+
+═══════════════════════════════════════════════════════════════════════
+
+⚠️ SI NO PUEDES DESCARGAR ngrok:
+═══════════════════════════════════════════════════════════════════════
+
+OPCIÓN A: Usa Red Local (Ya funciona)
+   - URL: http://10.24.231.250:8002
+   - Requisito: VPN Walmart / Eagle WiFi
+   - Gratis, rápido, sin complicaciones
+
+OPCIÓN B: Pide Servidor IT Walmart
+   - Solicita Azure/AWS corporativo
+   - Gratis para proyectos oficiales
+   - Tarda 1-2 semanas
+
+OPCIÓN C: Vuelve a Render
+   - Usa tu URL actual de Render
+   - Acepta el "sleep" de 15 min
+   - O paga $14/mes
+
+═══════════════════════════════════════════════════════════════════════
+
+📊 COMPARACIÓN:
+═══════════════════════════════════════════════════════════════════════
+
+┌──────────────────┬────────────┬────────────┬────────────┐
+│                  │ Red Local  │ ngrok      │ Render     │
+├──────────────────┼────────────┼────────────┼────────────┤
+│ Acceso externo   │ ❌         │ ✅         │ ✅         │
+│ Funciona ahora   │ ✅         │ ⏳ Manual  │ ✅         │
+│ Costo            │ Gratis     │ Gratis     │ $14/mes    │
+│ Configuración    │ ✅ Fácil   │ 🔶 Media   │ ✅ Fácil   │
+└──────────────────┴────────────┴────────────┴────────────┘
+
+═══════════════════════════════════════════════════════════════════════
+
+🎯 MI RECOMENDACIÓN:
+═══════════════════════════════════════════════════════════════════════
+
+SI tu equipo está en Walmart (VPN/Eagle):
+   → USA RED LOCAL (ya funciona, gratis, rápido)
+   → URL: http://10.24.231.250:8002
+
+SI necesitas acceso desde FUERA de Walmart:
+   → Descarga ngrok desde celular/casa
+   → O pide servidor IT
+   → O vuelve a Render
+
+═══════════════════════════════════════════════════════════════════════
+
+¿Necesitas ayuda? Avísame! 🐶

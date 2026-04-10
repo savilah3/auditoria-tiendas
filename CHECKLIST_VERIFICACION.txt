@@ -1,0 +1,244 @@
+═══════════════════════════════════════════════════════════════════
+  ✅ CHECKLIST DE VERIFICACIÓN - DEPLOY COMPLETADO
+═══════════════════════════════════════════════════════════════════
+
+📅 Deploy: 2026-04-09 16:11
+📦 Commit: 282d4f0
+🌐 URL: https://auditoria-tiendas.onrender.com
+
+═══════════════════════════════════════════════════════════════════
+PASO 1: VERIFICAR ESTADO DEL DEPLOY EN RENDER
+═══════════════════════════════════════════════════════════════════
+
+✅ Haz lo siguiente:
+
+1. Abre: https://dashboard.render.com
+
+2. Busca el servicio: "auditoria-tiendas"
+
+3. En la pestaña "Events" deberías ver:
+   ┌────────────────────────────────────────────────┐
+   │ ✓ Deploying commit 282d4f0...                  │
+   │ ✓ Building...                                  │
+   │ ✓ Deploy successful                            │
+   │ ✓ Live                                         │
+   └────────────────────────────────────────────────┘
+
+4. En la pestaña "Logs" deberías ver:
+   ┌────────────────────────────────────────────────┐
+   │ [TZ Migration] {'estado': 'ya_aplicada', ...}  │
+   │ INFO: Application startup complete             │
+   │ INFO: Uvicorn running on 0.0.0.0:XXXX          │
+   └────────────────────────────────────────────────┘
+
+5. Status: Debería decir "Live" con un punto verde 🟢
+
+═══════════════════════════════════════════════════════════════════
+PASO 2: VERIFICAR FORMULARIO NUEVO (/visitas)
+═══════════════════════════════════════════════════════════════════
+
+✅ Abre en tu navegador:
+   https://auditoria-tiendas.onrender.com/visitas
+
+📋 Checklist visual:
+   [ ] La página carga correctamente
+   [ ] Ves el título "Visitas con Sentido"
+   [ ] Aparece arriba a la izquierda: "📍 Ubicación capturada" (o "no disponible")
+   [ ] Hay dropdown para seleccionar "Usuario"
+   [ ] Hay dropdown para seleccionar "Local"
+   
+   [ ] SECCIÓN ATENCIÓN:
+       - Pregunta 3: "El guardia te saludó"
+       - Pregunta 4: "El guardia te preguntó si necesitabas algo"
+       - Pregunta 5: "Los colaboradores en los pasillos te saludaron"
+       - Pregunta 6: "Los colaboradores en los pasillos te preguntaron..."
+       - Pregunta 7: "Lograste encontrar un colaborador para que te ayudara"
+       - Pregunta 8: CSAT (escala 1-7) - Solo aparece si respondiste "Sí" en P7
+       - Pregunta 9: "Te sentiste bienvenido en el local"
+   
+   [ ] SECCIÓN ZONA DE PAGO:
+       - Pregunta sobre cajero interno/externo
+       - Preguntas Q9-Q13
+   
+   [ ] SECCIÓN COMENTARIOS:
+       - Campo de texto largo para comentarios finales
+   
+   [ ] Botón final: "Finalizar y Enviar"
+
+═══════════════════════════════════════════════════════════════════
+PASO 3: PROBAR ENVÍO DE FORMULARIO
+═══════════════════════════════════════════════════════════════════
+
+✅ Llena el formulario de prueba:
+
+1. Selecciona un usuario (ej: "Sebastian")
+2. Selecciona un local (ej: "Local 1")
+3. Responde todas las preguntas obligatorias
+4. Click en "Finalizar y Enviar"
+
+📋 Checklist de envío:
+   [ ] Al hacer click, el botón cambia a:
+       "⏳ Enviando... Por favor espera"
+   
+   [ ] El botón se desactiva (no puedes clickear de nuevo)
+   
+   [ ] Después de 1-3 segundos, redirige a:
+       https://auditoria-tiendas.onrender.com/gracias
+   
+   [ ] Ves la página de agradecimiento
+
+═══════════════════════════════════════════════════════════════════
+PASO 4: VERIFICAR DASHBOARD Y DATOS
+═══════════════════════════════════════════════════════════════════
+
+✅ Abre en tu navegador:
+   https://auditoria-tiendas.onrender.com/dashboard
+
+1. Login:
+   Usuario: admin
+   Contraseña: walmart2025
+
+2. Tab "Visitas con Sentido"
+
+📋 Checklist del dashboard:
+   [ ] Ves tu visita de prueba en la tabla
+   [ ] Tiene la fecha actual
+   [ ] Muestra el usuario que seleccionaste
+   [ ] Muestra el local que seleccionaste
+   [ ] Tiene datos en las columnas nuevas (Q3, Q7, Q8 CSAT, Q9)
+
+3. Exportar Excel:
+   [ ] Click en botón "Exportar a Excel"
+   [ ] Se descarga archivo "visitas_export.xlsx"
+   [ ] Abre el archivo
+   [ ] Ve a la hoja "Visitas con Sentido"
+   [ ] Verifica columnas nuevas:
+       - Q3: Guardia saludó
+       - Q3 Otro
+       - Q4: Guardia preguntó
+       - Q4 Otro
+       - Q5: Pasillos saludo
+       - Q5 Otro
+       - Q6: Pasillos preguntaron
+       - Q6 Otro
+       - Q7: Encontró colaborador
+       - Q7 Otro
+       - Q8: CSAT Resolutividad (1-7)
+       - Q9: Te sentiste bienvenido
+       - Q9 Otro
+
+═══════════════════════════════════════════════════════════════════
+PASO 5: VERIFICAR GEOLOCALIZACIÓN
+═══════════════════════════════════════════════════════════════════
+
+✅ En el formulario /visitas:
+
+📋 Checklist:
+   [ ] Arriba a la izquierda dice "📍 Ubicación capturada"
+       (Si dice "no disponible", está bien - significa que el navegador
+        bloqueó la geolocalización)
+   
+   [ ] En el dashboard, tu visita tiene datos en:
+       - Geo Lat: (ej: -33.XXXX)
+       - Geo Lng: (ej: -70.XXXX)
+       (Si están vacíos, es porque el navegador bloqueó la ubicación)
+
+═══════════════════════════════════════════════════════════════════
+PASO 6: VERIFICAR MIGRACIÓN DE BASE DE DATOS
+═══════════════════════════════════════════════════════════════════
+
+✅ En Render Dashboard → auditoria-tiendas → Logs
+
+📋 Busca estas líneas:
+   [ ] "[TZ Migration] {'estado': 'ya_aplicada'..." o similar
+       ✓ Significa que la migración de timezone ya se aplicó antes
+   
+   [ ] Si es la primera vez con los nuevos campos, deberías ver:
+       "ALTER TABLE visitas ADD COLUMN q3 TEXT"
+       "ALTER TABLE visitas ADD COLUMN q7 TEXT"
+       etc.
+       ✓ Significa que agregó las columnas nuevas
+
+═══════════════════════════════════════════════════════════════════
+PASO 7: PRUEBA DE CAMPOS "OTRO"
+═══════════════════════════════════════════════════════════════════
+
+✅ En el formulario /visitas:
+
+1. En cualquier pregunta con opción "Otro"
+2. Selecciona "Otro"
+3. Verifica que aparece un campo de texto "Especifique..."
+4. Escribe algo (ej: "Prueba")
+5. Envía el formulario
+
+📋 Checklist:
+   [ ] El campo "Otro" aparece/desaparece correctamente
+   [ ] Es obligatorio cuando seleccionas "Otro"
+   [ ] Los datos se guardan en el dashboard
+   [ ] Aparecen en la columna "XX Otro" del Excel
+
+═══════════════════════════════════════════════════════════════════
+PASO 8: PRUEBA DE TIMEOUT
+═══════════════════════════════════════════════════════════════════
+
+⚠️ OPCIONAL - Solo si quieres probar el manejo de errores:
+
+1. Desconecta tu WiFi / datos móviles
+2. Llena el formulario
+3. Click en "Finalizar y Enviar"
+
+📋 Checklist:
+   [ ] Después de 30 segundos muestra:
+       "La conexión tardó demasiado. Por favor verifica tu conexión..."
+   [ ] El botón se reactiva
+   [ ] Puedes volver a intentar
+
+═══════════════════════════════════════════════════════════════════
+RESUMEN DE ESTADO
+═══════════════════════════════════════════════════════════════════
+
+🔄 Deploy Status:
+   [  ] Deploy completado en Render
+   [  ] Servicio "Live" (punto verde)
+   [  ] Logs sin errores
+
+📝 Formulario:
+   [  ] Carga correctamente
+   [  ] Todos los campos visibles
+   [  ] Botón "Enviando..." funciona
+   [  ] Geolocalización activa
+
+💾 Dashboard:
+   [  ] Login funciona
+   [  ] Datos de prueba visibles
+   [  ] Excel con nuevas columnas
+
+✅ Migración BD:
+   [  ] Nuevas columnas agregadas
+   [  ] Datos viejos preservados
+
+═══════════════════════════════════════════════════════════════════
+SI TODO ESTÁ ✓ → ¡DEPLOY EXITOSO! 🎉
+═══════════════════════════════════════════════════════════════════
+
+Si encontraste algún problema:
+1. Revisa los logs en Render Dashboard
+2. Verifica que el servicio esté "Live"
+3. Intenta hacer un "Hard Refresh" (Ctrl+F5) en el navegador
+
+═══════════════════════════════════════════════════════════════════
+SOPORTE
+═══════════════════════════════════════════════════════════════════
+
+📄 Archivos de referencia:
+   • GUIA_DEPLOY.md
+   • RESUMEN_ACTUALIZACION_V2.txt
+
+🔗 Links importantes:
+   • Render Dashboard: https://dashboard.render.com
+   • GitHub Repo: https://github.com/savilah3/auditoria-tiendas
+   • App URL: https://auditoria-tiendas.onrender.com
+
+═══════════════════════════════════════════════════════════════════
+
+Última actualización: 2026-04-09 16:11 (Commit: 282d4f0)

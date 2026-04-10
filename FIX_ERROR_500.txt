@@ -1,0 +1,109 @@
+═══════════════════════════════════════════════════════════════════
+  🔧 FIX APLICADO - SIGUIENTE PASO PARA RESOLVER ERROR 500
+═══════════════════════════════════════════════════════════════════
+
+📅 Fix: 2026-04-09 16:15
+📦 Commit: c447cdb
+🎯 Objetivo: Capturar el error exacto que causa el 500
+
+═══════════════════════════════════════════════════════════════════
+PASO 1: ESPERA 2-3 MINUTOS
+═══════════════════════════════════════════════════════════════════
+
+El nuevo código se está deployando en Render.
+Espera unos 2-3 minutos antes de continuar.
+
+⏰ Esperando... (2-3 minutos)
+
+═══════════════════════════════════════════════════════════════════
+PASO 2: PROBAR EL FORMULARIO DE NUEVO
+═══════════════════════════════════════════════════════════════════
+
+1. Abre: https://auditoria-tiendas.onrender.com/visitas
+
+2. Haz HARD REFRESH (Ctrl + F5) para limpiar cache
+
+3. Llena el formulario completo:
+   - Selecciona usuario
+   - Selecciona local
+   - Responde TODAS las preguntas obligatorias (marcadas con *)
+   
+4. Click en "Finalizar y Enviar"
+
+5. SI DA ERROR 500 → Continúa al PASO 3
+   SI FUNCIONA → ¡Perfecto! El problema se resolvió
+
+═══════════════════════════════════════════════════════════════════
+PASO 3: VER EL ERROR EN RENDER LOGS
+═══════════════════════════════════════════════════════════════════
+
+1. Abre: https://dashboard.render.com
+
+2. Busca tu servicio "auditoria-tiendas"
+
+3. Click en la pestaña "Logs"
+
+4. BUSCA la línea que dice:
+   "ERROR al insertar visita: ..."
+   
+5. COPIA el mensaje de error completo
+
+6. PÉGAMELO aquí para que vea exactamente qué está fallando
+
+═══════════════════════════════════════════════════════════════════
+CAMBIOS APLICADOS EN EL FIX
+═══════════════════════════════════════════════════════════════════
+
+✓ Agregado try/except alrededor de insertar_visita()
+✓ Print del error completo en logs
+✓ Stacktrace completo para debugging
+✓ Manejo doble de q9_otro_text / q9_new_otro_text
+✓ Mensaje de error más descriptivo
+
+═══════════════════════════════════════════════════════════════════
+POSIBLES CAUSAS DEL ERROR 500
+═══════════════════════════════════════════════════════════════════
+
+1. Campo obligatorio en BD falta valor
+2. Tipo de dato incorrecto (ej: string en campo integer)
+3. Constraint de BD violada
+4. Tabla no tiene todas las columnas necesarias
+5. Conexión a BD falla
+
+Con los logs podremos identificar exactamente cuál es.
+
+═════════════════════════════════════════════════════════════
+⏳ TIMELINE
+═══════════════════════════════════════════════════════════════════
+
+16:15  ✅ Push del fix
+16:16  ⏳ Render detecta cambios
+16:17  ⏳ Build iniciado
+16:18  ⏳ Deploy en progreso
+16:19  ✅ Listo para probar (estimado)
+
+═══════════════════════════════════════════════════════════════════
+📋 CHECKLIST
+═══════════════════════════════════════════════════════════════════
+
+[ ] Esperé 2-3 minutos
+[ ] Hice Ctrl+F5 en /visitas
+[ ] Llené el formulario completo
+[ ] Envié el formulario
+[ ] Fui a Render Dashboard → Logs
+[ ] Encontré el mensaje "ERROR al insertar visita"
+[ ] Copié el error completo
+[ ] Se lo pasé a Code Puppy
+
+═══════════════════════════════════════════════════════════════════
+💡 TIP
+═══════════════════════════════════════════════════════════════════
+
+En Render Logs, usa Ctrl+F y busca "ERROR" o "Traceback"
+Eso te llevará directo al problema.
+
+═══════════════════════════════════════════════════════════════════
+
+Una vez que me pases el error exacto, podré hacer el fix definitivo! 🐶
+
+═══════════════════════════════════════════════════════════════════

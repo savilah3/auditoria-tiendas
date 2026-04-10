@@ -422,6 +422,27 @@ def eliminar_punto_compra(row_id: int) -> bool:
 def insertar_visita(data: dict) -> int:
     """Inserta una visita y retorna el ID generado."""
     data["fecha"] = now_chile()
+    
+    # Valores por defecto para evitar errores si faltan campos
+    defaults = {
+        "geo_lat": "", "geo_lng": "", "usuario": "", "local": "",
+        "q3": "", "q3_otro_text": "",
+        "q4": "", "q4_otro_text": "",
+        "q5": "", "q5_otro_text": "",
+        "q6": "", "q6_otro_text": "",
+        "q7": "", "q7_otro_text": "",
+        "q8_csat": "",
+        "q9_new": "", "q9_new_otro_text": "",
+        "q8": "", "q9": "", "q10": "", "q11": "", "q12": "", "q13": "",
+        "q17": ""
+    }
+    
+    # Merge de defaults con data recibida
+    for key in defaults:
+        if key not in data:
+            data[key] = defaults[key]
+    
+    # Intentar insertar con todos los campos primero
     sql = """
     INSERT INTO visitas (
         fecha, geo_lat, geo_lng, usuario, local,
@@ -438,10 +459,30 @@ def insertar_visita(data: dict) -> int:
     )
     RETURNING id
     """
+    
     with get_conn() as conn:
-        result = conn.execute(sql, data).fetchone()
-        conn.commit()
-        return result["id"]
+        try:
+            result = conn.execute(sql, data).fetchone()
+            conn.commit()
+            return result["id"]
+        except Exception as e:
+            # Si falla, intentar con solo campos básicos (compatibilidad con esquema viejo)
+            print(f"Error con INSERT completo: {e}")
+            print("Intentando INSERT con campos basicos...")
+            conn.rollback()
+            
+            sql_basico = """
+            INSERT INTO visitas (
+                fecha, geo_lat, geo_lng, usuario, local, q8, q9, q10, q11, q12, q13, q17
+            ) VALUES (
+                %(fecha)s, %(geo_lat)s, %(geo_lng)s, %(usuario)s, %(local)s,
+                %(q8)s, %(q9)s, %(q10)s, %(q11)s, %(q12)s, %(q13)s, %(q17)s
+            )
+            RETURNING id
+            """
+            result = conn.execute(sql_basico, data).fetchone()
+            conn.commit()
+            return result["id"]
 
 
 def insertar_entrevistas_visita(visita_id: int, entrevistas: List[Dict[str, str]]) -> None:

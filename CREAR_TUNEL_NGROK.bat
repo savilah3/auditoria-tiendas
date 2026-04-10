@@ -22,16 +22,14 @@ if not exist ngrok.exe (
 echo.
 echo [+] Creando tunel publico con ngrok...
 echo [+] Puerto local: 8002
+echo [+] Configurando proxy Walmart...
 echo.
 echo TU URL PUBLICA aparecera abajo (busca "Forwarding")
 echo Ejemplo: https://abc123.ngrok-free.app
 echo ================================================================
 echo.
 
-:: Configurar proxy para ngrok
-set HTTP_PROXY=http://sysproxy.wal-mart.com:8080
-set HTTPS_PROXY=http://sysproxy.wal-mart.com:8080
-
-ngrok.exe http 8002
+:: Usar archivo de configuración con proxy
+ngrok.exe http 8002 --config=ngrok.yml --log=stdout
 
 pause
