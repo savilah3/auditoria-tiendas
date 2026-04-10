@@ -1,0 +1,127 @@
+╔════════════════════════════════════════════════════════════════╗
+║                                                                ║
+║   🔍 ENDPOINT DEBUG: Ver qué se guardó en BD                   ║
+║                                                                ║
+╚════════════════════════════════════════════════════════════════╝
+
+✅ AGREGADO ENDPOINT TEMPORAL
+   → Commit dee4a3e pusheado
+   → Render deployando... (2-3 min)
+
+
+┌────────────────────────────────────────────────────────────────┐
+│  PASO 1️⃣: ESPERAR DEPLOY (2-3 min)                             │
+│                                                                │
+│  Ve a Render Dashboard:                                       │
+│  https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g   │
+│                                                                │
+│  Espera a ver: 🟢 "Live" (verde)                              │
+└────────────────────────────────────────────────────────────────┘
+
+
+┌────────────────────────────────────────────────────────────────┐
+│  PASO 2️⃣: USAR ENDPOINT DEBUG                                  │
+│                                                                │
+│  URL: https://auditoria-tiendas.onrender.com/admin/debug-bd  │
+│                                                                │
+│  Login:                                                        │
+│    Usuario: admin                                             │
+│    Password: walmart2025                                      │
+│                                                                │
+│  ¿QUÉ VAS A VER?                                               │
+│                                                                │
+│  ✅ Lista de TODAS las columnas (24-26 columnas)              │
+│  ✅ Última visita guardada (fila por fila)                    │
+│  ✅ Cada campo con su valor                                   │
+│  ✅ Estado: ✅ Lleno o ❌ Vacío                                │
+└────────────────────────────────────────────────────────────────┘
+
+
+┌────────────────────────────────────────────────────────────────┐
+│  PASO 3️⃣: BUSCAR CAMPOS FALTANTES                              │
+│                                                                │
+│  Fíjate en los campos que digan "❌ Vacío"                    │
+│                                                                │
+│  CAMPOS COMUNES A VERIFICAR:                                   │
+│                                                                │
+│  📝 Campos "otro_text":                                        │
+│     - q3_otro_text                                            │
+│     - q4_otro_text                                            │
+│     - q5_otro_text                                            │
+│     - q6_otro_text                                            │
+│     - q7_otro_text                                            │
+│     - q9_carteleria_otro_text                                 │
+│                                                                │
+│  💬 Comentarios:                                               │
+│     - q17 (Comentarios finales)                               │
+│                                                                │
+│  ⏱ Timer:                                                      │
+│     - tiempo_fila                                             │
+│                                                                │
+│  🆕 Nuevos campos:                                             │
+│     - q9_carteleria                                           │
+│     - q9_carteleria_otro_text                                 │
+└────────────────────────────────────────────────────────────────┘
+
+
+┌────────────────────────────────────────────────────────────────┐
+│  PASO 4️⃣: COPIARME QUÉ FALTA                                   │
+│                                                                │
+│  Decime cuáles campos están con "❌ Vacío" y deberían tener   │
+│  datos (porque llenaste el formulario).                       │
+│                                                                │
+│  Ejemplo:                                                      │
+│  "El campo q17 (Comentarios finales) está vacío pero yo       │
+│   escribí 'Test de prueba'"                                   │
+│                                                                │
+│  O:                                                            │
+│  "El campo q3_otro_text está vacío pero seleccioné 'Otro'     │
+│   y escribí 'El guardia estaba almorzando'"                   │
+└────────────────────────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════
+🎯 FLUJO COMPLETO PARA PROBAR:
+═══════════════════════════════════════════════════════════════════
+
+1. Espera deploy (2-3 min)
+   → Render Dashboard: https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g
+
+2. Resetea BD (opcional, para empezar limpio)
+   → https://auditoria-tiendas.onrender.com/admin/reset-db
+   → Login: admin / walmart2025
+
+3. Llena formulario CON ATENCIÓN a campos "Otro" y comentarios
+   → https://auditoria-tiendas.onrender.com/visitas
+   → Selecciona "Otro" en al menos 1 pregunta
+   → Escribe texto en el campo "Otro"
+   → Escribe comentarios finales
+   → Envía
+
+4. Ve al endpoint debug
+   → https://auditoria-tiendas.onrender.com/admin/debug-bd
+   → Verifica qué campos están llenos y cuáles vacíos
+
+5. Copia y pégame los campos que deberían estar llenos pero están vacíos
+
+
+═══════════════════════════════════════════════════════════════════
+🔗 ENLACES RÁPIDOS:
+═══════════════════════════════════════════════════════════════════
+
+• Render Deploy: https://dashboard.render.com/web/srv-cvr43pd6l47c73cu0v8g
+• Reset BD: https://auditoria-tiendas.onrender.com/admin/reset-db
+• Formulario: https://auditoria-tiendas.onrender.com/visitas
+• 🆕 DEBUG BD: https://auditoria-tiendas.onrender.com/admin/debug-bd
+• Dashboard: https://auditoria-tiendas.onrender.com/dashboard
+
+
+═══════════════════════════════════════════════════════════════════
+💡 NOTA: Endpoint temporal
+═══════════════════════════════════════════════════════════════════
+
+Este endpoint /admin/debug-bd es TEMPORAL para debuggear.
+Lo vamos a eliminar después de encontrar el problema.
+
+
+═══════════════════════════════════════════════════════════════════
