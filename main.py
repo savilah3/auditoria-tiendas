@@ -155,6 +155,7 @@ def recibir_visita(
     q8_csat: Annotated[str, Form()] = "",
     q9_new: Annotated[str, Form()] = "",
     q9_otro_text: Annotated[str, Form()] = "",  # Para q9_new
+    q9_new_otro_text: Annotated[str, Form()] = "",  # Por si HTML usa este nombre
     # Paso 2: Zona de pago
     q8: Annotated[str, Form()] = "",  # Tipo cajero
     q9: Annotated[str, Form()] = "",
@@ -166,28 +167,37 @@ def recibir_visita(
     q17: Annotated[str, Form()] = "",
 ):
     """Recibe el formulario Visitas con Sentido v2."""
-    # Si seleccionó "otro" en usuario o local, usar el texto libre
-    usuario_final = q1_otro_text.strip() if usuario == "otro" and q1_otro_text.strip() else usuario
-    local_final = q2_otro_text.strip() if local == "otro" and q2_otro_text.strip() else local
-    
-    visita_id = insertar_visita({
-        "geo_lat": geo_lat,
-        "geo_lng": geo_lng,
-        "usuario": usuario_final,
-        "local": local_final,
-        "q3": q3, "q3_otro_text": q3_otro_text,
-        "q4": q4, "q4_otro_text": q4_otro_text,
-        "q5": q5, "q5_otro_text": q5_otro_text,
-        "q6": q6, "q6_otro_text": q6_otro_text,
-        "q7": q7, "q7_otro_text": q7_otro_text,
-        "q8_csat": q8_csat,
-        "q9_new": q9_new, "q9_new_otro_text": q9_otro_text,
-        "q8": q8,
-        "q9": q9, "q10": q10, "q11": q11,
-        "q12": q12, "q13": q13,
-        "q17": q17,
-    })
-    return RedirectResponse(url="/gracias", status_code=303)
+    try:
+        # Si seleccionó "otro" en usuario o local, usar el texto libre
+        usuario_final = q1_otro_text.strip() if usuario == "otro" and q1_otro_text.strip() else usuario
+        local_final = q2_otro_text.strip() if local == "otro" and q2_otro_text.strip() else local
+        
+        # Usar q9_new_otro_text si existe, sino q9_otro_text
+        q9_final_otro = q9_new_otro_text.strip() if q9_new_otro_text.strip() else q9_otro_text.strip()
+        
+        visita_id = insertar_visita({
+            "geo_lat": geo_lat,
+            "geo_lng": geo_lng,
+            "usuario": usuario_final,
+            "local": local_final,
+            "q3": q3, "q3_otro_text": q3_otro_text,
+            "q4": q4, "q4_otro_text": q4_otro_text,
+            "q5": q5, "q5_otro_text": q5_otro_text,
+            "q6": q6, "q6_otro_text": q6_otro_text,
+            "q7": q7, "q7_otro_text": q7_otro_text,
+            "q8_csat": q8_csat,
+            "q9_new": q9_new, "q9_new_otro_text": q9_final_otro,
+            "q8": q8,
+            "q9": q9, "q10": q10, "q11": q11,
+            "q12": q12, "q13": q13,
+            "q17": q17,
+        })
+        return RedirectResponse(url="/gracias", status_code=303)
+    except Exception as e:
+        print(f"ERROR al insertar visita: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Error al guardar: {str(e)}")
 
 
 
