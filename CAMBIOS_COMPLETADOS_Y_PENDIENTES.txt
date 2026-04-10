@@ -1,0 +1,157 @@
+═══════════════════════════════════════════════════════════════════
+✅ CAMBIOS COMPLETADOS
+═══════════════════════════════════════════════════════════════════
+
+1️⃣ BD: Agregar tiempo_fila y cambiar q9_new → q9_carteleria
+   ✅ main.py línea 298: CREATE TABLE con tiempo_fila y q9_carteleria
+   ✅ database.py línea 427: defaults actualizado
+   ✅ database.py línea 461: SQL INSERT actualizado
+   
+2️⃣ Endpoint: Capturar tiempo_fila y q9_carteleria
+   ✅ main.py línea 145: Parámetro tiempo_fila agregado
+   ✅ main.py línea 157: Parámetro q9_carteleria agregado
+   ✅ main.py línea 182: Guardar tiempo_fila en BD
+   ✅ main.py línea 189: Guardar q9_carteleria en BD
+   
+3️⃣ Dashboard: Headers y datos actualizados
+   ✅ dashboard.html línea 177: Header "Q9 Cartelería TyC"
+   ✅ dashboard.html línea 178: Header "Tiempo Fila"
+   ✅ dashboard.html línea 243: Mostrar q9_carteleria
+   ✅ dashboard.html línea 250: Mostrar tiempo_fila
+   
+4️⃣ Excel: Headers y datos actualizados
+   ✅ main.py línea 363: Header "Tiempo Fila"
+   ✅ main.py línea 369: Header "Q9: Cartelería TyC"
+   ✅ main.py línea 378: Exportar tiempo_fila
+   ✅ main.py línea 384: Exportar q9_carteleria
+   
+5️⃣ Formulario: name= actualizados
+   ✅ visitas.html: name="tiempo_fila" (ya existía)
+   ✅ visitas.html: name="q9_carteleria" (cambiado de q9_new)
+   ✅ visitas.html: name="q9_carteleria_otro_text" (cambiado)
+   ✅ visitas.html: Entrevista 1: name="entrevista_1_motivo"
+   ✅ visitas.html: Entrevista 1: name="entrevista_1_positivos"
+   ✅ visitas.html: Entrevista 1: name="entrevista_1_mejoras"
+
+═══════════════════════════════════════════════════════════════════
+⚠️ FALTA: Entrevistas dinámicas
+═══════════════════════════════════════════════════════════════════
+
+PROBLEMA:
+  La función JavaScript addCustomer() genera bloques dinámicos de 
+  entrevistas, pero los textareas NO tienen atributo name.
+
+SOLUCIÓN MANUAL REQUERIDA:
+  Buscar en visitas.html la función addCustomer() alrededor de línea 309
+  y reemplazar los 3 textareas con:
+  
+  <textarea name="entrevista_${customerCount}_motivo" rows="3" required ...></textarea>
+  <textarea name="entrevista_${customerCount}_positivos" rows="3" required ...></textarea>
+  <textarea name="entrevista_${customerCount}_mejoras" rows="3" required ...></textarea>
+
+LUEGO:
+  Agregar en main.py el endpoint que captura todas las entrevistas:
+  
+  @app.post("/submit-visita")
+  def recibir_visita(request: Request, ...):
+      ...
+      # Capturar entrevistas
+      form_data = await request.form()
+      entrevistas = []
+      
+      # Buscar todos los campos que empiecen con "entrevista_"
+      for i in range(1, 100):  # Max 100 clientes
+          motivo = form_data.get(f"entrevista_{i}_motivo", "").strip()
+          positivos = form_data.get(f"entrevista_{i}_positivos", "").strip()
+          mejoras = form_data.get(f"entrevista_{i}_mejoras", "").strip()
+          
+          if motivo or positivos or mejoras:  # Si hay al menos un campo lleno
+              entrevistas.append({
+                  "numero_cliente": i,
+                  "motivo_visita": motivo,
+                  "aspectos_positivos": positivos,
+                  "oportunidades_mejora": mejoras,
+              })
+      
+      # Guardar entrevistas
+      if entrevistas:
+          insertar_entrevistas_visita(visita_id, entrevistas)
+
+FINALMENTE:
+  Actualizar Excel para exportar entrevistas:
+  
+  ws2 = wb.create_sheet(title="Entrevistas Visitas")
+  headers2 = [
+      "Visita ID", "Usuario", "Local", "# Cliente",
+      "Motivo Visita", "Aspectos Positivos", "Oportunidades Mejora",
+  ]
+  ws2.append(headers2)
+  
+  for visita in obtener_todas_visitas():
+      entrevistas = obtener_entrevistas_visita(visita["id"])
+      for ent in entrevistas:
+          ws2.append([
+              visita["id"],
+              visita["usuario"],
+              visita["local"],
+              ent["numero_cliente"],
+              ent["motivo_visita"],
+              ent["aspectos_positivos"],
+              ent["oportunidades_mejora"],
+          ])
+
+═══════════════════════════════════════════════════════════════════
+🚀 RESETEAR BD Y PROBAR
+═══════════════════════════════════════════════════════════════════
+
+1. Ir a: https://auditoria-tiendas.onrender.com/admin/reset-db
+   Login: admin / walmart2025
+   → Esto recreará la tabla visitas con las nuevas columnas
+
+2. Llenar formulario de prueba:
+   https://auditoria-tiendas.onrender.com/visitas
+   
+   ✅ Llenar TODOS los campos
+   ✅ Usar el cronómetro (timer)
+   ✅ Responder la nueva Q9 (Cartelería TyC)
+   ✅ Agregar entrevistas (al menos 1)
+   ✅ Enviar
+
+3. Verificar en dashboard:
+   https://auditoria-tiendas.onrender.com/dashboard
+   
+   ✅ Contador debe aumentar a 1
+   ✅ Ver columna "Tiempo Fila"
+   ✅ Ver columna "Q9 Cartelería TyC"
+   ✅ Todos los datos correctos
+
+4. Descargar Excel:
+   ✅ Click en "📥 Exportar Excel"
+   ✅ Verificar columna "Tiempo Fila"
+   ✅ Verificar columna "Q9: Cartelería TyC"
+   ✅ Verificar hoja 2 "Entrevistas Visitas" (si agregaste entrevistas)
+
+═══════════════════════════════════════════════════════════════════
+📋 RESUMEN
+═══════════════════════════════════════════════════════════════════
+
+✅ COMPLETADO:
+  - BD con tiempo_fila y q9_carteleria
+  - Endpoint captura tiempo_fila y q9_carteleria
+  - Dashboard muestra tiempo_fila y q9_carteleria
+  - Excel exporta tiempo_fila y q9_carteleria
+  - Formulario tiene name correcto en campos estáticos
+
+⚠️ PENDIENTE:
+  - Función addCustomer() necesita agregar name= a textareas
+  - Endpoint debe capturar entrevistas dinámicas
+  - Excel debe exportar entrevistas
+
+ALTERNATIVA RÁPIDA:
+  Si las entrevistas no son críticas ahora, puedes:
+  1. Resetear BD
+  2. Probar con formulario sin entrevistas
+  3. Verificar que tiempo_fila y q9_carteleria funcionen
+  4. Agregar entrevistas después
+
+═══════════════════════════════════════════════════════════════════
