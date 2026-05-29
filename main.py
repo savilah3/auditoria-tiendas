@@ -24,6 +24,10 @@ from database import (
     eliminar_visita,
     limpiar_visitas,
     limpiar_punto_compra,
+    insertar_pu_devolucion,
+    obtener_todas_pu_devoluciones,
+    eliminar_pu_devolucion,
+    limpiar_pu_devoluciones,
 )
 
 app = FastAPI(title="En los zapatos del cliente")
@@ -126,6 +130,58 @@ def gracias_punto_compra(request: Request):
 @app.get("/gracias", response_class=HTMLResponse)
 def gracias_visita(request: Request):
     return templates.TemplateResponse("gracias.html", {"request": request})
+
+
+@app.get("/gracias-pu-devoluciones", response_class=HTMLResponse)
+def gracias_pu_devoluciones(request: Request):
+    return templates.TemplateResponse("gracias_pu_devoluciones.html", {"request": request})
+
+
+# --- Formulario Pick Up y Devoluciones ---
+@app.get("/pu-devoluciones", response_class=HTMLResponse)
+def mostrar_pu_devoluciones(request: Request):
+    """Formulario Pick Up y Devoluciones SOD."""
+    return templates.TemplateResponse("pu_devoluciones.html", {"request": request})
+
+
+@app.post("/submit-pu-devoluciones")
+def recibir_pu_devoluciones(
+    nombre: Annotated[str, Form()] = "",
+    # Paso 1: Compra en Lider.cl
+    s1_q0: Annotated[str, Form()] = "",
+    s1_q1: Annotated[str, Form()] = "",
+    s1_q2: Annotated[str, Form()] = "",
+    s1_q3: Annotated[str, Form()] = "",
+    s1_q4: Annotated[str, Form()] = "",
+    s1_q5: Annotated[str, Form()] = "",
+    s1_obs: Annotated[str, Form()] = "",
+    # Paso 3: Espera
+    s3_q0: Annotated[str, Form()] = "",
+    s3_q1: Annotated[str, Form()] = "",
+    s3_obs: Annotated[str, Form()] = "",
+    # Paso 4: Pick Up
+    s4_q0: Annotated[str, Form()] = "",
+    s4_q1: Annotated[str, Form()] = "",
+    s4_q2: Annotated[str, Form()] = "",
+    s4_q3: Annotated[str, Form()] = "",
+    s4_obs: Annotated[str, Form()] = "",
+    # Paso 5: Devolución
+    s5_q0: Annotated[str, Form()] = "",
+    s5_q1: Annotated[str, Form()] = "",
+    s5_q2: Annotated[str, Form()] = "",
+    s5_q3: Annotated[str, Form()] = "",
+    s5_obs: Annotated[str, Form()] = "",
+):
+    """Recibe y persiste el formulario Pick Up y Devoluciones."""
+    insertar_pu_devolucion({
+        "nombre": nombre,
+        "s1_q0": s1_q0, "s1_q1": s1_q1, "s1_q2": s1_q2,
+        "s1_q3": s1_q3, "s1_q4": s1_q4, "s1_q5": s1_q5, "s1_obs": s1_obs,
+        "s3_q0": s3_q0, "s3_q1": s3_q1, "s3_obs": s3_obs,
+        "s4_q0": s4_q0, "s4_q1": s4_q1, "s4_q2": s4_q2, "s4_q3": s4_q3, "s4_obs": s4_obs,
+        "s5_q0": s5_q0, "s5_q1": s5_q1, "s5_q2": s5_q2, "s5_q3": s5_q3, "s5_obs": s5_obs,
+    })
+    return RedirectResponse(url="/gracias-pu-devoluciones", status_code=303)
 
 
 # --- Formulario Visitas con Sentido ---

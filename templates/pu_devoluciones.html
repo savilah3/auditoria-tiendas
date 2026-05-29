@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pick Up y Devoluciones</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        walmart: {
+                            blue: '#0071ce',
+                            darkblue: '#0053e2',
+                            spark: '#ffc220',
+                            red: '#ea1100',
+                            green: '#2a8703'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+
+    <!-- Sticky Header -->
+    <header class="bg-walmart-darkblue text-white sticky top-0 z-50 shadow-md flex flex-col">
+        <div class="p-4 flex items-center justify-between">
+            <div>
+                <h1 class="text-xl font-bold">Pick Up y Devoluciones</h1>
+                <p class="text-sm text-walmart-spark font-medium">Visitas con Sentido - Líderes</p>
+            </div>
+        </div>
+        
+        <!-- Progress Bar Container -->
+        <div id="progress-container" class="w-full bg-blue-800 h-1 hidden">
+            <div id="progress-bar" class="bg-walmart-spark h-full transition-all duration-300 w-0"></div>
+        </div>
+    </header>
+
+    <main class="flex-1 w-full max-w-lg mx-auto p-4 pb-24 flex flex-col gap-4">
+
+        <!-- Greeting Card (Visible during steps) -->
+        <div id="greeting-card" class="hidden bg-white rounded-xl shadow-sm p-4 border border-gray-200 fade-in">
+            <p class="text-sm text-gray-500 mt-2 p-2 bg-gray-50 rounded border" id="display-mision"></p>
+        </div>
+
+        <!-- STEP 0: START -->
+        <div id="step-0" class="step-container bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
+            <div class="bg-gray-50 border-b border-gray-200 p-6 flex flex-col items-center text-center">
+                <div class="w-16 h-16 bg-walmart-darkblue rounded-full flex items-center justify-center mb-4 shadow-inner">
+                    <svg class="w-8 h-8 text-walmart-spark" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-9.8-4h9.8l2-8H5.2L4.5 3H1v2h2l2.6 12.6A2 2 0 007 20h12v-2H7.4l-.4-2H17.2z"/>
+                    </svg>
+                </div>
+                <h2 class="text-xl font-bold text-gray-800">¡Bienvenido!</h2>
+                <p class="text-sm text-gray-600 mt-2">Ingresa tu nombre para conocer tu misión.</p>
+            </div>
+            
+            <div class="p-6">
+                <div class="mb-5">
+                    <label class="block text-sm font-bold text-gray-800 mb-2">Tu Nombre</label>
+                    <!-- name="nombre" → el backend lo recibe sin problema -->
+                    <input type="text" id="input-nombre" name="nombre"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-walmart-darkblue outline-none text-gray-700 bg-white"
+                           placeholder="Escribe tu nombre..." oninput="assignMission()">
+                </div>
+
+                <div id="mission-preview" class="hidden mb-5 p-4 bg-blue-50 border border-blue-100 rounded-lg">
+                    <p class="text-xs font-bold text-walmart-darkblue uppercase mb-1">Misión de Compra:</p>
+                    <p class="text-sm text-gray-800 font-medium mb-3" id="preview-mision-type"></p>
+                </div>
+
+                <button type="button" id="btn-start" onclick="startJourney()"
+                        class="w-full bg-walmart-darkblue hover:bg-blue-800 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-transform active:scale-95">
+                    Comenzar Misión
+                </button>
+                <button type="button" id="btn-skip" onclick="skipToPickUp()"
+                        class="w-full bg-white border-2 border-walmart-darkblue text-walmart-darkblue hover:bg-blue-50 font-bold py-3 px-4 rounded-lg shadow-sm transition-transform active:scale-95 mt-3">
+                    Retomar misión - Pick Up
+                </button>
+            </div>
+        </div>
+
+        <!-- MISION CONTENEDOR -->
+        <div id="mission-steps-container"></div>
+
+        <!-- NAV CONTROLS -->
+        <div id="nav-controls" class="hidden flex gap-3 mt-6">
+            <button type="button" onclick="prevStep()"
+                    class="flex-1 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-bold py-3 rounded-lg shadow-sm transition-transform active:scale-95 text-sm">
+                Volver
+            </button>
+            <button type="button" id="next-btn" onclick="nextStep()"
+                    class="flex-1 bg-walmart-darkblue hover:bg-blue-800 text-white font-bold py-3 rounded-lg shadow-md transition-transform active:scale-95 text-sm">
+                Siguiente
+            </button>
+        </div>
+
+    </main>
+
+    <script>
+        const MISSION_TYPE = "Supermercado";
+        const MISSION_DESC = `Tienes 45 años. Necesitas comprar un par de productos que faltan para tu casa. Vives cerca de un Lider, pero quieres ahorrar tiempo y dinero utilizando la modalidad Pick Up. Dado lo anterior, ingresas a Lider.cl a comprar leche, carne molida, yogurth y aceite.<br><br>Llega el día seleccionado y te acercas al local a retirar tus productos.<br><br>Luego "llegas a tu casa", revisas el pedido y quieres devolver la leche.`;
+        const STEPS_DATA = [
+            {
+                title: "Compra en Lider.cl",
+                desc: "Agregando los productos al carro.<br><br><div class=\"bg-blue-50 border border-blue-200 rounded-lg p-3 my-2\"><p class=\"text-sm font-bold text-walmart-darkblue uppercase mb-1\">🛒 Tu lista de compras:</p><p class=\"text-base font-bold text-gray-800\">• Leche<br>• Carne molida<br>• Yogurt<br>• Aceite</p><p class=\"text-xs text-blue-800 mt-2 font-medium italic\">💡 Puedes escoger la marca y formato que prefieras.</p></div>",
+                questions: [
+                    "Búsqueda de los productos en la web",
+                    "Claridad y disponibilidad de información del producto en la web",
+                    "Facilidad para comparar productos (Ej. formatos, precio por kilo)",
+                    "Claridad Conveniencia de Precios",
+                    "Selección de la opción 'Retiro en Tienda' y elección del local",
+                    "Facilidad del proceso de pago"
+                ]
+            },
+            {
+                title: "Ahora a esperar que tu pedido esté listo",
+                desc: "Esperando confirmación",
+                questions: []
+            },
+            {
+                title: "Espera",
+                desc: "Evaluando la información recibida antes de ir al local",
+                questions: [
+                    "Claridad de la información recibida sobre el estado del pedido",
+                    "Gestión y comunicación de sustituciones de productos (si aplica)"
+                ]
+            },
+            {
+                title: "Pick Up",
+                desc: "Retirando en el local",
+                questions: [
+                    "Claridad de la ubicación zona Pick Up",
+                    "Tiempos de espera para recibir el pedido (promesa 5 minutos)",
+                    "Atención y disposición resolutiva del personal",
+                    "Recepción y estado del pedido"
+                ]
+            },
+            {
+                title: "Devolución",
+                desc: "Devolviendo la leche",
+                questions: [
+                    "Accesibilidad y claridad de la información para realizar la devolución",
+                    "Disponibilidad de opciones para el cambio o devolución del producto",
+                    "Proceso de devolución de dinero",
+                    "Amabilidad y disposición en la atención del colaborador y/o ejecutivo contact center"
+                ]
+            }
+        ];
+
+        let currentStep = 0;
+        let totalSteps = 0;
+
+        function getRoleplayName(name) {
+            if (!name) return "Pablo";
+            const firstName = name.trim().split(' ')[0].toLowerCase();
+            if (firstName.endsWith('a')) return "Paula";
+            return "Pablo";
+        }
+
+        function assignMission() {
+            const nombre = document.getElementById('input-nombre').value;
+            const preview = document.getElementById('mission-preview');
+            if (nombre.trim().length > 0) {
+                document.getElementById('preview-mision-type').innerHTML = MISSION_DESC.replace('{ROLE_NAME}', getRoleplayName(nombre));
+                preview.classList.remove('hidden');
+            } else {
+                preview.classList.add('hidden');
+            }
+        }
+
+        function createRadioGroup(name, question) {
+            return `
+                <div class="mb-5 pb-4 border-b border-gray-100 last:border-0 last:pb-0">
+                    <p class="text-sm font-semibold text-gray-800 mb-3 flex gap-2"><span class="text-walmart-darkblue">•</span> ${question}</p>
+                    <div class="grid grid-cols-3 gap-2">
+                        <label class="cursor-pointer relative h-full">
+                            <input type="radio" name="${name}" value="sin" class="peer sr-only">
+                            <div class="p-2 border border-gray-300 rounded-lg h-full flex flex-col items-center justify-center text-center peer-checked:bg-green-50 peer-checked:border-green-500 transition-colors">
+                                <span class="text-3xl">😊</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer relative h-full">
+                            <input type="radio" name="${name}" value="con" class="peer sr-only">
+                            <div class="p-2 border border-gray-300 rounded-lg h-full flex flex-col items-center justify-center text-center peer-checked:bg-yellow-50 peer-checked:border-yellow-500 transition-colors">
+                                <span class="text-3xl">😐</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer relative h-full">
+                            <input type="radio" name="${name}" value="no" class="peer sr-only">
+                            <div class="p-2 border border-gray-300 rounded-lg h-full flex flex-col items-center justify-center text-center peer-checked:bg-red-50 peer-checked:border-red-500 transition-colors">
+                                <span class="text-3xl">☹️</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            `;
+        }
+
+        function buildMissionSteps() {
+            const container = document.getElementById('mission-steps-container');
+            container.innerHTML = '';
+            totalSteps = STEPS_DATA.length;
+
+            STEPS_DATA.forEach((step, index) => {
+                const stepNum = index + 1;
+                let questionsHtml = step.questions.map((q, qIndex) =>
+                    createRadioGroup(`s${stepNum}_q${qIndex}`, q)
+                ).join('');
+
+                let stepHtml = '';
+                if (step.title.includes("Ahora a esperar que tu pedido esté listo")) {
+                    // Paso de transición — sin preguntas ni textarea
+                    stepHtml = `
+                        <div id="step-${stepNum}" class="step-container hidden fade-in bg-walmart-darkblue rounded-xl shadow-lg overflow-hidden border-2 border-blue-900 text-white">
+                            <div class="p-8 text-center">
+                                <svg class="w-20 h-20 mx-auto text-walmart-spark mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <h2 class="font-bold text-2xl mb-3">${step.title}</h2>
+                                <p class="text-base text-blue-100 mb-8 font-medium">A partir de aquí, las siguientes etapas del formulario deberán ser llenadas en otra instancia, dependiendo de tu fecha de retiro Pick Up.</p>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // Paso con preguntas + observaciones (name="s{stepNum}_obs")
+                    stepHtml = `
+                        <div id="step-${stepNum}" class="step-container hidden fade-in bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
+                            <div class="bg-gray-50 border-b border-gray-200 p-4">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="bg-walmart-darkblue text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">${stepNum}/${totalSteps}</span>
+                                    <h2 class="font-bold text-gray-800 text-lg">${step.title}</h2>
+                                </div>
+                                <p class="text-xs text-gray-500 italic mt-2">${step.desc}</p>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="text-sm font-bold text-walmart-darkblue mb-4 uppercase tracking-wide">Evalúa tu experiencia:</h3>
+                                ${questionsHtml}
+                                <div class="mt-4 pt-4 border-t-2 border-gray-100">
+                                    <label class="block text-sm font-bold text-gray-800 mb-1">Observaciones</label>
+                                    <textarea name="s${stepNum}_obs" rows="2"
+                                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-walmart-darkblue focus:border-walmart-darkblue outline-none text-sm"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                container.innerHTML += stepHtml;
+            });
+        }
+
+        function updateUI() {
+            try {
+                document.querySelectorAll('.step-container').forEach(el => el.classList.add('hidden'));
+
+                if (currentStep === 0) {
+                    document.getElementById('step-0').classList.remove('hidden');
+                    document.getElementById('progress-container').classList.add('hidden');
+                    document.getElementById('greeting-card').classList.add('hidden');
+                    document.getElementById('nav-controls').classList.add('hidden');
+                    document.getElementById('nav-controls').classList.remove('flex');
+                } else {
+                    const stepEl = document.getElementById(`step-${currentStep}`);
+                    if (stepEl) stepEl.classList.remove('hidden');
+
+                    document.getElementById('progress-container').classList.remove('hidden');
+
+                    if (currentStep === 1 || currentStep === 2) {
+                        document.getElementById('greeting-card').classList.add('hidden');
+                    } else {
+                        document.getElementById('greeting-card').classList.remove('hidden');
+                    }
+
+                    document.getElementById('nav-controls').classList.remove('hidden');
+                    document.getElementById('nav-controls').classList.add('flex');
+
+                    const pct = (currentStep / totalSteps) * 100;
+                    document.getElementById('progress-bar').style.width = `${pct}%`;
+                }
+
+                if (currentStep > 0) {
+                    const nextBtn = document.getElementById('next-btn');
+                    if (currentStep === totalSteps) {
+                        nextBtn.innerText = "Finalizar y Enviar";
+                        nextBtn.style.backgroundColor = '#2a8703';
+                    } else {
+                        nextBtn.innerText = "Siguiente";
+                        nextBtn.style.backgroundColor = '';
+                        nextBtn.classList.add('bg-walmart-darkblue');
+                    }
+                }
+
+                try {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } catch (e) {
+                    window.scrollTo(0, 0);
+                }
+            } catch (e) {
+                alert("Error UI: " + e.message);
+                console.error(e);
+            }
+        }
+
+        function skipToPickUp() {
+            const nombre = document.getElementById('input-nombre').value;
+            if (!nombre.trim()) { alert("Por favor escribe tu nombre."); return; }
+            document.getElementById('display-mision').innerHTML = MISSION_DESC.replace('{ROLE_NAME}', getRoleplayName(nombre));
+            buildMissionSteps();
+            document.getElementById('step-0').classList.add('hidden');
+            currentStep = 4; // Paso 4 = Pick Up (índice 3 → stepNum 4)
+            updateUI();
+        }
+
+        function startJourney() {
+            const nombre = document.getElementById('input-nombre').value;
+            if (!nombre.trim()) { alert("Por favor escribe tu nombre."); return; }
+            document.getElementById('display-mision').innerHTML = MISSION_DESC.replace('{ROLE_NAME}', getRoleplayName(nombre));
+            buildMissionSteps();
+            document.getElementById('step-0').classList.add('hidden');
+            currentStep = 1;
+            updateUI();
+        }
+
+        function collectFormData() {
+            const fd = new FormData();
+            const nombre = document.getElementById('input-nombre').value.trim();
+            fd.append('nombre', nombre);
+
+            // Recorrer todos los pasos y recolectar radios + textareas con name
+            const container = document.getElementById('mission-steps-container');
+            container.querySelectorAll('input[type="radio"]:checked').forEach(r => {
+                fd.append(r.name, r.value);
+            });
+            container.querySelectorAll('textarea[name]').forEach(ta => {
+                fd.append(ta.name, ta.value.trim());
+            });
+
+            return fd;
+        }
+
+        async function submitForm() {
+            const nextBtn = document.getElementById('next-btn');
+            nextBtn.disabled = true;
+            nextBtn.innerText = "Enviando...";
+
+            try {
+                const fd = collectFormData();
+                const resp = await fetch('/submit-pu-devoluciones', {
+                    method: 'POST',
+                    body: fd,
+                });
+
+                if (resp.ok || resp.redirected) {
+                    window.location.href = '/gracias-pu-devoluciones';
+                } else {
+                    const txt = await resp.text();
+                    alert("Error al enviar: " + resp.status + "\n" + txt);
+                    nextBtn.disabled = false;
+                    nextBtn.innerText = "Finalizar y Enviar";
+                }
+            } catch (err) {
+                alert("Error de conexión: " + err.message);
+                nextBtn.disabled = false;
+                nextBtn.innerText = "Finalizar y Enviar";
+            }
+        }
+
+        function nextStep() {
+            if (currentStep < totalSteps) {
+                currentStep++;
+                updateUI();
+            } else {
+                // Último paso → enviar datos al servidor
+                submitForm();
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                updateUI();
+            } else if (currentStep === 1) {
+                currentStep = 0;
+                updateUI();
+            }
+        }
+    </script>
+</body>
+</html>

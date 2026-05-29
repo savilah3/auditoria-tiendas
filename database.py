@@ -132,6 +132,39 @@ CREATE TABLE IF NOT EXISTS entrevistas_visitas (
 
 
 
+# Tabla para Pick Up y Devoluciones (SOD)
+CREATE_TABLE_PU_DEVOLUCIONES = """
+CREATE TABLE IF NOT EXISTS pu_devoluciones (
+    id SERIAL PRIMARY KEY,
+    fecha TEXT NOT NULL,
+    nombre TEXT,
+    -- Paso 1: Compra en Lider.cl
+    s1_q0 TEXT, -- Búsqueda de productos en la web
+    s1_q1 TEXT, -- Claridad y disponibilidad de información del producto
+    s1_q2 TEXT, -- Facilidad para comparar productos
+    s1_q3 TEXT, -- Claridad Conveniencia de Precios
+    s1_q4 TEXT, -- Selección opción Retiro en Tienda
+    s1_q5 TEXT, -- Facilidad del proceso de pago
+    s1_obs TEXT,
+    -- Paso 3: Espera (confirmación pedido)
+    s3_q0 TEXT, -- Claridad de la información sobre el estado del pedido
+    s3_q1 TEXT, -- Gestión y comunicación de sustituciones
+    s3_obs TEXT,
+    -- Paso 4: Pick Up
+    s4_q0 TEXT, -- Claridad de la ubicación zona Pick Up
+    s4_q1 TEXT, -- Tiempos de espera (promesa 5 minutos)
+    s4_q2 TEXT, -- Atención y disposición resolutiva del personal
+    s4_q3 TEXT, -- Recepción y estado del pedido
+    s4_obs TEXT,
+    -- Paso 5: Devolución
+    s5_q0 TEXT, -- Accesibilidad y claridad de la información para la devolución
+    s5_q1 TEXT, -- Disponibilidad de opciones para cambio o devolución
+    s5_q2 TEXT, -- Proceso de devolución de dinero
+    s5_q3 TEXT, -- Amabilidad y disposición en la atención
+    s5_obs TEXT
+);
+"""
+
 CREATE_TABLE_PUNTO_COMPRA = """
 CREATE TABLE IF NOT EXISTS punto_compra (
     id SERIAL PRIMARY KEY,
@@ -178,6 +211,7 @@ def init_db() -> None:
         conn.execute(CREATE_TABLE_ATENCION)
         conn.execute(CREATE_TABLE_ENTREVISTAS_ATENCION)
         conn.execute(CREATE_TABLE_PUNTO_COMPRA)
+        conn.execute(CREATE_TABLE_PU_DEVOLUCIONES)
         conn.execute(CREATE_TABLE_VISITAS)
         conn.execute(CREATE_TABLE_ENTREVISTAS_VISITAS)
 
@@ -371,10 +405,80 @@ def obtener_stats() -> dict:
             "SELECT COUNT(*) as total FROM visitas"
         ).fetchone()["total"]
 
+        total_pu_devoluciones = conn.execute(
+            "SELECT COUNT(*) as total FROM pu_devoluciones"
+        ).fetchone()["total"]
+
     return {
         "total_punto_compra": total_punto_compra,
         "total_visitas": total_visitas,
+        "total_pu_devoluciones": total_pu_devoluciones,
     }
+
+
+# ============ Funciones para Pick Up y Devoluciones ============
+
+def insertar_pu_devolucion(data: dict) -> int:
+    """Inserta un registro de Pick Up / Devolución y retorna el ID."""
+    data["fecha"] = now_chile()
+    sql = """
+    INSERT INTO pu_devoluciones (
+        fecha, nombre,
+        s1_q0, s1_q1, s1_q2, s1_q3, s1_q4, s1_q5, s1_obs,
+        s3_q0, s3_q1, s3_obs,
+        s4_q0, s4_q1, s4_q2, s4_q3, s4_obs,
+        s5_q0, s5_q1, s5_q2, s5_q3, s5_obs
+    ) VALUES (
+        %(fecha)s, %(nombre)s,
+        %(s1_q0)s, %(s1_q1)s, %(s1_q2)s, %(s1_q3)s, %(s1_q4)s, %(s1_q5)s, %(s1_obs)s,
+        %(s3_q0)s, %(s3_q1)s, %(s3_obs)s,
+        %(s4_q0)s, %(s4_q1)s, %(s4_q2)s, %(s4_q3)s, %(s4_obs)s,
+        %(s5_q0)s, %(s5_q1)s, %(s5_q2)s, %(s5_q3)s, %(s5_obs)s
+    )
+    RETURNING id
+    """
+    # Defaults para evitar KeyError si el paso fue saltado
+    defaults = {
+        k: "" for k in [
+            "nombre",
+            "s1_q0", "s1_q1", "s1_q2", "s1_q3", "s1_q4", "s1_q5", "s1_obs",
+            "s3_q0", "s3_q1", "s3_obs",
+            "s4_q0", "s4_q1", "s4_q2", "s4_q3", "s4_obs",
+            "s5_q0", "s5_q1", "s5_q2", "s5_q3", "s5_obs",
+        ]
+    }
+    for key in defaults:
+        data.setdefault(key, defaults[key])
+    with get_conn() as conn:
+        result = conn.execute(sql, data).fetchone()
+        conn.commit()
+        return result["id"]
+
+
+def obtener_todas_pu_devoluciones() -> List[Dict[str, Any]]:
+    """Obtiene todos los registros de Pick Up / Devoluciones."""
+    with get_conn() as conn:
+        return conn.execute(
+            "SELECT * FROM pu_devoluciones ORDER BY fecha DESC"
+        ).fetchall()
+
+
+def eliminar_pu_devolucion(row_id: int) -> bool:
+    """Elimina un registro de Pick Up / Devolución."""
+    with get_conn() as conn:
+        cur = conn.execute("DELETE FROM pu_devoluciones WHERE id = %s", (row_id,))
+        deleted = cur.rowcount > 0
+        conn.commit()
+    return deleted
+
+
+def limpiar_pu_devoluciones() -> int:
+    """Elimina TODOS los registros de Pick Up / Devoluciones."""
+    with get_conn() as conn:
+        cur = conn.execute("DELETE FROM pu_devoluciones")
+        deleted = cur.rowcount
+        conn.commit()
+    return deleted
 
 
 # ============ Funciones para Punto de Compra ============
