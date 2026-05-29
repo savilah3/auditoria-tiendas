@@ -303,6 +303,7 @@ def dashboard(
         entrevistas = obtener_entrevistas_visita(row["id"])
         visitas_con_entrevistas.append({**row, "entrevistas": entrevistas})
 
+    pu_devoluciones_rows = obtener_todas_pu_devoluciones()
     stats = obtener_stats()
     return templates.TemplateResponse(
         "dashboard.html",
@@ -311,6 +312,7 @@ def dashboard(
             "rows": visitas_con_entrevistas,
             "punto_compra_rows": punto_compra_rows,
             "visita_rows": visitas_con_entrevistas,
+            "pu_devoluciones_rows": pu_devoluciones_rows,
             "stats": stats,
             "tab": tab,
         },
@@ -325,6 +327,25 @@ def eliminar_pc(
     """Elimina una evaluación de punto de compra."""
     eliminar_punto_compra(row_id)
     return RedirectResponse(url="/dashboard?tab=punto-compra", status_code=303)
+
+
+@app.post("/dashboard/delete-pu-devolucion/{row_id}")
+def eliminar_pu_devolucion_endpoint(
+    row_id: int,
+    _: Annotated[str, Depends(verificar_credenciales)],
+):
+    """Elimina un registro de Pick Up y Devoluciones."""
+    eliminar_pu_devolucion(row_id)
+    return RedirectResponse(url="/dashboard?tab=pu-devoluciones", status_code=303)
+
+
+@app.post("/dashboard/limpiar-pu-devoluciones")
+def limpiar_pu_devoluciones_endpoint(
+    _: Annotated[str, Depends(verificar_credenciales)],
+):
+    """Limpia TODOS los registros de Pick Up y Devoluciones."""
+    limpiar_pu_devoluciones()
+    return RedirectResponse(url="/dashboard?tab=pu-devoluciones", status_code=303)
 
 
 @app.post("/dashboard/delete-visita/{row_id}")

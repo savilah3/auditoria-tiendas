@@ -21,6 +21,78 @@
                 }
             }
         }
+        // Datos de Pick Up y Devoluciones
+        const puData = {
+            {% for row in pu_devoluciones_rows %}
+            {{ row.id }}: {
+                id: {{ row.id }},
+                fecha: "{{ row.fecha }}",
+                nombre: "{{ row.nombre }}",
+                s1: [
+                    { label: "B\u00fasqueda de productos en la web", val: "{{ row.s1_q0 or '' }}" },
+                    { label: "Claridad y disponibilidad de informaci\u00f3n", val: "{{ row.s1_q1 or '' }}" },
+                    { label: "Facilidad para comparar productos", val: "{{ row.s1_q2 or '' }}" },
+                    { label: "Claridad Conveniencia de Precios", val: "{{ row.s1_q3 or '' }}" },
+                    { label: "Selecci\u00f3n opci\u00f3n Retiro en Tienda", val: "{{ row.s1_q4 or '' }}" },
+                    { label: "Facilidad del proceso de pago", val: "{{ row.s1_q5 or '' }}" },
+                ],
+                s1_obs: "{{ row.s1_obs|default('',true)|replace('"','\\"')|replace('\n',' ') }}",
+                s3: [
+                    { label: "Claridad de la informaci\u00f3n sobre el estado del pedido", val: "{{ row.s3_q0 or '' }}" },
+                    { label: "Gesti\u00f3n y comunicaci\u00f3n de sustituciones", val: "{{ row.s3_q1 or '' }}" },
+                ],
+                s3_obs: "{{ row.s3_obs|default('',true)|replace('"','\\"')|replace('\n',' ') }}",
+                s4: [
+                    { label: "Claridad de la ubicaci\u00f3n zona Pick Up", val: "{{ row.s4_q0 or '' }}" },
+                    { label: "Tiempos de espera (promesa 5 min)", val: "{{ row.s4_q1 or '' }}" },
+                    { label: "Atenci\u00f3n y disposici\u00f3n resolutiva del personal", val: "{{ row.s4_q2 or '' }}" },
+                    { label: "Recepci\u00f3n y estado del pedido", val: "{{ row.s4_q3 or '' }}" },
+                ],
+                s4_obs: "{{ row.s4_obs|default('',true)|replace('"','\\"')|replace('\n',' ') }}",
+                s5: [
+                    { label: "Accesibilidad y claridad para la devoluci\u00f3n", val: "{{ row.s5_q0 or '' }}" },
+              { label: "Disponibilidad de opciones de cambio/devoluci\u00f3n", val: "{{ row.s5_q1 or '' }}" },
+                    { label: "Proceso de devoluci\u00f3n de dinero", val: "{{ row.s5_q2 or '' }}" },
+                    { label: "Amabilidad y disposici\u00f3n en la atenci\u00f3n", val: "{{ row.s5_q3 or '' }}" },
+                ],
+                s5_obs: "{{ row.s5_obs|default('',true)|replace('"','\\"')|replace('\n',' ') }}",
+            },
+            {% endfor %}
+        };
+
+        function renderPUStep(questions, obs, title, bgClass) {
+            if (!questions.some(q => q.val)) return '';
+            const rows = questions.map(q => `
+                <div class="bg-gray-50 p-3 rounded flex items-start justify-between gap-2">
+                    <span class="text-xs text-gray-700 flex-1">${q.label}</span>
+                    <span class="shrink-0">${getStatusBadge(q.val)}</span>
+                </div>
+            `).join('');
+            const obsHtml = obs ? `<p class="mt-2 bg-blue-50 p-3 rounded text-sm"><strong>Obs:</strong> ${obs}</p>` : '';
+            return `
+                <h3 class="font-bold text-lg text-walmart-blue mt-5 mb-3 border-b pb-2">${title}</h3>
+                <div class="flex flex-col gap-2 text-sm">${rows}</div>
+                ${obsHtml}
+            `;
+        }
+
+        function showPUDetails(id) {
+            const d = puData[id];
+            if (!d) return;
+            document.getElementById('modalContent').innerHTML = `
+                <div class="grid grid-cols-2 gap-4 text-sm mb-4">
+                    <div><span class="font-medium">ID:</span> ${d.id}</div>
+                    <div><span class="font-medium">Fecha:</span> ${d.fecha}</div>
+                    <div class="col-span-2"><span class="font-medium">Nombre:</span> ${d.nombre}</div>
+                </div>
+                ${renderPUStep(d.s1, d.s1_obs, '\ud83d\udda5\ufe0f Compra en L\u00edder.cl', 'bg-blue-50')}
+                ${renderPUStep(d.s3, d.s3_obs, '\u23f3 Espera', 'bg-yellow-50')}
+                ${renderPUStep(d.s4, d.s4_obs, '\ud83d\udce6 Pick Up', 'bg-green-50')}
+                ${renderPUStep(d.s5, d.s5_obs, '\u21a9\ufe0f Devoluci\u00f3n', 'bg-orange-50')}
+            `;
+            document.getElementById('detailsModal').classList.remove('hidden');
+            document.getElementById('detailsModal').classList.add('flex');
+        }
     </script>
 </head>
 <body class="bg-gray-100 min-h-screen">
@@ -41,7 +113,7 @@
 
         <!-- Stats -->
         <div class="bg-white p-4 border-b shadow-sm">
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-3 gap-4">
                 <div class="text-center">
                     <div class="text-3xl font-bold text-purple-600">{{ stats.total_punto_compra }}</div>
                     <div class="text-sm text-gray-600">Punto de Compra</div>
@@ -49,6 +121,10 @@
                 <div class="text-center">
                     <div class="text-3xl font-bold text-teal-600">{{ stats.total_visitas }}</div>
                     <div class="text-sm text-gray-600">Visitas con Sentido</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-walmart-blue">{{ stats.total_pu_devoluciones }}</div>
+                    <div class="text-sm text-gray-600">Pick Up y Dev.</div>
                 </div>
             </div>
         </div>
@@ -63,6 +139,10 @@
                 <a href="/dashboard?tab=visitas"
                    class="px-6 py-3 font-semibold border-b-2 transition {% if tab == 'visitas' %}text-walmart-blue border-walmart-blue bg-blue-50{% else %}text-gray-600 border-transparent hover:text-walmart-blue hover:bg-gray-50{% endif %}">
                     🕵️ Visitas con Sentido
+                </a>
+                <a href="/dashboard?tab=pu-devoluciones"
+                   class="px-6 py-3 font-semibold border-b-2 transition {% if tab == 'pu-devoluciones' %}text-walmart-blue border-walmart-blue bg-blue-50{% else %}text-gray-600 border-transparent hover:text-walmart-blue hover:bg-gray-50{% endif %}">
+                    🛒 Pick Up y Dev.
                 </a>
             </div>
         </div>
@@ -141,6 +221,88 @@
             <div class="p-8 text-center text-gray-500">
                 No hay evaluaciones de Punto de Compra registradas.
             </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Tab: Pick Up y Devoluciones -->
+        {% if tab == 'pu-devoluciones' %}
+        <div class="bg-white border-b px-4 py-2 flex items-center gap-4 text-xs text-gray-600">
+            <span class="font-medium text-gray-500">{{ pu_devoluciones_rows|length }} registros</span>
+            <div class="ml-auto">
+                <form method="POST" action="/dashboard/limpiar-pu-devoluciones" onsubmit="return confirm('⚠️ ¿Seguro? Esto eliminará TODOS los registros de Pick Up y Devoluciones.');">
+                    <button type="submit" class="px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 text-xs font-semibold rounded-full border border-red-300 transition">
+                        🗑️ Limpiar tabla
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="bg-white shadow-lg rounded-b-xl overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50 border-b">
+                        <tr>
+                            <th class="px-3 py-3 text-left font-semibold text-gray-700">ID</th>
+                            <th class="px-3 py-3 text-left font-semibold text-gray-700">Fecha</th>
+                            <th class="px-3 py-3 text-left font-semibold text-gray-700">Nombre</th>
+                            <th class="px-3 py-3 text-center font-semibold text-gray-700 bg-blue-50" title="Compra en Lider.cl (6 preguntas)">🖥️ Compra<br><span class="text-xs font-normal">Lider.cl</span></th>
+                            <th class="px-3 py-3 text-center font-semibold text-gray-700 bg-yellow-50" title="Espera (2 preguntas)">⏳ Espera</th>
+                            <th class="px-3 py-3 text-center font-semibold text-gray-700 bg-green-50" title="Pick Up (4 preguntas)">📦 Pick Up</th>
+                            <th class="px-3 py-3 text-center font-semibold text-gray-700 bg-orange-50" title="Devolución (4 preguntas)">↩️ Dev.</th>
+                            <th class="px-3 py-3 text-center font-semibold text-gray-700">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% for row in pu_devoluciones_rows %}
+                        {% set s1_ok = [row.s1_q0, row.s1_q1, row.s1_q2, row.s1_q3, row.s1_q4, row.s1_q5]|select('equalto','sin')|list|length %}
+                        {% set s3_ok = [row.s3_q0, row.s3_q1]|select('equalto','sin')|list|length %}
+                        {% set s4_ok = [row.s4_q0, row.s4_q1, row.s4_q2, row.s4_q3]|select('equalto','sin')|list|length %}
+                        {% set s5_ok = [row.s5_q0, row.s5_q1, row.s5_q2, row.s5_q3]|select('equalto','sin')|list|length %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-3 py-3 font-mono text-xs">{{ row.id }}</td>
+                            <td class="px-3 py-3 text-xs">{{ row.fecha }}</td>
+                            <td class="px-3 py-3 font-medium">{{ row.nombre }}</td>
+                            <!-- Compra Lider.cl: X/6 -->
+                            <td class="px-3 py-3 text-center bg-blue-50">
+                                {% if s1_ok == 6 %}<span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-bold">6/6 ✅</span>
+                                {% elif s1_ok >= 4 %}<span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-bold">{{ s1_ok }}/6 ⚠️</span>
+                                {% elif s1_ok > 0 %}<span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-bold">{{ s1_ok }}/6 ❌</span>
+                                {% else %}<span class="text-gray-400 text-xs">-</span>{% endif %}
+                            </td>
+                            <!-- Espera: X/2 -->
+                            <td class="px-3 py-3 text-center bg-yellow-50">
+                                {% if s3_ok == 2 %}<span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-bold">2/2 ✅</span>
+                                {% elif s3_ok == 1 %}<span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-bold">1/2 ⚠️</span>
+                                {% elif s3_ok == 0 and (row.s3_q0 or row.s3_q1) %}<span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-bold">0/2 ❌</span>
+                                {% else %}<span class="text-gray-400 text-xs">-</span>{% endif %}
+                            </td>
+                            <!-- Pick Up: X/4 -->
+                            <td class="px-3 py-3 text-center bg-green-50">
+                                {% if s4_ok == 4 %}<span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-bold">4/4 ✅</span>
+                                {% elif s4_ok >= 2 %}<span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-bold">{{ s4_ok }}/4 ⚠️</span>
+                                {% elif s4_ok > 0 or row.s4_q0 %}<span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-bold">{{ s4_ok }}/4 ❌</span>
+                                {% else %}<span class="text-gray-400 text-xs">-</span>{% endif %}
+                            </td>
+                            <!-- Devolución: X/4 -->
+                            <td class="px-3 py-3 text-center bg-orange-50">
+                                {% if s5_ok == 4 %}<span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-bold">4/4 ✅</span>
+                                {% elif s5_ok >= 2 %}<span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-bold">{{ s5_ok }}/4 ⚠️</span>
+                                {% elif s5_ok > 0 or row.s5_q0 %}<span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-bold">{{ s5_ok }}/4 ❌</span>
+                                {% else %}<span class="text-gray-400 text-xs">-</span>{% endif %}
+                            </td>
+                            <td class="px-3 py-3 text-center">
+                                <button onclick="showPUDetails({{ row.id }})" class="text-walmart-blue hover:underline text-xs mr-2">Ver</button>
+                                <form method="POST" action="/dashboard/delete-pu-devolucion/{{ row.id }}" class="inline" onsubmit="return confirm('¿Eliminar este registro?');">
+                                    <button type="submit" class="text-red-600 hover:underline text-xs">Eliminar</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if not pu_devoluciones_rows %}
+            <div class="p-8 text-center text-gray-500">No hay registros de Pick Up y Devoluciones aún.</div>
             {% endif %}
         </div>
         {% endif %}
