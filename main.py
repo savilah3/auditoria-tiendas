@@ -607,6 +607,53 @@ def exportar_excel(
             r.get("s5_observaciones", ""),
         ])
 
+    # Hoja 4: Pick Up y Devoluciones
+    ws4 = wb.create_sheet(title="Pick Up y Devoluciones")
+    headers4 = [
+        "ID", "Fecha", "Nombre",
+        # Paso 1
+        "[S1] Búsqueda productos web",
+        "[S1] Claridad info producto",
+        "[S1] Facilidad comparar productos",
+        "[S1] Conveniencia de precios",
+        "[S1] Selección retiro en tienda",
+        "[S1] Facilidad proceso de pago",
+        "[S1] Observaciones",
+        # Paso 3
+        "[S3] Claridad info estado pedido",
+        "[S3] Gestión sustituciones",
+        "[S3] Observaciones",
+        # Paso 4
+        "[S4] Ubicación zona Pick Up",
+        "[S4] Tiempo espera (promesa 5 min)",
+        "[S4] Atención y disposición personal",
+        "[S4] Recepción y estado pedido",
+        "[S4] Observaciones",
+        # Paso 5
+        "[S5] Accesibilidad info devolución",
+        "[S5] Disponibilidad opciones devolución",
+        "[S5] Proceso devolución dinero",
+        "[S5] Amabilidad y disposición atención",
+        "[S5] Observaciones",
+    ]
+    ws4.append(headers4)
+    for r in obtener_todas_pu_devoluciones():
+        ws4.append([
+            r["id"], r["fecha"], r.get("nombre", ""),
+            r.get("s1_busqueda", ""), r.get("s1_info_producto", ""),
+            r.get("s1_comparar_productos", ""), r.get("s1_conveniencia_precios", ""),
+            r.get("s1_retiro_tienda", ""), r.get("s1_proceso_pago", ""),
+            r.get("s1_obs", ""),
+            r.get("s3_info_estado_pedido", ""), r.get("s3_gestion_sustituciones", ""),
+            r.get("s3_obs", ""),
+            r.get("s4_ubicacion_pickup", ""), r.get("s4_tiempo_espera", ""),
+            r.get("s4_atencion_personal", ""), r.get("s4_estado_pedido", ""),
+            r.get("s4_obs", ""),
+            r.get("s5_info_devolucion", ""), r.get("s5_opciones_devolucion", ""),
+            r.get("s5_proceso_devolucion", ""), r.get("s5_atencion_colaborador", ""),
+            r.get("s5_obs", ""),
+        ])
+
     stream = io.BytesIO()
     wb.save(stream)
     stream.seek(0)

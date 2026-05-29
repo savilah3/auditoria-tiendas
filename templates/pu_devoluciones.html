@@ -198,27 +198,31 @@
             }
         }
 
+        // 1 = Sin Fricción 😊 | 2 = Con Fricción 😐 | 3 = No Logrado ☹️
         function createRadioGroup(name, question) {
             return `
                 <div class="mb-5 pb-4 border-b border-gray-100 last:border-0 last:pb-0">
                     <p class="text-sm font-semibold text-gray-800 mb-3 flex gap-2"><span class="text-walmart-darkblue">•</span> ${question}</p>
                     <div class="grid grid-cols-3 gap-2">
                         <label class="cursor-pointer relative h-full">
-                            <input type="radio" name="${name}" value="sin" class="peer sr-only">
+                            <input type="radio" name="${name}" value="1" class="peer sr-only">
                             <div class="p-2 border border-gray-300 rounded-lg h-full flex flex-col items-center justify-center text-center peer-checked:bg-green-50 peer-checked:border-green-500 transition-colors">
                                 <span class="text-3xl">😊</span>
+                                <span class="text-xs text-green-700 font-semibold mt-1">Sin Fricción</span>
                             </div>
                         </label>
                         <label class="cursor-pointer relative h-full">
-                            <input type="radio" name="${name}" value="con" class="peer sr-only">
+                            <input type="radio" name="${name}" value="2" class="peer sr-only">
                             <div class="p-2 border border-gray-300 rounded-lg h-full flex flex-col items-center justify-center text-center peer-checked:bg-yellow-50 peer-checked:border-yellow-500 transition-colors">
                                 <span class="text-3xl">😐</span>
+                                <span class="text-xs text-yellow-700 font-semibold mt-1">Con Fricción</span>
                             </div>
                         </label>
                         <label class="cursor-pointer relative h-full">
-                            <input type="radio" name="${name}" value="no" class="peer sr-only">
+                            <input type="radio" name="${name}" value="3" class="peer sr-only">
                             <div class="p-2 border border-gray-300 rounded-lg h-full flex flex-col items-center justify-center text-center peer-checked:bg-red-50 peer-checked:border-red-500 transition-colors">
                                 <span class="text-3xl">☹️</span>
+                                <span class="text-xs text-red-700 font-semibold mt-1">No Logrado</span>
                             </div>
                         </label>
                     </div>
