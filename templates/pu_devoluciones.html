@@ -116,6 +116,14 @@
             {
                 title: "Compra en Lider.cl",
                 desc: "Agregando los productos al carro.<br><br><div class=\"bg-blue-50 border border-blue-200 rounded-lg p-3 my-2\"><p class=\"text-sm font-bold text-walmart-darkblue uppercase mb-1\">🛒 Tu lista de compras:</p><p class=\"text-base font-bold text-gray-800\">• Leche<br>• Carne molida<br>• Yogurt<br>• Aceite</p><p class=\"text-xs text-blue-800 mt-2 font-medium italic\">💡 Puedes escoger la marca y formato que prefieras.</p></div>",
+                fields: [
+                    "s1_busqueda",
+                    "s1_info_producto",
+                    "s1_comparar_productos",
+                    "s1_conveniencia_precios",
+                    "s1_retiro_tienda",
+                    "s1_proceso_pago"
+                ],
                 questions: [
                     "Búsqueda de los productos en la web",
                     "Claridad y disponibilidad de información del producto en la web",
@@ -123,40 +131,49 @@
                     "Claridad Conveniencia de Precios",
                     "Selección de la opción 'Retiro en Tienda' y elección del local",
                     "Facilidad del proceso de pago"
-                ]
+                ],
+                obsField: "s1_obs"
             },
             {
                 title: "Ahora a esperar que tu pedido esté listo",
                 desc: "Esperando confirmación",
-                questions: []
+                fields: [],
+                questions: [],
+                obsField: null
             },
             {
                 title: "Espera",
                 desc: "Evaluando la información recibida antes de ir al local",
+                fields: ["s3_info_estado_pedido", "s3_gestion_sustituciones"],
                 questions: [
                     "Claridad de la información recibida sobre el estado del pedido",
                     "Gestión y comunicación de sustituciones de productos (si aplica)"
-                ]
+                ],
+                obsField: "s3_obs"
             },
             {
                 title: "Pick Up",
                 desc: "Retirando en el local",
+                fields: ["s4_ubicacion_pickup", "s4_tiempo_espera", "s4_atencion_personal", "s4_estado_pedido"],
                 questions: [
                     "Claridad de la ubicación zona Pick Up",
                     "Tiempos de espera para recibir el pedido (promesa 5 minutos)",
                     "Atención y disposición resolutiva del personal",
                     "Recepción y estado del pedido"
-                ]
+                ],
+                obsField: "s4_obs"
             },
             {
                 title: "Devolución",
                 desc: "Devolviendo la leche",
+                fields: ["s5_info_devolucion", "s5_opciones_devolucion", "s5_proceso_devolucion", "s5_atencion_colaborador"],
                 questions: [
                     "Accesibilidad y claridad de la información para realizar la devolución",
                     "Disponibilidad de opciones para el cambio o devolución del producto",
                     "Proceso de devolución de dinero",
                     "Amabilidad y disposición en la atención del colaborador y/o ejecutivo contact center"
-                ]
+                ],
+                obsField: "s5_obs"
             }
         ];
 
@@ -216,13 +233,13 @@
 
             STEPS_DATA.forEach((step, index) => {
                 const stepNum = index + 1;
+                // Usa el field name descriptivo, no s{N}_q{i}
                 let questionsHtml = step.questions.map((q, qIndex) =>
-                    createRadioGroup(`s${stepNum}_q${qIndex}`, q)
+                    createRadioGroup(step.fields[qIndex], q)
                 ).join('');
 
                 let stepHtml = '';
                 if (step.title.includes("Ahora a esperar que tu pedido esté listo")) {
-                    // Paso de transición — sin preguntas ni textarea
                     stepHtml = `
                         <div id="step-${stepNum}" class="step-container hidden fade-in bg-walmart-darkblue rounded-xl shadow-lg overflow-hidden border-2 border-blue-900 text-white">
                             <div class="p-8 text-center">
@@ -235,7 +252,7 @@
                         </div>
                     `;
                 } else {
-                    // Paso con preguntas + observaciones (name="s{stepNum}_obs")
+                    const obsName = step.obsField || `s${stepNum}_obs`;
                     stepHtml = `
                         <div id="step-${stepNum}" class="step-container hidden fade-in bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
                             <div class="bg-gray-50 border-b border-gray-200 p-4">
@@ -250,7 +267,7 @@
                                 ${questionsHtml}
                                 <div class="mt-4 pt-4 border-t-2 border-gray-100">
                                     <label class="block text-sm font-bold text-gray-800 mb-1">Observaciones</label>
-                                    <textarea name="s${stepNum}_obs" rows="2"
+                                    <textarea name="${obsName}" rows="2"
                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-walmart-darkblue focus:border-walmart-darkblue outline-none text-sm"></textarea>
                                 </div>
                             </div>

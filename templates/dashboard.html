@@ -29,31 +29,31 @@
                 fecha: "{{ row.fecha }}",
                 nombre: "{{ row.nombre }}",
                 s1: [
-                    { label: "B\u00fasqueda de productos en la web", val: "{{ row.s1_q0 or '' }}" },
-                    { label: "Claridad y disponibilidad de informaci\u00f3n", val: "{{ row.s1_q1 or '' }}" },
-                    { label: "Facilidad para comparar productos", val: "{{ row.s1_q2 or '' }}" },
-                    { label: "Claridad Conveniencia de Precios", val: "{{ row.s1_q3 or '' }}" },
-                    { label: "Selecci\u00f3n opci\u00f3n Retiro en Tienda", val: "{{ row.s1_q4 or '' }}" },
-                    { label: "Facilidad del proceso de pago", val: "{{ row.s1_q5 or '' }}" },
+                    { label: "B\u00fasqueda de productos en la web",              val: "{{ row.s1_busqueda or '' }}" },
+                    { label: "Claridad y disponibilidad de informaci\u00f3n",     val: "{{ row.s1_info_producto or '' }}" },
+                    { label: "Facilidad para comparar productos",             val: "{{ row.s1_comparar_productos or '' }}" },
+                    { label: "Claridad Conveniencia de Precios",              val: "{{ row.s1_conveniencia_precios or '' }}" },
+                    { label: "Selecci\u00f3n opci\u00f3n Retiro en Tienda",           val: "{{ row.s1_retiro_tienda or '' }}" },
+                    { label: "Facilidad del proceso de pago",                 val: "{{ row.s1_proceso_pago or '' }}" },
                 ],
                 s1_obs: "{{ row.s1_obs|default('',true)|replace('"','\\"')|replace('\n',' ') }}",
                 s3: [
-                    { label: "Claridad de la informaci\u00f3n sobre el estado del pedido", val: "{{ row.s3_q0 or '' }}" },
-                    { label: "Gesti\u00f3n y comunicaci\u00f3n de sustituciones", val: "{{ row.s3_q1 or '' }}" },
+                    { label: "Claridad informaci\u00f3n sobre el estado del pedido", val: "{{ row.s3_info_estado_pedido or '' }}" },
+                    { label: "Gesti\u00f3n y comunicaci\u00f3n de sustituciones",          val: "{{ row.s3_gestion_sustituciones or '' }}" },
                 ],
                 s3_obs: "{{ row.s3_obs|default('',true)|replace('"','\\"')|replace('\n',' ') }}",
                 s4: [
-                    { label: "Claridad de la ubicaci\u00f3n zona Pick Up", val: "{{ row.s4_q0 or '' }}" },
-                    { label: "Tiempos de espera (promesa 5 min)", val: "{{ row.s4_q1 or '' }}" },
-                    { label: "Atenci\u00f3n y disposici\u00f3n resolutiva del personal", val: "{{ row.s4_q2 or '' }}" },
-                    { label: "Recepci\u00f3n y estado del pedido", val: "{{ row.s4_q3 or '' }}" },
+                    { label: "Claridad de la ubicaci\u00f3n zona Pick Up",            val: "{{ row.s4_ubicacion_pickup or '' }}" },
+                    { label: "Tiempos de espera (promesa 5 min)",                val: "{{ row.s4_tiempo_espera or '' }}" },
+                    { label: "Atenci\u00f3n y disposici\u00f3n resolutiva del personal",    val: "{{ row.s4_atencion_personal or '' }}" },
+                    { label: "Recepci\u00f3n y estado del pedido",                    val: "{{ row.s4_estado_pedido or '' }}" },
                 ],
                 s4_obs: "{{ row.s4_obs|default('',true)|replace('"','\\"')|replace('\n',' ') }}",
                 s5: [
-                    { label: "Accesibilidad y claridad para la devoluci\u00f3n", val: "{{ row.s5_q0 or '' }}" },
-              { label: "Disponibilidad de opciones de cambio/devoluci\u00f3n", val: "{{ row.s5_q1 or '' }}" },
-                    { label: "Proceso de devoluci\u00f3n de dinero", val: "{{ row.s5_q2 or '' }}" },
-                    { label: "Amabilidad y disposici\u00f3n en la atenci\u00f3n", val: "{{ row.s5_q3 or '' }}" },
+                    { label: "Accesibilidad y claridad para la devoluci\u00f3n",      val: "{{ row.s5_info_devolucion or '' }}" },
+                    { label: "Disponibilidad de opciones de cambio/devoluci\u00f3n",  val: "{{ row.s5_opciones_devolucion or '' }}" },
+                    { label: "Proceso de devoluci\u00f3n de dinero",                  val: "{{ row.s5_proceso_devolucion or '' }}" },
+                    { label: "Amabilidad y disposici\u00f3n en la atenci\u00f3n",          val: "{{ row.s5_atencion_colaborador or '' }}" },
                 ],
                 s5_obs: "{{ row.s5_obs|default('',true)|replace('"','\\"')|replace('\n',' ') }}",
             },
@@ -254,10 +254,10 @@
                     </thead>
                     <tbody class="divide-y divide-gray-200">
                         {% for row in pu_devoluciones_rows %}
-                        {% set s1_ok = [row.s1_q0, row.s1_q1, row.s1_q2, row.s1_q3, row.s1_q4, row.s1_q5]|select('equalto','sin')|list|length %}
-                        {% set s3_ok = [row.s3_q0, row.s3_q1]|select('equalto','sin')|list|length %}
-                        {% set s4_ok = [row.s4_q0, row.s4_q1, row.s4_q2, row.s4_q3]|select('equalto','sin')|list|length %}
-                        {% set s5_ok = [row.s5_q0, row.s5_q1, row.s5_q2, row.s5_q3]|select('equalto','sin')|list|length %}
+                        {% set s1_ok = [row.s1_busqueda, row.s1_info_producto, row.s1_comparar_productos, row.s1_conveniencia_precios, row.s1_retiro_tienda, row.s1_proceso_pago]|select('equalto','sin')|list|length %}
+                        {% set s3_ok = [row.s3_info_estado_pedido, row.s3_gestion_sustituciones]|select('equalto','sin')|list|length %}
+                        {% set s4_ok = [row.s4_ubicacion_pickup, row.s4_tiempo_espera, row.s4_atencion_personal, row.s4_estado_pedido]|select('equalto','sin')|list|length %}
+                        {% set s5_ok = [row.s5_info_devolucion, row.s5_opciones_devolucion, row.s5_proceso_devolucion, row.s5_atencion_colaborador]|select('equalto','sin')|list|length %}
                         <tr class="hover:bg-gray-50">
                             <td class="px-3 py-3 font-mono text-xs">{{ row.id }}</td>
                             <td class="px-3 py-3 text-xs">{{ row.fecha }}</td>
@@ -273,21 +273,21 @@
                             <td class="px-3 py-3 text-center bg-yellow-50">
                                 {% if s3_ok == 2 %}<span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-bold">2/2 ✅</span>
                                 {% elif s3_ok == 1 %}<span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-bold">1/2 ⚠️</span>
-                                {% elif s3_ok == 0 and (row.s3_q0 or row.s3_q1) %}<span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-bold">0/2 ❌</span>
+                                {% elif s3_ok == 0 and (row.s3_info_estado_pedido or row.s3_gestion_sustituciones) %}<span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-bold">0/2 ❌</span>
                                 {% else %}<span class="text-gray-400 text-xs">-</span>{% endif %}
                             </td>
                             <!-- Pick Up: X/4 -->
                             <td class="px-3 py-3 text-center bg-green-50">
                                 {% if s4_ok == 4 %}<span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-bold">4/4 ✅</span>
                                 {% elif s4_ok >= 2 %}<span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-bold">{{ s4_ok }}/4 ⚠️</span>
-                                {% elif s4_ok > 0 or row.s4_q0 %}<span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-bold">{{ s4_ok }}/4 ❌</span>
+                                {% elif s4_ok > 0 or row.s4_ubicacion_pickup %}<span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-bold">{{ s4_ok }}/4 ❌</span>
                                 {% else %}<span class="text-gray-400 text-xs">-</span>{% endif %}
                             </td>
                             <!-- Devolución: X/4 -->
                             <td class="px-3 py-3 text-center bg-orange-50">
                                 {% if s5_ok == 4 %}<span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-bold">4/4 ✅</span>
                                 {% elif s5_ok >= 2 %}<span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-bold">{{ s5_ok }}/4 ⚠️</span>
-                                {% elif s5_ok > 0 or row.s5_q0 %}<span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-bold">{{ s5_ok }}/4 ❌</span>
+                                {% elif s5_ok > 0 or row.s5_info_devolucion %}<span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-bold">{{ s5_ok }}/4 ❌</span>
                                 {% else %}<span class="text-gray-400 text-xs">-</span>{% endif %}
                             </td>
                             <td class="px-3 py-3 text-center">

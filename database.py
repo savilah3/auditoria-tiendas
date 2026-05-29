@@ -139,28 +139,28 @@ CREATE TABLE IF NOT EXISTS pu_devoluciones (
     fecha TEXT NOT NULL,
     nombre TEXT,
     -- Paso 1: Compra en Lider.cl
-    s1_q0 TEXT, -- Búsqueda de productos en la web
-    s1_q1 TEXT, -- Claridad y disponibilidad de información del producto
-    s1_q2 TEXT, -- Facilidad para comparar productos
-    s1_q3 TEXT, -- Claridad Conveniencia de Precios
-    s1_q4 TEXT, -- Selección opción Retiro en Tienda
-    s1_q5 TEXT, -- Facilidad del proceso de pago
+    s1_busqueda TEXT,
+    s1_info_producto TEXT,
+    s1_comparar_productos TEXT,
+    s1_conveniencia_precios TEXT,
+    s1_retiro_tienda TEXT,
+    s1_proceso_pago TEXT,
     s1_obs TEXT,
     -- Paso 3: Espera (confirmación pedido)
-    s3_q0 TEXT, -- Claridad de la información sobre el estado del pedido
-    s3_q1 TEXT, -- Gestión y comunicación de sustituciones
+    s3_info_estado_pedido TEXT,
+    s3_gestion_sustituciones TEXT,
     s3_obs TEXT,
     -- Paso 4: Pick Up
-    s4_q0 TEXT, -- Claridad de la ubicación zona Pick Up
-    s4_q1 TEXT, -- Tiempos de espera (promesa 5 minutos)
-    s4_q2 TEXT, -- Atención y disposición resolutiva del personal
-    s4_q3 TEXT, -- Recepción y estado del pedido
+    s4_ubicacion_pickup TEXT,
+    s4_tiempo_espera TEXT,
+    s4_atencion_personal TEXT,
+    s4_estado_pedido TEXT,
     s4_obs TEXT,
     -- Paso 5: Devolución
-    s5_q0 TEXT, -- Accesibilidad y claridad de la información para la devolución
-    s5_q1 TEXT, -- Disponibilidad de opciones para cambio o devolución
-    s5_q2 TEXT, -- Proceso de devolución de dinero
-    s5_q3 TEXT, -- Amabilidad y disposición en la atención
+    s5_info_devolucion TEXT,
+    s5_opciones_devolucion TEXT,
+    s5_proceso_devolucion TEXT,
+    s5_atencion_colaborador TEXT,
     s5_obs TEXT
 );
 """
@@ -211,8 +211,17 @@ def init_db() -> None:
         conn.execute(CREATE_TABLE_ATENCION)
         conn.execute(CREATE_TABLE_ENTREVISTAS_ATENCION)
         conn.execute(CREATE_TABLE_PUNTO_COMPRA)
-        conn.execute(CREATE_TABLE_PU_DEVOLUCIONES)
         conn.execute(CREATE_TABLE_VISITAS)
+
+        # Migración pu_devoluciones: recrear si tiene esquema viejo (columnas s1_q0)
+        old_pu = conn.execute("""
+            SELECT column_name FROM information_schema.columns
+            WHERE table_name = 'pu_devoluciones' AND column_name = 's1_q0'
+        """).fetchone()
+        if old_pu:
+            print("[MIGRATION] Recreando tabla pu_devoluciones con nombres descriptivos...")
+            conn.execute("DROP TABLE IF EXISTS pu_devoluciones")
+        conn.execute(CREATE_TABLE_PU_DEVOLUCIONES)
         conn.execute(CREATE_TABLE_ENTREVISTAS_VISITAS)
 
         # Migracion: recrear tabla atencion si tiene esquema viejo (sin columna q4a)
@@ -424,16 +433,21 @@ def insertar_pu_devolucion(data: dict) -> int:
     sql = """
     INSERT INTO pu_devoluciones (
         fecha, nombre,
-        s1_q0, s1_q1, s1_q2, s1_q3, s1_q4, s1_q5, s1_obs,
-        s3_q0, s3_q1, s3_obs,
-        s4_q0, s4_q1, s4_q2, s4_q3, s4_obs,
-        s5_q0, s5_q1, s5_q2, s5_q3, s5_obs
+        s1_busqueda, s1_info_producto, s1_comparar_productos,
+        s1_conveniencia_precios, s1_retiro_tienda, s1_proceso_pago, s1_obs,
+        s3_info_estado_pedido, s3_gestion_sustituciones, s3_obs,
+        s4_ubicacion_pickup, s4_tiempo_espera, s4_atencion_personal, s4_estado_pedido, s4_obs,
+        s5_info_devolucion, s5_opciones_devolucion, s5_proceso_devolucion,
+        s5_atencion_colaborador, s5_obs
     ) VALUES (
         %(fecha)s, %(nombre)s,
-        %(s1_q0)s, %(s1_q1)s, %(s1_q2)s, %(s1_q3)s, %(s1_q4)s, %(s1_q5)s, %(s1_obs)s,
-        %(s3_q0)s, %(s3_q1)s, %(s3_obs)s,
-        %(s4_q0)s, %(s4_q1)s, %(s4_q2)s, %(s4_q3)s, %(s4_obs)s,
-        %(s5_q0)s, %(s5_q1)s, %(s5_q2)s, %(s5_q3)s, %(s5_obs)s
+        %(s1_busqueda)s, %(s1_info_producto)s, %(s1_comparar_productos)s,
+        %(s1_conveniencia_precios)s, %(s1_retiro_tienda)s, %(s1_proceso_pago)s, %(s1_obs)s,
+        %(s3_info_estado_pedido)s, %(s3_gestion_sustituciones)s, %(s3_obs)s,
+        %(s4_ubicacion_pickup)s, %(s4_tiempo_espera)s, %(s4_atencion_personal)s,
+        %(s4_estado_pedido)s, %(s4_obs)s,
+        %(s5_info_devolucion)s, %(s5_opciones_devolucion)s, %(s5_proceso_devolucion)s,
+        %(s5_atencion_colaborador)s, %(s5_obs)s
     )
     RETURNING id
     """
@@ -441,10 +455,13 @@ def insertar_pu_devolucion(data: dict) -> int:
     defaults = {
         k: "" for k in [
             "nombre",
-            "s1_q0", "s1_q1", "s1_q2", "s1_q3", "s1_q4", "s1_q5", "s1_obs",
-            "s3_q0", "s3_q1", "s3_obs",
-            "s4_q0", "s4_q1", "s4_q2", "s4_q3", "s4_obs",
-            "s5_q0", "s5_q1", "s5_q2", "s5_q3", "s5_obs",
+            "s1_busqueda", "s1_info_producto", "s1_comparar_productos",
+            "s1_conveniencia_precios", "s1_retiro_tienda", "s1_proceso_pago", "s1_obs",
+            "s3_info_estado_pedido", "s3_gestion_sustituciones", "s3_obs",
+            "s4_ubicacion_pickup", "s4_tiempo_espera", "s4_atencion_personal",
+            "s4_estado_pedido", "s4_obs",
+            "s5_info_devolucion", "s5_opciones_devolucion", "s5_proceso_devolucion",
+            "s5_atencion_colaborador", "s5_obs",
         ]
     }
     for key in defaults:
