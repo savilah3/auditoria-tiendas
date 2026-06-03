@@ -195,11 +195,12 @@ CREATE TABLE IF NOT EXISTS punto_compra (
 
 
 def get_conn():
-    return psycopg.connect(
-        DATABASE_URL,
-        row_factory=psycopg.rows.dict_row,
-        sslmode="require",
-    )
+    # sslmode va dentro del connstring para evitar conflictos con el pooler
+    url = DATABASE_URL
+    if "sslmode" not in url:
+        sep = "&" if "?" in url else "?"
+        url = f"{url}{sep}sslmode=require"
+    return psycopg.connect(url, row_factory=psycopg.rows.dict_row)
 
 
 def init_db() -> None:
