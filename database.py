@@ -5,6 +5,8 @@ from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 from typing import List, Dict, Any
 
+from pu_forms import CHANNELS
+
 TZ_CHILE = ZoneInfo("America/Santiago")
 
 
@@ -132,39 +134,7 @@ CREATE TABLE IF NOT EXISTS entrevistas_visitas (
 
 
 
-# Tabla para Pick Up y Devoluciones (SOD)
-CREATE_TABLE_PU_DEVOLUCIONES = """
-CREATE TABLE IF NOT EXISTS pu_devoluciones (
-    id SERIAL PRIMARY KEY,
-    fecha TEXT NOT NULL,
-    nombre TEXT,
-    -- Paso 1: Compra en Lider.cl
-    s1_busqueda TEXT,
-    s1_info_producto TEXT,
-    s1_comparar_productos TEXT,
-    s1_conveniencia_precios TEXT,
-    s1_retiro_tienda TEXT,
-    s1_proceso_pago TEXT,
-    s1_obs TEXT,
-    -- Paso 3: Espera (confirmación pedido)
-    s3_info_estado_pedido TEXT,
-    s3_gestion_sustituciones TEXT,
-    s3_obs TEXT,
-    -- Paso 4: Pick Up
-    s4_ubicacion_pickup TEXT,
-    s4_tiempo_espera TEXT,
-    s4_atencion_personal TEXT,
-    s4_estado_pedido TEXT,
-    s4_obs TEXT,
-    -- Paso 5: Devolución
-    s5_info_devolucion TEXT,
-    s5_opciones_devolucion TEXT,
-    s5_proceso_devolucion TEXT,
-    s5_atencion_colaborador TEXT,
-    s5_obs TEXT
-);
-"""
-
+# Tabla para Punto de Compra
 CREATE_TABLE_PUNTO_COMPRA = """
 CREATE TABLE IF NOT EXISTS punto_compra (
     id SERIAL PRIMARY KEY,
@@ -203,6 +173,29 @@ def get_conn():
     return psycopg.connect(url, row_factory=psycopg.rows.dict_row)
 
 
+def _init_pu_tables(conn) -> None:
+    """Crea/actualiza las tablas Pick Up y Devoluciones de los 3 canales.
+
+    Genera el DDL desde pu_forms.CHANNELS (single source of truth) y agrega
+    columnas faltantes con ALTER TABLE ADD COLUMN (no destruye datos).
+    """
+    for ch in CHANNELS.values():
+        conn.execute(ch.create_table_sql())
+        # Agregar columnas que falten (forward-compatible, sin perder datos)
+        existentes = {
+            r["column_name"]
+            for r in conn.execute(
+                "SELECT column_name FROM information_schema.columns "
+                "WHERE table_name = %s",
+                (ch.table,),
+            ).fetchall()
+        }
+        for col in ch.columns():
+            if col not in existentes:
+                print(f"[MIGRATION] {ch.table}: agregando columna {col}")
+                conn.execute(f"ALTER TABLE {ch.table} ADD COLUMN {col} TEXT")
+
+
 def init_db() -> None:
     """Inicializa las tablas y ejecuta migraciones necesarias."""
     with get_conn() as conn:
@@ -214,15 +207,8 @@ def init_db() -> None:
         conn.execute(CREATE_TABLE_PUNTO_COMPRA)
         conn.execute(CREATE_TABLE_VISITAS)
 
-        # Migración pu_devoluciones: recrear si tiene esquema viejo (columnas s1_q0)
-        old_pu = conn.execute("""
-            SELECT column_name FROM information_schema.columns
-            WHERE table_name = 'pu_devoluciones' AND column_name = 's1_q0'
-        """).fetchone()
-        if old_pu:
-            print("[MIGRATION] Recreando tabla pu_devoluciones con nombres descriptivos...")
-            conn.execute("DROP TABLE IF EXISTS pu_devoluciones")
-        conn.execute(CREATE_TABLE_PU_DEVOLUCIONES)
+        # Tablas Pick Up y Devoluciones (SOD / Marketplace / CATEX) - config-driven
+        _init_pu_tables(conn)
         conn.execute(CREATE_TABLE_ENTREVISTAS_VISITAS)
 
         # Migracion: recrear tabla atencion si tiene esquema viejo (sin columna q4a)
@@ -415,85 +401,60 @@ def obtener_stats() -> dict:
             "SELECT COUNT(*) as total FROM visitas"
         ).fetchone()["total"]
 
-        total_pu_devoluciones = conn.execute(
-            "SELECT COUNT(*) as total FROM pu_devoluciones"
-        ).fetchone()["total"]
+        pu_totales = {}
+        total_pu = 0
+        for key, ch in CHANNELS.items():
+            n = conn.execute(
+                f"SELECT COUNT(*) as total FROM {ch.table}"
+            ).fetchone()["total"]
+            pu_totales[key] = n
+            total_pu += n
 
     return {
         "total_punto_compra": total_punto_compra,
         "total_visitas": total_visitas,
-        "total_pu_devoluciones": total_pu_devoluciones,
+        "total_pu_devoluciones": total_pu,
+        "total_pu_por_canal": pu_totales,
     }
 
 
-# ============ Funciones para Pick Up y Devoluciones ============
+# ============ Funciones genericas Pick Up y Devoluciones (config-driven) ============
 
-def insertar_pu_devolucion(data: dict) -> int:
-    """Inserta un registro de Pick Up / Devolución y retorna el ID."""
-    data["fecha"] = now_chile()
-    sql = """
-    INSERT INTO pu_devoluciones (
-        fecha, nombre,
-        s1_busqueda, s1_info_producto, s1_comparar_productos,
-        s1_conveniencia_precios, s1_retiro_tienda, s1_proceso_pago, s1_obs,
-        s3_info_estado_pedido, s3_gestion_sustituciones, s3_obs,
-        s4_ubicacion_pickup, s4_tiempo_espera, s4_atencion_personal, s4_estado_pedido, s4_obs,
-        s5_info_devolucion, s5_opciones_devolucion, s5_proceso_devolucion,
-        s5_atencion_colaborador, s5_obs
-    ) VALUES (
-        %(fecha)s, %(nombre)s,
-        %(s1_busqueda)s, %(s1_info_producto)s, %(s1_comparar_productos)s,
-        %(s1_conveniencia_precios)s, %(s1_retiro_tienda)s, %(s1_proceso_pago)s, %(s1_obs)s,
-        %(s3_info_estado_pedido)s, %(s3_gestion_sustituciones)s, %(s3_obs)s,
-        %(s4_ubicacion_pickup)s, %(s4_tiempo_espera)s, %(s4_atencion_personal)s,
-        %(s4_estado_pedido)s, %(s4_obs)s,
-        %(s5_info_devolucion)s, %(s5_opciones_devolucion)s, %(s5_proceso_devolucion)s,
-        %(s5_atencion_colaborador)s, %(s5_obs)s
-    )
-    RETURNING id
-    """
-    # Defaults para evitar KeyError si el paso fue saltado
-    defaults = {
-        k: "" for k in [
-            "nombre",
-            "s1_busqueda", "s1_info_producto", "s1_comparar_productos",
-            "s1_conveniencia_precios", "s1_retiro_tienda", "s1_proceso_pago", "s1_obs",
-            "s3_info_estado_pedido", "s3_gestion_sustituciones", "s3_obs",
-            "s4_ubicacion_pickup", "s4_tiempo_espera", "s4_atencion_personal",
-            "s4_estado_pedido", "s4_obs",
-            "s5_info_devolucion", "s5_opciones_devolucion", "s5_proceso_devolucion",
-            "s5_atencion_colaborador", "s5_obs",
-        ]
-    }
-    for key in defaults:
-        data.setdefault(key, defaults[key])
+def insertar_pu(channel_key: str, data: dict) -> int:
+    """Inserta un registro PU del canal dado. Rellena con '' los campos faltantes."""
+    ch = CHANNELS[channel_key]
+    payload = {col: data.get(col, "") for col in ch.columns()}
+    payload["fecha"] = now_chile()
     with get_conn() as conn:
-        result = conn.execute(sql, data).fetchone()
+        result = conn.execute(ch.insert_sql(), payload).fetchone()
         conn.commit()
         return result["id"]
 
 
-def obtener_todas_pu_devoluciones() -> List[Dict[str, Any]]:
-    """Obtiene todos los registros de Pick Up / Devoluciones."""
+def obtener_todas_pu(channel_key: str) -> List[Dict[str, Any]]:
+    """Obtiene todos los registros PU del canal, mas reciente primero."""
+    ch = CHANNELS[channel_key]
     with get_conn() as conn:
         return conn.execute(
-            "SELECT * FROM pu_devoluciones ORDER BY fecha DESC"
+            f"SELECT * FROM {ch.table} ORDER BY fecha DESC"
         ).fetchall()
 
 
-def eliminar_pu_devolucion(row_id: int) -> bool:
-    """Elimina un registro de Pick Up / Devolución."""
+def eliminar_pu(channel_key: str, row_id: int) -> bool:
+    """Elimina un registro PU del canal."""
+    ch = CHANNELS[channel_key]
     with get_conn() as conn:
-        cur = conn.execute("DELETE FROM pu_devoluciones WHERE id = %s", (row_id,))
+        cur = conn.execute(f"DELETE FROM {ch.table} WHERE id = %s", (row_id,))
         deleted = cur.rowcount > 0
         conn.commit()
     return deleted
 
 
-def limpiar_pu_devoluciones() -> int:
-    """Elimina TODOS los registros de Pick Up / Devoluciones."""
+def limpiar_pu(channel_key: str) -> int:
+    """Elimina TODOS los registros PU del canal."""
+    ch = CHANNELS[channel_key]
     with get_conn() as conn:
-        cur = conn.execute("DELETE FROM pu_devoluciones")
+        cur = conn.execute(f"DELETE FROM {ch.table}")
         deleted = cur.rowcount
         conn.commit()
     return deleted

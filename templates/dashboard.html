@@ -140,10 +140,12 @@
                    class="px-6 py-3 font-semibold border-b-2 transition {% if tab == 'visitas' %}text-walmart-blue border-walmart-blue bg-blue-50{% else %}text-gray-600 border-transparent hover:text-walmart-blue hover:bg-gray-50{% endif %}">
                     🕵️ Visitas con Sentido
                 </a>
-                <a href="/dashboard?tab=pu-devoluciones"
-                   class="px-6 py-3 font-semibold border-b-2 transition {% if tab == 'pu-devoluciones' %}text-walmart-blue border-walmart-blue bg-blue-50{% else %}text-gray-600 border-transparent hover:text-walmart-blue hover:bg-gray-50{% endif %}">
-                    🛒 Pick Up y Dev.
+                {% for ch in pu_data %}
+                <a href="/dashboard?tab={{ ch.tab }}"
+                   class="px-6 py-3 font-semibold border-b-2 transition {% if tab == ch.tab %}text-walmart-blue border-walmart-blue bg-blue-50{% else %}text-gray-600 border-transparent hover:text-walmart-blue hover:bg-gray-50{% endif %}">
+                     PU {{ ch.key|upper }}
                 </a>
+                {% endfor %}
             </div>
         </div>
 
@@ -225,22 +227,25 @@
         </div>
         {% endif %}
 
-        <!-- Tab: Pick Up y Devoluciones -->
-        {% if tab == 'pu-devoluciones' %}
-        {%- macro pu_emoji(v) -%}
-          {%- if v == '1' %}<span class="text-xl" title="Sin Fricción">😊</span>
-          {%- elif v == '2' %}<span class="text-xl" title="Con Fricción">😐</span>
-          {%- elif v == '3' %}<span class="text-xl" title="No Logrado">☹️</span>
-          {%- else %}<span class="text-gray-300 text-sm">-</span>{%- endif %}
-        {%- endmacro %}
+        <!-- Tab: Pick Up y Devoluciones (SOD / Marketplace / CATEX) -->
+        {% macro pu_badge(v) %}
+          {% set sv = (v or '')|string %}
+          {% if sv in ['1','Sin problema'] %}<span class="px-2 py-0.5 rounded-full bg-green-100 text-green-800 text-xs font-semibold" title="Sin problema">Sin problema</span>
+          {% elif sv in ['2','Con dificultad'] %}<span class="px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 text-xs font-semibold" title="Con dificultad">Con dificultad</span>
+          {% elif sv in ['3','No lo logro','No lo logro'] %}<span class="px-2 py-0.5 rounded-full bg-red-100 text-red-800 text-xs font-semibold" title="No lo logro">No lo logro</span>
+          {% elif sv %}<span class="text-gray-700 text-xs">{{ sv }}</span>
+          {% else %}<span class="text-gray-300 text-sm">-</span>{% endif %}
+        {% endmacro %}
+        {% for ch in pu_data %}
+        {% if tab == ch.tab %}
         <div class="bg-white border-b px-4 py-2 flex items-center gap-6 text-xs text-gray-500">
-            <span class="font-medium">{{ pu_devoluciones_rows|length }} registros</span>
-            <span class="flex items-center gap-1">😊 Sin Fricción = 1</span>
-            <span class="flex items-center gap-1">😐 Con Fricción = 2</span>
-            <span class="flex items-center gap-1">☹️ No Logrado = 3</span>
+            <span class="font-medium">{{ ch.label }} &mdash; {{ ch.rows|length }} registros</span>
+            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-green-400 inline-block"></span> Sin problema</span>
+            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-yellow-400 inline-block"></span> Con dificultad</span>
+            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-red-400 inline-block"></span> No lo logro</span>
             <div class="ml-auto">
-                <form method="POST" action="/dashboard/limpiar-pu-devoluciones" onsubmit="return confirm('⚠️ ¿Seguro? Eliminará TODOS los registros de Pick Up y Devoluciones.')">
-                    <button class="px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 font-semibold rounded-full border border-red-300">🗑️ Limpiar tabla</button>
+                <form method="POST" action="/dashboard/limpiar-pu/{{ ch.key }}" onsubmit="return confirm('Seguro? Eliminara TODOS los registros de este canal. Esta accion no se puede deshacer.')">
+                    <button class="px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 font-semibold rounded-full border border-red-300">Limpiar tabla</button>
                 </form>
             </div>
         </div>
@@ -248,84 +253,29 @@
           <div class="overflow-x-auto">
             <table class="text-xs whitespace-nowrap w-full">
               <thead class="bg-gray-50 border-b">
-                <tr>
+                <tr class="text-gray-600">
                   <th class="px-2 py-2 text-left sticky left-0 bg-gray-50 z-10">ID</th>
                   <th class="px-2 py-2 text-left">Fecha</th>
-                  <th class="px-2 py-2 text-left">Nombre</th>
-                  <!-- Compra Lider.cl -->
-                  <th class="px-2 py-2 text-center bg-blue-50" colspan="7">🖥️ Compra Lider.cl</th>
-                  <!-- Espera -->
-                  <th class="px-2 py-2 text-center bg-yellow-50" colspan="3">⏳ Espera</th>
-                  <!-- Pick Up -->
-                  <th class="px-2 py-2 text-center bg-green-50" colspan="5">📦 Pick Up</th>
-                  <!-- Devolución -->
-                  <th class="px-2 py-2 text-center bg-orange-50" colspan="5">↩️ Devolución</th>
+                  {% for col, header in ch.headers %}
+                  <th class="px-2 py-2 text-left" title="{{ header }}">{{ header }}</th>
+                  {% endfor %}
                   <th class="px-2 py-2 text-center">Acciones</th>
-                </tr>
-                <tr class="text-gray-600">
-                  <th class="px-2 py-1 sticky left-0 bg-gray-50"></th>
-                  <th class="px-2 py-1"></th>
-                  <th class="px-2 py-1"></th>
-                  <!-- S1 sub-headers -->
-                  <th class="px-2 py-1 bg-blue-50 text-center" title="Búsqueda de productos en la web">Búsqueda</th>
-                  <th class="px-2 py-1 bg-blue-50 text-center" title="Claridad y disponibilidad de información del producto">Info producto</th>
-                  <th class="px-2 py-1 bg-blue-50 text-center" title="Facilidad para comparar productos">Comparar</th>
-                  <th class="px-2 py-1 bg-blue-50 text-center" title="Claridad Conveniencia de Precios">Precios</th>
-                  <th class="px-2 py-1 bg-blue-50 text-center" title="Selección opción Retiro en Tienda">Retiro tienda</th>
-                  <th class="px-2 py-1 bg-blue-50 text-center" title="Facilidad del proceso de pago">Proceso pago</th>
-                  <th class="px-2 py-1 bg-blue-50 text-left" title="Observaciones Compra">Obs.</th>
-                  <!-- S3 sub-headers -->
-                  <th class="px-2 py-1 bg-yellow-50 text-center" title="Claridad de la información sobre el estado del pedido">Info estado</th>
-                  <th class="px-2 py-1 bg-yellow-50 text-center" title="Gestión y comunicación de sustituciones">Sustituciones</th>
-                  <th class="px-2 py-1 bg-yellow-50 text-left" title="Observaciones Espera">Obs.</th>
-                  <!-- S4 sub-headers -->
-                  <th class="px-2 py-1 bg-green-50 text-center" title="Claridad de la ubicación zona Pick Up">Ubicación</th>
-                  <th class="px-2 py-1 bg-green-50 text-center" title="Tiempos de espera (promesa 5 minutos)">T. espera</th>
-                  <th class="px-2 py-1 bg-green-50 text-center" title="Atención y disposición resolutiva del personal">Atención</th>
-                  <th class="px-2 py-1 bg-green-50 text-center" title="Recepción y estado del pedido">Estado pedido</th>
-                  <th class="px-2 py-1 bg-green-50 text-left" title="Observaciones Pick Up">Obs.</th>
-                  <!-- S5 sub-headers -->
-                  <th class="px-2 py-1 bg-orange-50 text-center" title="Accesibilidad y claridad de la información para la devolución">Info dev.</th>
-                  <th class="px-2 py-1 bg-orange-50 text-center" title="Disponibilidad de opciones para el cambio o devolución">Opciones</th>
-                  <th class="px-2 py-1 bg-orange-50 text-center" title="Proceso de devolución de dinero">Proceso</th>
-                  <th class="px-2 py-1 bg-orange-50 text-center" title="Amabilidad y disposición en la atención">Atención</th>
-                  <th class="px-2 py-1 bg-orange-50 text-left" title="Observaciones Devolución">Obs.</th>
-                  <th class="px-2 py-1"></th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-100">
-                {% for row in pu_devoluciones_rows %}
+                {% for row in ch.rows %}
                 <tr class="hover:bg-gray-50">
                   <td class="px-2 py-2 font-mono sticky left-0 bg-white">{{ row.id }}</td>
                   <td class="px-2 py-2 text-gray-500">{{ row.fecha }}</td>
-                  <td class="px-2 py-2 font-semibold">{{ row.nombre }}</td>
-                  <!-- S1 -->
-                  <td class="px-2 py-2 text-center bg-blue-50">{{ pu_emoji(row.s1_busqueda) }}</td>
-                  <td class="px-2 py-2 text-center bg-blue-50">{{ pu_emoji(row.s1_info_producto) }}</td>
-                  <td class="px-2 py-2 text-center bg-blue-50">{{ pu_emoji(row.s1_comparar_productos) }}</td>
-                  <td class="px-2 py-2 text-center bg-blue-50">{{ pu_emoji(row.s1_conveniencia_precios) }}</td>
-                  <td class="px-2 py-2 text-center bg-blue-50">{{ pu_emoji(row.s1_retiro_tienda) }}</td>
-                  <td class="px-2 py-2 text-center bg-blue-50">{{ pu_emoji(row.s1_proceso_pago) }}</td>
-                  <td class="px-2 py-2 bg-blue-50 max-w-[120px] truncate" title="{{ row.s1_obs or '' }}">{{ row.s1_obs or '' }}</td>
-                  <!-- S3 -->
-                  <td class="px-2 py-2 text-center bg-yellow-50">{{ pu_emoji(row.s3_info_estado_pedido) }}</td>
-                  <td class="px-2 py-2 text-center bg-yellow-50">{{ pu_emoji(row.s3_gestion_sustituciones) }}</td>
-                  <td class="px-2 py-2 bg-yellow-50 max-w-[120px] truncate" title="{{ row.s3_obs or '' }}">{{ row.s3_obs or '' }}</td>
-                  <!-- S4 -->
-                  <td class="px-2 py-2 text-center bg-green-50">{{ pu_emoji(row.s4_ubicacion_pickup) }}</td>
-                  <td class="px-2 py-2 text-center bg-green-50">{{ pu_emoji(row.s4_tiempo_espera) }}</td>
-                  <td class="px-2 py-2 text-center bg-green-50">{{ pu_emoji(row.s4_atencion_personal) }}</td>
-                  <td class="px-2 py-2 text-center bg-green-50">{{ pu_emoji(row.s4_estado_pedido) }}</td>
-                  <td class="px-2 py-2 bg-green-50 max-w-[120px] truncate" title="{{ row.s4_obs or '' }}">{{ row.s4_obs or '' }}</td>
-                  <!-- S5 -->
-                  <td class="px-2 py-2 text-center bg-orange-50">{{ pu_emoji(row.s5_info_devolucion) }}</td>
-                  <td class="px-2 py-2 text-center bg-orange-50">{{ pu_emoji(row.s5_opciones_devolucion) }}</td>
-                  <td class="px-2 py-2 text-center bg-orange-50">{{ pu_emoji(row.s5_proceso_devolucion) }}</td>
-                  <td class="px-2 py-2 text-center bg-orange-50">{{ pu_emoji(row.s5_atencion_colaborador) }}</td>
-                  <td class="px-2 py-2 bg-orange-50 max-w-[120px] truncate" title="{{ row.s5_obs or '' }}">{{ row.s5_obs or '' }}</td>
-                  <!-- Acciones -->
+                  {% for col, header in ch.headers %}
+                    {% if col == 'nombre' or col.endswith('_obs') %}
+                    <td class="px-2 py-2 max-w-[160px] truncate" title="{{ row[col] or '' }}">{{ row[col] or '' }}</td>
+                    {% else %}
+                    <td class="px-2 py-2 text-center">{{ pu_badge(row[col]) }}</td>
+                    {% endif %}
+                  {% endfor %}
                   <td class="px-2 py-2 text-center">
-                    <form method="POST" action="/dashboard/delete-pu-devolucion/{{ row.id }}" class="inline" onsubmit="return confirm('¿Eliminar?');">
+                    <form method="POST" action="/dashboard/delete-pu/{{ ch.key }}/{{ row.id }}" class="inline" onsubmit="return confirm('Eliminar este registro?');">
                       <button class="text-red-600 hover:underline">Eliminar</button>
                     </form>
                   </td>
@@ -334,11 +284,12 @@
               </tbody>
             </table>
           </div>
-          {% if not pu_devoluciones_rows %}
-          <div class="p-8 text-center text-gray-400">No hay registros de Pick Up y Devoluciones aún.</div>
+          {% if not ch.rows %}
+          <div class="p-8 text-center text-gray-400">No hay registros en este canal aun.</div>
           {% endif %}
         </div>
         {% endif %}
+        {% endfor %}
 
         <!-- Tab: Visitas con Sentido -->
         {% if tab == 'visitas' %}

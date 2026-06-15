@@ -24,11 +24,12 @@ from database import (
     eliminar_visita,
     limpiar_visitas,
     limpiar_punto_compra,
-    insertar_pu_devolucion,
-    obtener_todas_pu_devoluciones,
-    eliminar_pu_devolucion,
-    limpiar_pu_devoluciones,
+    insertar_pu,
+    obtener_todas_pu,
+    eliminar_pu,
+    limpiar_pu,
 )
+from pu_forms import CHANNELS
 
 app = FastAPI(title="En los zapatos del cliente")
 templates = Jinja2Templates(directory="templates")
@@ -132,71 +133,36 @@ def gracias_visita(request: Request):
     return templates.TemplateResponse("gracias.html", {"request": request})
 
 
-@app.get("/gracias-pu-devoluciones", response_class=HTMLResponse)
-def gracias_pu_devoluciones(request: Request):
-    return templates.TemplateResponse("gracias_pu_devoluciones.html", {"request": request})
+# --- Formularios Pick Up y Devoluciones (SOD / Marketplace / CATEX) ---
+# Rutas generadas desde pu_forms.CHANNELS (single source of truth). Cada canal
+# obtiene: GET formulario, POST submit y GET gracias.
+def _register_channel_routes(ch):
+    route = ch.route
+    template = ch.template
+    key = ch.key
+
+    async def mostrar(request: Request):
+        return templates.TemplateResponse(template, {"request": request})
+
+    async def recibir(request: Request):
+        form = await request.form()
+        data = {col: (form.get(col) or "") for col in CHANNELS[key].columns()}
+        insertar_pu(key, data)
+        return RedirectResponse(url=f"/gracias-{route}", status_code=303)
+
+    async def gracias(request: Request):
+        return templates.TemplateResponse(
+            "gracias_pu_devoluciones.html",
+            {"request": request, "channel": CHANNELS[key]},
+        )
+
+    app.add_api_route(f"/{route}", mostrar, methods=["GET"], response_class=HTMLResponse)
+    app.add_api_route(f"/submit-{route}", recibir, methods=["POST"])
+    app.add_api_route(f"/gracias-{route}", gracias, methods=["GET"], response_class=HTMLResponse)
 
 
-# --- Formulario Pick Up y Devoluciones ---
-@app.get("/pu-devoluciones", response_class=HTMLResponse)
-def mostrar_pu_devoluciones(request: Request):
-    """Formulario Pick Up y Devoluciones SOD."""
-    return templates.TemplateResponse("pu_devoluciones.html", {"request": request})
-
-
-@app.post("/submit-pu-devoluciones")
-def recibir_pu_devoluciones(
-    nombre: Annotated[str, Form()] = "",
-    # Paso 1: Compra en Lider.cl
-    s1_busqueda: Annotated[str, Form()] = "",
-    s1_info_producto: Annotated[str, Form()] = "",
-    s1_comparar_productos: Annotated[str, Form()] = "",
-    s1_conveniencia_precios: Annotated[str, Form()] = "",
-    s1_retiro_tienda: Annotated[str, Form()] = "",
-    s1_proceso_pago: Annotated[str, Form()] = "",
-    s1_obs: Annotated[str, Form()] = "",
-    # Paso 3: Espera
-    s3_info_estado_pedido: Annotated[str, Form()] = "",
-    s3_gestion_sustituciones: Annotated[str, Form()] = "",
-    s3_obs: Annotated[str, Form()] = "",
-    # Paso 4: Pick Up
-    s4_ubicacion_pickup: Annotated[str, Form()] = "",
-    s4_tiempo_espera: Annotated[str, Form()] = "",
-    s4_atencion_personal: Annotated[str, Form()] = "",
-    s4_estado_pedido: Annotated[str, Form()] = "",
-    s4_obs: Annotated[str, Form()] = "",
-    # Paso 5: Devolución
-    s5_info_devolucion: Annotated[str, Form()] = "",
-    s5_opciones_devolucion: Annotated[str, Form()] = "",
-    s5_proceso_devolucion: Annotated[str, Form()] = "",
-    s5_atencion_colaborador: Annotated[str, Form()] = "",
-    s5_obs: Annotated[str, Form()] = "",
-):
-    """Recibe y persiste el formulario Pick Up y Devoluciones."""
-    insertar_pu_devolucion({
-        "nombre": nombre,
-        "s1_busqueda": s1_busqueda,
-        "s1_info_producto": s1_info_producto,
-        "s1_comparar_productos": s1_comparar_productos,
-        "s1_conveniencia_precios": s1_conveniencia_precios,
-        "s1_retiro_tienda": s1_retiro_tienda,
-        "s1_proceso_pago": s1_proceso_pago,
-        "s1_obs": s1_obs,
-        "s3_info_estado_pedido": s3_info_estado_pedido,
-        "s3_gestion_sustituciones": s3_gestion_sustituciones,
-        "s3_obs": s3_obs,
-        "s4_ubicacion_pickup": s4_ubicacion_pickup,
-        "s4_tiempo_espera": s4_tiempo_espera,
-        "s4_atencion_personal": s4_atencion_personal,
-        "s4_estado_pedido": s4_estado_pedido,
-        "s4_obs": s4_obs,
-        "s5_info_devolucion": s5_info_devolucion,
-        "s5_opciones_devolucion": s5_opciones_devolucion,
-        "s5_proceso_devolucion": s5_proceso_devolucion,
-        "s5_atencion_colaborador": s5_atencion_colaborador,
-        "s5_obs": s5_obs,
-    })
-    return RedirectResponse(url="/gracias-pu-devoluciones", status_code=303)
+for _ch in CHANNELS.values():
+    _register_channel_routes(_ch)
 
 
 # --- Formulario Visitas con Sentido ---
@@ -318,7 +284,17 @@ def dashboard(
         entrevistas = obtener_entrevistas_visita(row["id"])
         visitas_con_entrevistas.append({**row, "entrevistas": entrevistas})
 
-    pu_devoluciones_rows = obtener_todas_pu_devoluciones()
+    pu_devoluciones_rows = obtener_todas_pu("sod")
+    pu_data = []
+    for key, ch in CHANNELS.items():
+        pu_data.append({
+            "key": ch.key,
+            "label": ch.label,
+            "tab": ch.tab,
+            "route": ch.route,
+            "headers": ch.headers(),
+            "rows": obtener_todas_pu(key),
+        })
     stats = obtener_stats()
     return templates.TemplateResponse(
         "dashboard.html",
@@ -328,6 +304,7 @@ def dashboard(
             "punto_compra_rows": punto_compra_rows,
             "visita_rows": visitas_con_entrevistas,
             "pu_devoluciones_rows": pu_devoluciones_rows,
+            "pu_data": pu_data,
             "stats": stats,
             "tab": tab,
         },
@@ -344,23 +321,33 @@ def eliminar_pc(
     return RedirectResponse(url="/dashboard?tab=punto-compra", status_code=303)
 
 
-@app.post("/dashboard/delete-pu-devolucion/{row_id}")
-def eliminar_pu_devolucion_endpoint(
+@app.post("/dashboard/delete-pu/{channel_key}/{row_id}")
+def eliminar_pu_endpoint(
+    channel_key: str,
     row_id: int,
     _: Annotated[str, Depends(verificar_credenciales)],
 ):
-    """Elimina un registro de Pick Up y Devoluciones."""
-    eliminar_pu_devolucion(row_id)
-    return RedirectResponse(url="/dashboard?tab=pu-devoluciones", status_code=303)
+    """Elimina un registro Pick Up y Devoluciones del canal dado."""
+    if channel_key not in CHANNELS:
+        raise HTTPException(status_code=404, detail="Canal no encontrado")
+    eliminar_pu(channel_key, row_id)
+    return RedirectResponse(
+        url=f"/dashboard?tab={CHANNELS[channel_key].tab}", status_code=303
+    )
 
 
-@app.post("/dashboard/limpiar-pu-devoluciones")
-def limpiar_pu_devoluciones_endpoint(
+@app.post("/dashboard/limpiar-pu/{channel_key}")
+def limpiar_pu_endpoint(
+    channel_key: str,
     _: Annotated[str, Depends(verificar_credenciales)],
 ):
-    """Limpia TODOS los registros de Pick Up y Devoluciones."""
-    limpiar_pu_devoluciones()
-    return RedirectResponse(url="/dashboard?tab=pu-devoluciones", status_code=303)
+    """Limpia TODOS los registros Pick Up y Devoluciones del canal dado."""
+    if channel_key not in CHANNELS:
+        raise HTTPException(status_code=404, detail="Canal no encontrado")
+    limpiar_pu(channel_key)
+    return RedirectResponse(
+        url=f"/dashboard?tab={CHANNELS[channel_key].tab}", status_code=303
+    )
 
 
 @app.post("/dashboard/delete-visita/{row_id}")
@@ -607,52 +594,16 @@ def exportar_excel(
             r.get("s5_observaciones", ""),
         ])
 
-    # Hoja 4: Pick Up y Devoluciones
-    ws4 = wb.create_sheet(title="Pick Up y Devoluciones")
-    headers4 = [
-        "ID", "Fecha", "Nombre",
-        # Paso 1
-        "[S1] Búsqueda productos web",
-        "[S1] Claridad info producto",
-        "[S1] Facilidad comparar productos",
-        "[S1] Conveniencia de precios",
-        "[S1] Selección retiro en tienda",
-        "[S1] Facilidad proceso de pago",
-        "[S1] Observaciones",
-        # Paso 3
-        "[S3] Claridad info estado pedido",
-        "[S3] Gestión sustituciones",
-        "[S3] Observaciones",
-        # Paso 4
-        "[S4] Ubicación zona Pick Up",
-        "[S4] Tiempo espera (promesa 5 min)",
-        "[S4] Atención y disposición personal",
-        "[S4] Recepción y estado pedido",
-        "[S4] Observaciones",
-        # Paso 5
-        "[S5] Accesibilidad info devolución",
-        "[S5] Disponibilidad opciones devolución",
-        "[S5] Proceso devolución dinero",
-        "[S5] Amabilidad y disposición atención",
-        "[S5] Observaciones",
-    ]
-    ws4.append(headers4)
-    for r in obtener_todas_pu_devoluciones():
-        ws4.append([
-            r["id"], r["fecha"], r.get("nombre", ""),
-            r.get("s1_busqueda", ""), r.get("s1_info_producto", ""),
-            r.get("s1_comparar_productos", ""), r.get("s1_conveniencia_precios", ""),
-            r.get("s1_retiro_tienda", ""), r.get("s1_proceso_pago", ""),
-            r.get("s1_obs", ""),
-            r.get("s3_info_estado_pedido", ""), r.get("s3_gestion_sustituciones", ""),
-            r.get("s3_obs", ""),
-            r.get("s4_ubicacion_pickup", ""), r.get("s4_tiempo_espera", ""),
-            r.get("s4_atencion_personal", ""), r.get("s4_estado_pedido", ""),
-            r.get("s4_obs", ""),
-            r.get("s5_info_devolucion", ""), r.get("s5_opciones_devolucion", ""),
-            r.get("s5_proceso_devolucion", ""), r.get("s5_atencion_colaborador", ""),
-            r.get("s5_obs", ""),
-        ])
+    # Hojas Pick Up y Devoluciones: una por canal, generadas desde pu_forms
+    # (mismos campos que el dashboard y la BD -> nada se queda afuera).
+    for key, ch in CHANNELS.items():
+        ws = wb.create_sheet(title=f"PU - {ch.key.upper()}"[:31])
+        ws.append(["ID", "Fecha"] + [h for _, h in ch.headers()])
+        for r in obtener_todas_pu(key):
+            ws.append(
+                [r["id"], r["fecha"]]
+                + [r.get(col, "") for col, _ in ch.headers()]
+            )
 
     stream = io.BytesIO()
     wb.save(stream)
