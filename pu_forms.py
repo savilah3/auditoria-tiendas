@@ -149,7 +149,7 @@ CHANNELS: Dict[str, Channel] = {
         template="pu_devoluciones_marketplace.html",
         steps=[
             Step(1, "Compra en Lider.cl", [
-                ("s1_busqueda", "Busqueda de los productos en la web (lavadora y neumaticos)"),
+                ("s1_busqueda", "Busqueda de los productos en la web (Plancha y neumaticos)"),
                 ("s1_info_producto", "Claridad y disponibilidad de informacion de los productos en la web"),
                 ("s1_identificacion_terceros", "Identificacion clara de que los productos eran vendidos por terceros"),
                 ("s1_plazos_retiro", "Claridad en los plazos de retiro estipulados para estos productos"),
